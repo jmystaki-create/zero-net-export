@@ -30,6 +30,7 @@ or release readiness changes. Current relevant UI cards:
 `36a26d60` - `ZNE: Fix SOC source status display in Sources app` (done; released/live validated in `v0.4.1`),
 `workboard-focused` - `ZNE: Overview console live metrics` (done; released/live validated in `v0.4.2`),
 `workboard-focused` - `ZNE: Overview Readiness clarity` (done; released/live validated in `v0.4.3`),
+`workboard-focused` - `ZNE: Battery Power source mapping` (repo validated pending release/live validation; live source-role repair done),
 `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready; next).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
@@ -48,9 +49,10 @@ status chips, current focus, and issue cards with `What is wrong` /
 `validation/0.4.3-release-validation.md` and
 `validation/zne-fr-013-overview-readiness-clarity.md`.
 
-**Current next work**: `ZNE-595` recorder attribute cleanup. Oversized
-recorder-backed entity attribute warnings remain in the `v0.4.3` post-restart
-log review.
+**Current next work**: release/live-validate repo-validated `ZNE-597` Battery
+Power source mapping/unit presentation, then continue `ZNE-595` recorder attribute
+cleanup. Oversized recorder-backed entity attribute warnings remain in the
+`v0.4.3` post-restart log review.
 
 ## Current milestone
 

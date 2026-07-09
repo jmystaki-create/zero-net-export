@@ -46,7 +46,7 @@ Primary references:
 ## Architecture / Current State
 
 Current release: `v0.4.3` (Overview Readiness clarity for `ZNE-FR-013`, installed through HACS and live/browser validated 2026-07-08).
-Next: continue ZNE-595 recorder attribute cleanup.
+Next: release/live-validate repo-validated `ZNE-597` Battery Power source mapping/unit presentation, then continue ZNE-595 recorder attribute cleanup.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -85,10 +85,22 @@ Current state:
 - `ZNE-FR-013` is released/live validated in `v0.4.3`: the Overview
   Readiness card now has dedicated formatting, current-focus context, and
   issue cards that explain what is wrong and how to resolve it.
+- `ZNE-FR-014` is repo-validated pending release/live validation: the Overview
+  Readiness card now replaces dense command-center/device queue strings with a
+  short verdict, `Do this first`, concise issue facts, and ordered resolution
+  steps.
+- `ZNE-597` is repo-validated pending release/live validation: live Battery discharge power mapping was repaired
+  from the cumulative Anker total sensor to `sensor.x1_p6k_us_s_discharge_power`;
+  repo-side normalized source-reading unit presentation passed validation and
+  is pending release.
 
 ## Known Bugs
 
 Active/high-signal items:
+- ZNE-597: repo-validated pending release/live validation; Battery Power used a cumulative Anker total sensor and
+  displayed normalized watts as kW. Live source-role repair now binds discharge
+  power to `sensor.x1_p6k_us_s_discharge_power`, with ZNE status `ready` and
+  reconciliation error `0 W`; release the repo unit-presentation fix next.
 - ZNE-596: released_live_validated in `v0.4.1`; the Sources app
   showed Battery state of charge as missing because the frontend derived
   `battery_soc_status` while the backend exposes `battery_state_of_charge_status`.
@@ -119,15 +131,18 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Start ZNE-595 recorder attribute cleanup.
+**Immediate**: Release/live-validate the pending ZNE-597 Battery Power fix and
+ZNE-FR-014 Readiness message design together, then start ZNE-595 recorder
+attribute cleanup.
 
-1. Move bulky source/action-history/diagnostic detail
+1. Validate and release the Battery Power unit-presentation and Readiness message-design fixes through HACS/live validation.
+2. Move bulky source/action-history/diagnostic detail
    out of recorder-backed attributes.
-2. Keep concise entity attributes for dashboard use.
-3. Preserve full detail through diagnostics export and app API surfaces.
-4. Validate with tests and Home Assistant log review after HACS install/restart.
-5. Decide when to scope deferred bulk priority adjustment.
-6. Continue app workflow slices for diagnostics/support, runtime visibility,
+3. Keep concise entity attributes for dashboard use.
+4. Preserve full detail through diagnostics export and app API surfaces.
+5. Validate with tests and Home Assistant log review after HACS install/restart.
+6. Decide when to scope deferred bulk priority adjustment.
+7. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
@@ -184,6 +199,8 @@ Full product completion: not yet estimable from current evidence because runtime
 - [WB-ZNE-008 Weekly status report](cards/WB-ZNE-008-weekly-status-report.md)
 - [WB-ZNE-010 Overview console live metrics](cards/WB-ZNE-010-overview-console-live-metrics.md)
 - [WB-ZNE-011 Overview Readiness clarity](cards/WB-ZNE-011-overview-readiness-clarity.md)
+- [WB-ZNE-012 Battery Power source mapping](cards/WB-ZNE-012-battery-power-source-mapping.md)
+- [WB-ZNE-013 Overview Readiness message design](cards/WB-ZNE-013-overview-readiness-message-design.md)
 
 ## OpenClaw UI Cards
 
@@ -202,4 +219,6 @@ Full product completion: not yet estimable from current evidence because runtime
 - `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - released/live validated via API/static/service checks.
 - `workboard-focused` - `ZNE: Overview console live metrics` - done; released/live validated in `v0.4.2`.
 - `workboard-focused` - `ZNE: Overview Readiness clarity` - done; released/live validated in `v0.4.3`.
+- `workboard-focused` - `ZNE: Battery Power source mapping` - repo validated pending release/live validation; live source-role repair done.
+- `workboard-focused` - `ZNE: Overview Readiness message design` - repo validated pending release/live validation.
 - `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - ready; next.

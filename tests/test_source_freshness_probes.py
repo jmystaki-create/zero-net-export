@@ -173,6 +173,14 @@ class SourceFreshnessProbeTests(unittest.TestCase):
         self.assertEqual(details["installed_version"], coordinator_module.INTEGRATION_VERSION)
         self.assertFalse(details["update_detected"])
 
+    def test_power_normalization_converts_kw_value_and_unit_to_watts(self) -> None:
+        coordinator_module = _load_coordinator_module()
+        coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
+
+        self.assertEqual(coordinator._normalize_value("battery_discharge_power", 0.42, "kW"), 420.0)
+        self.assertEqual(coordinator._normalize_unit("battery_discharge_power", "kW"), "W")
+        self.assertEqual(coordinator._normalize_unit("battery_discharge_power", "W"), "W")
+
     def test_companion_data_time_probe_keeps_static_sensor_fresh(self) -> None:
         coordinator_module = _load_coordinator_module()
         coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)

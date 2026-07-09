@@ -78,6 +78,20 @@ Suggested area labels:
 - `source_mapping`
 - `controls`
 - `sensors`
+
+## ZNE-597 - Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `source_mapping / sensors / application`
+- **where seen:** live Home Assistant `v0.4.3` on 2026-07-08 after Riley reported Battery Power looked wrong for a `20000 Wh` battery at about `50%` state of charge.
+- **current observed behavior:** Overview Battery Power was driven by `sensor.anker_battery_discharge_power`, which reported `29.97 kW` with `state_class=total`. ZNE normalized that to `29970 W`, producing an unrealistic Battery Power value and a large reconciliation error. The source-status reading entity then exposed the normalized value while still carrying the original `kW` unit.
+- **expected behavior:** Battery Power should use an instantaneous power measurement with `device_class=power` and `state_class=measurement`; normalized watt values should display with unit `W`, while the original source unit remains available as raw diagnostic context.
+- **evidence:** live HA state showed `number.x1_p6k_us_s_battery_capacity=20000 Wh`, `sensor.x1_p6k_us_s_state_of_charge=49%`, `sensor.anker_battery_discharge_power=29.97 kW` with `state_class=total`, `sensor.zero_net_export_battery_discharge_power_reading=29970.0` with unit `kW`, and `sensor.zero_net_export_reason=Validation degraded: battery_discharge_power state_class is total; expected measurement`.
+- **live repair:** updated `battery_discharge_power_entity` through `zero_net_export.update_source_roles` to `sensor.x1_p6k_us_s_discharge_power`, a `kW` power `measurement` sensor. Post-service live state showed `sensor.zero_net_export_battery_discharge_power_status=ok`, binding `sensor.x1_p6k_us_s_discharge_power`, normalized value `420 W`, ZNE status `ready`, and reconciliation error `0 W`.
+- **repo fix:** coordinator source normalization now converts the displayed diagnostic unit from `kW` to `W` when it converts the value to watts, and preserves the original source unit as `raw_unit`.
+- **validation status:** repo validation passed; live source-role repair validated through HA state API before release. Full live closure still requires release/HACS install/restart validation so the unit-presentation fix reaches Home Assistant.
+- **next action:** release through the approved GitHub/HACS path, restart, then live-check Overview Battery Power and source-reading units.
 - `diagnostics`
 - `release`
 - `docs`

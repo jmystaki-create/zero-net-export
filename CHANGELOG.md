@@ -4,6 +4,20 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [Unreleased]
+
+## [0.4.4] - 2026-07-08
+
+### Fixed
+- Repaired Battery Power source-role binding on the live validation system by moving
+  `battery_discharge_power_entity` from the cumulative Anker total sensor to
+  the X1 instantaneous discharge power measurement.
+- Fixed source reading unit presentation so power values normalized from `kW`
+  to watts expose `W` as the displayed unit while retaining the original source
+  unit as diagnostic `raw_unit`.
+- Reworked Overview Readiness messages with `Do this first`, `What is wrong`, and `How to resolve`
+  steps instead of dense command-center/device queue strings.
+
 ## [0.4.3] - 2026-07-08
 
 ### Added

@@ -500,6 +500,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             return value * 1000.0
         return value
 
+    def _normalize_unit(self, key: str, unit: str | None) -> str | None:
+        if key.endswith("_power") and unit == "kW":
+            return "W"
+        return unit
+
     def _device_inventory_raw(self) -> str:
         return self.entry.options.get(
             CONF_DEVICE_INVENTORY_JSON,
@@ -1338,6 +1343,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             for spec in specs:
                 reading, state = get_source_reading(self.hass, spec.entity_id)
                 reading.value = self._normalize_value(spec.key, reading.value, reading.unit)
+                reading.unit = self._normalize_unit(spec.key, reading.unit)
                 readings[spec.key] = reading
                 states[spec.key] = state
 

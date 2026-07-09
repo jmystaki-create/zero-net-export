@@ -303,9 +303,9 @@ class ZeroNetExportApp extends HTMLElement {
       <div class="zne-row zne-metric-row ${this._escape(metric.status)}">
         <span>${this._escape(metric.label)}</span>
         <strong>
-          ${this._escape(metric.value)}
-          ${metric.updated ? `<small>Updated ${this._escape(metric.updated)}</small>` : ""}
-          ${metric.detail ? `<small>${this._escape(metric.detail)}</small>` : ""}
+          <span class="zne-metric-value">${this._escape(metric.value)}</span>
+          ${metric.updated ? `<small class="zne-metric-updated">Updated ${this._escape(metric.updated)}</small>` : ""}
+          ${metric.detail ? `<small class="zne-metric-detail">${this._escape(metric.detail)}</small>` : ""}
         </strong>
       </div>
     `;
@@ -324,8 +324,76 @@ class ZeroNetExportApp extends HTMLElement {
     return String(value);
   }
 
+  _readinessSegments(value) {
+    return this._asDisplayText(value)
+      .split(/\s*[;|]\s*/u)
+      .map((segment) => segment.trim())
+      .filter(Boolean);
+  }
+
+  _firstMatchingSegment(segments, pattern) {
+    return segments.find((segment) => pattern.test(segment)) || "";
+  }
+
+  _shortenText(value, limit = 88) {
+    const text = this._asDisplayText(value).replace(/\s+/gu, " ").trim();
+    if (!text || text.length <= limit) {
+      return text;
+    }
+    return `${text.slice(0, Math.max(0, limit - 1)).trim()}...`;
+  }
+
+  _sourceBlockerFacts(summary) {
+    const text = this._asDisplayText(summary);
+    if (!text) {
+      return ["A required source is blocking controller confidence."];
+    }
+    return this._readinessSegments(text).slice(0, 4);
+  }
+
+  _managedDeviceQueueFacts(deviceStatus) {
+    const text = this._asDisplayText(deviceStatus);
+    const segments = this._readinessSegments(text);
+    const facts = [];
+    const enabled = text.match(/(\d+\s+of\s+\d+\s+enabled devices?[^;|.]*)/iu);
+    const unmanaged = text.match(/(\d+)\s+unmanaged backlog/iu);
+    const review = text.match(/(\d+)\s+need review/iu);
+    const promote = text.match(/(\d+)\s+ready to promote/iu);
+    const reviewTarget = this._firstMatchingSegment(segments, /^review\s+/iu);
+    const readyTarget = this._firstMatchingSegment(segments, /^ready\s+/iu);
+
+    if (enabled) {
+      facts.push(this._shortenText(enabled[1], 84));
+    }
+    if (unmanaged) {
+      facts.push(`${unmanaged[1]} unmanaged candidates are waiting.`);
+    }
+    if (review || promote) {
+      const parts = [];
+      if (review) {
+        parts.push(`${review[1]} need review`);
+      }
+      if (promote) {
+        parts.push(`${promote[1]} are ready to promote`);
+      }
+      facts.push(`${parts.join("; ")}.`);
+    }
+    if (/source blockers active/iu.test(text)) {
+      facts.push("Source blockers are also active, so controls should stay conservative.");
+    }
+    if (reviewTarget) {
+      facts.push(`First review: ${this._shortenText(reviewTarget.replace(/^review\s+/iu, ""), 64)}.`);
+    } else if (readyTarget) {
+      facts.push(`Ready candidate: ${this._shortenText(readyTarget.replace(/^ready\s+/iu, ""), 64)}.`);
+    }
+
+    return facts.length ? facts : [this._shortenText(text, 120)];
+  }
+
   _readinessItem(title, status, detail, action, tone = "neutral") {
-    return { title, status, detail, action, tone };
+    const detailList = Array.isArray(detail) ? detail : [detail].filter(Boolean);
+    const actionList = Array.isArray(action) ? action : [action].filter(Boolean);
+    return { title, status, detail: detailList, action: actionList, tone };
   }
 
   _readinessModel(status, safeMode, sourceMismatch) {
@@ -350,46 +418,48 @@ class ZeroNetExportApp extends HTMLElement {
 
     if (status && !["ready", "ok", "healthy"].includes(status.toLowerCase())) {
       items.push(this._readinessItem(
-        "Controller status",
+        "Controller is not ready",
         status,
-        this._asDisplayText(commandAttrs.source_status || commandAttrs.status_summary || commandSummary, "Controller is not currently reporting ready."),
-        this._asDisplayText(commandAttrs.current_next_step || nextAttrs.current_next_step || currentNextStep),
+        [this._shortenText(commandAttrs.source_status || commandAttrs.status_summary || commandSummary || "Controller is not currently reporting ready.", 120)],
+        [this._shortenText(commandAttrs.current_next_step || nextAttrs.current_next_step || currentNextStep, 130)],
         "bad"
       ));
     }
 
     if (sourceBlockers && !["none", "unknown", "no source blockers reported"].includes(sourceBlockers.toLowerCase())) {
       items.push(this._readinessItem(
-        "Source blockers",
+        "Fix source readings",
         "active",
-        sourceBlockers,
-        currentNextStep,
+        this._sourceBlockerFacts(sourceBlockers),
+        ["Open Sources.", "Replace any stale, missing, cumulative, or wrong-unit binding with a live measurement sensor."],
         "bad"
       ));
     }
 
     if (sourceMismatch === "on") {
       items.push(this._readinessItem(
-        "Power reconciliation",
+        "Reconcile power balance",
         "mismatch",
-        this._asDisplayText(
+        [this._shortenText(this._asDisplayText(
           guardAttrs.diagnostic_summary || staleAttrs.diagnostic_summary || commandAttrs.source_status,
           "Power sources do not reconcile cleanly."
-        ),
-        this._asDisplayText(
+        ), 120)],
+        [
+          this._shortenText(this._asDisplayText(
           guardAttrs.calibration_hints || staleAttrs.calibration_hints,
           "Compare solar, grid import/export, battery charge/discharge, and home-load sensors during an obvious export period; replace any sign-inverted, stale, or semantically wrong source binding."
-        ),
+          ), 150),
+        ],
         "bad"
       ));
     }
 
     if (staleSummary && !["none", "no required source roles currently look stale"].includes(staleSummary.toLowerCase())) {
       items.push(this._readinessItem(
-        "Stale sources",
+        "Refresh stale readings",
         "attention",
-        staleSummary,
-        this._asDisplayText(sourceAttrs.configure_path || commandAttrs.sources_path, "Open Sources and refresh or replace stale bindings."),
+        this._sourceBlockerFacts(staleSummary),
+        ["Open Sources and refresh or replace stale bindings."],
         "warn"
       ));
     }
@@ -397,10 +467,10 @@ class ZeroNetExportApp extends HTMLElement {
     const policyReadiness = this._asDisplayText(commandAttrs.policy_readiness || nextAttrs.policy_readiness);
     if (policyReadiness) {
       items.push(this._readinessItem(
-        "Controls readiness",
+        "Controls are paused",
         "blocked",
-        this._asDisplayText(commandAttrs.policy_status || nextAttrs.policy_status, "Controls are waiting for source readiness."),
-        policyReadiness,
+        [this._shortenText(commandAttrs.policy_status || nextAttrs.policy_status || "Controls are waiting for source readiness.", 120)],
+        [this._shortenText(policyReadiness, 130)],
         "warn"
       ));
     }
@@ -408,32 +478,46 @@ class ZeroNetExportApp extends HTMLElement {
     const deviceStatus = this._asDisplayText(commandAttrs.device_status || commandSummary);
     if (deviceStatus && /need review|unmanaged backlog|source blockers active/i.test(deviceStatus)) {
       items.push(this._readinessItem(
-        "Managed-device queue",
+        "Review managed-device queue",
         "review",
-        deviceStatus,
-        this._asDisplayText(commandAttrs.current_next_step || nextAttrs.current_next_step || commandAttrs.device_next_step),
+        this._managedDeviceQueueFacts(deviceStatus),
+        ["Open Managed Devices.", "Review devices marked needs review first, then promote ready candidates."],
         "neutral"
       ));
     }
 
     if (!items.length) {
       items.push(this._readinessItem(
-        "No active readiness blockers",
+        "Ready to monitor",
         "ready",
-        "Sources, controls, and managed-device readiness do not currently report a blocking issue.",
-        "Continue monitoring Runtime and Diagnostics while the controller runs.",
+        ["Sources, controls, and managed-device readiness do not currently report a blocking issue."],
+        ["Continue monitoring Runtime and Diagnostics while the controller runs."],
         "good"
       ));
     }
 
+    const blockingItems = items.filter((item) => ["bad", "warn"].includes(item.tone)).length;
+    const summary = blockingItems
+      ? {
+          tone: "bad",
+          title: `${blockingItems} readiness item${blockingItems === 1 ? "" : "s"} need attention`,
+          detail: "Fix source health first. Device review is useful, but control confidence depends on clean live readings.",
+        }
+      : {
+          tone: "good",
+          title: "Ready",
+          detail: "No blocking readiness issue is currently reported.",
+        };
+
     return {
+      summary,
       chips: [
         { label: "Controller", value: status },
         { label: "Safe mode", value: safeMode },
         { label: "Source mismatch", value: sourceMismatch },
       ],
       focus: this._asDisplayText(commandAttrs.current_focus_section || nextAttrs.current_focus_section, "Overview"),
-      path: this._asDisplayText(commandAttrs.current_focus_path || nextAttrs.current_focus_path || commandAttrs.sources_path),
+      path: this._shortenText(this._asDisplayText(commandAttrs.current_focus_path || nextAttrs.current_focus_path || commandAttrs.sources_path), 96),
       items,
     };
   }
@@ -445,16 +529,16 @@ class ZeroNetExportApp extends HTMLElement {
           <strong>${this._escape(item.title)}</strong>
           ${this._pill("status", item.status)}
         </div>
-        <dl>
+        <div class="zne-readiness-item-body">
           <div>
-            <dt>What is wrong</dt>
-            <dd>${this._escape(item.detail)}</dd>
+            <span>What is wrong</span>
+            <ul>${item.detail.map((detail) => `<li>${this._escape(detail)}</li>`).join("")}</ul>
           </div>
           <div>
-            <dt>How to resolve</dt>
-            <dd>${this._escape(item.action)}</dd>
+            <span>How to resolve</span>
+            <ol>${item.action.map((action) => `<li>${this._escape(action)}</li>`).join("")}</ol>
           </div>
-        </dl>
+        </div>
       </div>
     `;
   }
@@ -967,11 +1051,15 @@ class ZeroNetExportApp extends HTMLElement {
         <div class="zne-grid">
           <div class="zne-card zne-readiness-card">
             <h3>Readiness</h3>
+            <div class="zne-readiness-summary ${this._escape(readiness.summary.tone)}">
+              <strong>${this._escape(readiness.summary.title)}</strong>
+              <span>${this._escape(readiness.summary.detail)}</span>
+            </div>
             <div class="zne-readiness-chips">
               ${readiness.chips.map((chip) => this._pill(chip.label, chip.value)).join("")}
             </div>
             <div class="zne-readiness-focus">
-              <span>Current focus</span>
+              <span>Do this first</span>
               <strong>${this._escape(readiness.focus)}</strong>
               ${readiness.path ? `<small>${this._escape(readiness.path)}</small>` : ""}
             </div>
@@ -1808,6 +1896,21 @@ class ZeroNetExportApp extends HTMLElement {
           font-size: 12px;
         }
 
+        .zne-metric-row > strong {
+          justify-self: stretch;
+        }
+
+        .zne-metric-value,
+        .zne-metric-updated {
+          display: block;
+          text-align: right;
+        }
+
+        .zne-metric-detail {
+          display: block;
+          text-align: left;
+        }
+
         .zne-live-strip {
           display: flex;
           align-items: center;
@@ -1837,6 +1940,29 @@ class ZeroNetExportApp extends HTMLElement {
         .zne-readiness-card {
           display: grid;
           gap: 10px;
+        }
+
+        .zne-readiness-summary {
+          display: grid;
+          gap: 4px;
+          padding: 10px 12px;
+          border: 1px solid var(--divider-color);
+          border-left: 4px solid var(--primary-color);
+          border-radius: 6px;
+          background: var(--secondary-background-color);
+          line-height: 1.35;
+        }
+
+        .zne-readiness-summary.bad {
+          border-left-color: var(--error-color, #c62828);
+        }
+
+        .zne-readiness-summary.good {
+          border-left-color: var(--success-color, #2e7d32);
+        }
+
+        .zne-readiness-summary span {
+          color: var(--secondary-text-color);
         }
 
         .zne-readiness-chips {
@@ -1894,24 +2020,31 @@ class ZeroNetExportApp extends HTMLElement {
           gap: 8px;
         }
 
-        .zne-readiness-item dl {
+        .zne-readiness-item-body {
           display: grid;
           gap: 8px;
-          margin: 0;
         }
 
-        .zne-readiness-item dl > div {
+        .zne-readiness-item-body > div {
+          display: grid;
+          gap: 4px;
+        }
+
+        .zne-readiness-item-body span {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .zne-readiness-item-body ul,
+        .zne-readiness-item-body ol {
+          margin: 0;
+          padding-left: 18px;
           display: grid;
           gap: 3px;
         }
 
-        .zne-readiness-item dt {
-          color: var(--secondary-text-color);
-          font-size: 12px;
-        }
-
-        .zne-readiness-item dd {
-          margin: 0;
+        .zne-readiness-item-body li {
           line-height: 1.4;
           overflow-wrap: anywhere;
         }

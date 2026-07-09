@@ -43,6 +43,7 @@ class SourceReading:
     binding: str | None = None
     binding_label: str | None = None
     raw_value: float | None = None
+    raw_unit: str | None = None
 
 
 @dataclass(slots=True)
@@ -156,6 +157,7 @@ def get_source_reading(hass: HomeAssistant, entity_id: str | None) -> tuple[Sour
             binding=entity_id,
             binding_label=format_source_binding_label(entity_id),
             raw_value=raw_value,
+            raw_unit=state.attributes.get(ATTR_UNIT_OF_MEASUREMENT),
         ),
         state,
     )
@@ -523,6 +525,7 @@ def build_source_diagnostics(
             "raw_value": reading.raw_value,
             "raw_state": reading.raw_state,
             "unit": reading.unit,
+            "raw_unit": reading.raw_unit,
             "state_class": state.attributes.get(ATTR_STATE_CLASS) if state else None,
             "device_class": state.attributes.get(ATTR_DEVICE_CLASS) if state else None,
             "issues": [
