@@ -50,7 +50,7 @@ from .const import (
 from .app_api import build_app_panel_config
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
-from .entity import sync_primary_controller_device_registry
+from .entity import sync_fleet_workspace_entity_registry, sync_primary_controller_device_registry
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
     DIAGNOSTICS_DEVICE_ACTIONS_PATH,
@@ -768,6 +768,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     sync_primary_controller_device_registry(hass, entry)
+    sync_fleet_workspace_entity_registry(hass, entry)
     return True
 
 

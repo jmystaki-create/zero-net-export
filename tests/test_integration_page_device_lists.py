@@ -41,10 +41,17 @@ class _FakeEntityRegistry:
     def __init__(self, entities):
         self.entities = {item.entity_id: item for item in entities}
         self.removed = []
+        self.updated = []
 
     def async_remove(self, entity_id):
         self.removed.append(entity_id)
         self.entities.pop(entity_id, None)
+
+    def async_update_entity(self, entity_id, **kwargs):
+        self.updated.append((entity_id, kwargs))
+        entity = self.entities[entity_id]
+        for key, value in kwargs.items():
+            setattr(entity, key, value)
 
 from tests.test_sensor_entity_categories import _load_sensor_module
 
@@ -344,6 +351,52 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["identifiers"], {("zero_net_export", "entry-1")})
         self.assertEqual(sensor._attr_device_info["name"], "Zero Net Export")
         self.assertEqual(sensor._attr_device_info["sw_version"], sensor_module.INTEGRATION_VERSION)
+
+    def test_fleet_workspace_entity_registry_rows_migrate_to_primary_device(self) -> None:
+        _load_sensor_module()
+        entity_module = sys.modules["custom_components.zero_net_export.entity"]
+        entry = SimpleNamespace(entry_id="entry-1", title="Zero Net Export")
+        device = SimpleNamespace(
+            id="controller-device",
+            identifier=("zero_net_export", "entry-1"),
+        )
+        device_registry = _FakeDeviceRegistry(device)
+        entity_registry = _FakeEntityRegistry(
+            [
+                SimpleNamespace(
+                    entity_id="sensor.managed_devices_overview",
+                    unique_id="entry-1_managed_fleet_overview",
+                    device_id=None,
+                    config_entry_id="entry-1",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.managed_devices_candidate_shortlist",
+                    unique_id="entry-1_candidate_shortlist",
+                    device_id="",
+                    config_entry_id="entry-1",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.other_entry_managed_devices_overview",
+                    unique_id="other-entry_managed_fleet_overview",
+                    device_id=None,
+                    config_entry_id="other-entry",
+                ),
+            ]
+        )
+
+        entity_module.sync_fleet_workspace_entity_registry(
+            SimpleNamespace(device_registry=device_registry, entity_registry=entity_registry),
+            entry,
+        )
+
+        self.assertEqual(
+            entity_registry.updated,
+            [
+                ("sensor.managed_devices_overview", {"device_id": "controller-device"}),
+                ("sensor.managed_devices_candidate_shortlist", {"device_id": "controller-device"}),
+            ],
+        )
+        self.assertIsNone(entity_registry.entities["sensor.other_entry_managed_devices_overview"].device_id)
 
     def test_fleet_workspace_extra_attributes_use_shared_key_set(self) -> None:
         sensor_module = _load_sensor_module()

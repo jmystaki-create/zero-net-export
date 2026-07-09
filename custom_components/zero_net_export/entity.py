@@ -477,6 +477,18 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
         return
 
 
+def _update_entity_registry_entry(entity_registry, entity, **kwargs) -> None:
+    """Update one entity-registry entry, tolerating HA/test-double API shapes."""
+    update = getattr(entity_registry, "async_update_entity", None)
+    entity_id = getattr(entity, "entity_id", None)
+    if update is None or not entity_id:
+        return
+    try:
+        update(entity_id, **kwargs)
+    except Exception:
+        return
+
+
 def _is_current_fleet_workspace_entity_registry_entry(entity, entry_id: str) -> bool:
     """Return True for current Managed Devices workflow/backlog/review entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
@@ -545,6 +557,37 @@ def _entity_registry_entry_config_entry_ids(entity) -> set[str]:
         except Exception:
             pass
     return ids
+
+
+def sync_fleet_workspace_entity_registry(hass, entry) -> None:
+    """Attach existing Managed Devices workflow sensors to the primary controller device."""
+    try:
+        from homeassistant.helpers import device_registry as dr
+        from homeassistant.helpers import entity_registry as er
+    except Exception:
+        return
+    try:
+        device_registry = dr.async_get(hass)
+        entity_registry = er.async_get(hass)
+        controller_device = device_registry.async_get_device({(DOMAIN, entry.entry_id)})
+    except Exception:
+        return
+    if controller_device is None:
+        return
+    controller_device_id = str(getattr(controller_device, "id", "") or "")
+    if not controller_device_id:
+        return
+
+    expected_entry_id = str(entry.entry_id)
+    for entity in _entity_registry_entries(entity_registry):
+        if not _is_current_fleet_workspace_entity_registry_entry(entity, expected_entry_id):
+            continue
+        entity_entry_ids = _entity_registry_entry_config_entry_ids(entity)
+        if entity_entry_ids and expected_entry_id not in entity_entry_ids:
+            continue
+        if str(getattr(entity, "device_id", "") or "") == controller_device_id:
+            continue
+        _update_entity_registry_entry(entity_registry, entity, device_id=controller_device_id)
 
 
 def _remove_entity_registry_entries_attached_to_devices(

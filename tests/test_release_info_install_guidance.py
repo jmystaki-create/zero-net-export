@@ -71,7 +71,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
-        self.assertIn("Managed Devices backlog/review summary sensors", info["changes_preview"])
+        self.assertIn("Managed Devices backlog/review summary entities", info["changes_preview"])
         self.assertIn("primary Zero Net Export device", info["changes_preview"])
         self.assertIn("candidate review queue", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
@@ -459,7 +459,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("Managed Devices backlog/review summary sensors", current_highlights)
+        self.assertIn("Managed Devices backlog/review summary entities", current_highlights)
         self.assertIn("primary Zero Net Export device", current_highlights)
         self.assertIn("candidate review queue", current_highlights)
         self.assertNotIn("unsupported device overflow-menu injection", current_highlights.lower())

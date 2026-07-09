@@ -109,6 +109,7 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
 
     entity_module = types.ModuleType(f"{package_name}.entity")
     entity_module.sync_primary_controller_device_registry = lambda *args, **kwargs: None
+    entity_module.sync_fleet_workspace_entity_registry = lambda *args, **kwargs: None
     sys.modules[entity_module.__name__] = entity_module
 
     device_model_module = types.ModuleType(f"{package_name}.device_model")

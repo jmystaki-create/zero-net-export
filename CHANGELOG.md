@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.8] - 2026-07-09
+
+### Fixed
+- Migrated existing Managed Devices backlog/review summary entities onto the primary Zero Net Export device so upgraded installs surface the candidate review queue on native Home Assistant device screens.
+
 ## [0.4.7] - 2026-07-09
 
 ### Fixed
