@@ -58,6 +58,21 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("candidate.warning_summary", source)
         self.assertIn("candidate.fit_confidence", source)
 
+    def test_managed_devices_panel_orders_managed_fleet_before_unmanaged_queue(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertLess(source.index("<!-- Fleet Table -->"), source.index("<!-- Unmanaged Candidate Queue -->"))
+        self.assertLess(source.index("Fleet List (${filtered.length} devices)"), source.index("Unmanaged Candidate Queue"))
+
+    def test_managed_devices_fleet_summary_uses_compact_spaced_stats(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("zne-fleet-stats zne-fleet-summary-stats", source)
+        self.assertIn(".zne-fleet-summary-stats", source)
+        self.assertIn("grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));", source)
+        self.assertIn(".zne-stat strong", source)
+        self.assertIn("margin-right: 4px;", source)
+
     def test_app_exposes_safe_edit_actions_through_home_assistant_services(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -193,7 +208,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.8"', source)
+        self.assertIn('"version": "0.4.9"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

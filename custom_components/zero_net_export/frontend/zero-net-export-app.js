@@ -1280,7 +1280,7 @@ class ZeroNetExportApp extends HTMLElement {
         <div class="zne-grid">
           <div class="zne-card">
             <h3>Fleet Summary</h3>
-            <div class="zne-fleet-stats">
+            <div class="zne-fleet-stats zne-fleet-summary-stats">
               <span class="zne-stat"><strong>${total}</strong> Total</span>
               <span class="zne-stat good"><strong>${enabled}</strong> Enabled</span>
               <span class="zne-stat neutral"><strong>${disabled}</strong> Disabled</span>
@@ -1336,49 +1336,6 @@ class ZeroNetExportApp extends HTMLElement {
               </select>
             </label>
           </div>
-        </div>
-
-        <!-- Unmanaged Candidate Queue -->
-        <div class="zne-card">
-          <h3>Unmanaged Candidate Queue (${candidateCount} candidates)</h3>
-          <div class="zne-fleet-stats">
-            <span class="zne-stat neutral"><strong>${candidateCount}</strong> Total</span>
-            <span class="zne-stat bad"><strong>${reviewNeeded}</strong> Need review</span>
-            <span class="zne-stat good"><strong>${readyCandidates}</strong> Ready</span>
-            <span class="zne-stat neutral"><strong>${fixedCandidates}</strong> Fixed</span>
-            <span class="zne-stat neutral"><strong>${variableCandidates}</strong> Variable</span>
-          </div>
-          ${candidateQueue.length === 0
-            ? '<p class="zne-muted">No unmanaged candidates are currently surfaced.</p>'
-            : `
-            <div class="zne-candidate-table">
-              <div class="zne-candidate-header">
-                <span>Candidate</span>
-                <span>Kind</span>
-                <span>Review</span>
-                <span>Current</span>
-                <span>Fit</span>
-                <span>Warnings</span>
-              </div>
-              ${candidateQueue.map((candidate) => {
-                const needsReview = candidate.needs_review === true || candidate.needs_review === "true";
-                const fit = candidate.usefulness_label || candidate.fit_confidence || "-";
-                const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
-                return `
-                <div class="zne-candidate-row ${needsReview ? "review" : "ready"}">
-                  <span>
-                    <strong>${this._escape(candidate.name || candidate.entity_id || "-")}</strong>
-                    <small>${this._escape(candidate.entity_id || "")}</small>
-                  </span>
-                  <span>${this._escape(candidate.kind || "-")}</span>
-                  <span>${needsReview ? this._pill("status", "review") : this._pill("status", "ready")}</span>
-                  <span>${this._escape(candidate.state || "-")}${candidate.unit ? ` ${this._escape(candidate.unit)}` : ""}</span>
-                  <span>${this._escape(fit)}</span>
-                  <span>${this._escape(warning)}</span>
-                </div>
-              `;}).join("")}
-            </div>
-          `}
         </div>
 
         <!-- Fleet Table -->
@@ -1443,6 +1400,49 @@ class ZeroNetExportApp extends HTMLElement {
               `;}).join("")}
             </div>
             `}
+        </div>
+
+        <!-- Unmanaged Candidate Queue -->
+        <div class="zne-card">
+          <h3>Unmanaged Candidate Queue (${candidateCount} candidates)</h3>
+          <div class="zne-fleet-stats">
+            <span class="zne-stat neutral"><strong>${candidateCount}</strong> Total</span>
+            <span class="zne-stat bad"><strong>${reviewNeeded}</strong> Need review</span>
+            <span class="zne-stat good"><strong>${readyCandidates}</strong> Ready</span>
+            <span class="zne-stat neutral"><strong>${fixedCandidates}</strong> Fixed</span>
+            <span class="zne-stat neutral"><strong>${variableCandidates}</strong> Variable</span>
+          </div>
+          ${candidateQueue.length === 0
+            ? '<p class="zne-muted">No unmanaged candidates are currently surfaced.</p>'
+            : `
+            <div class="zne-candidate-table">
+              <div class="zne-candidate-header">
+                <span>Candidate</span>
+                <span>Kind</span>
+                <span>Review</span>
+                <span>Current</span>
+                <span>Fit</span>
+                <span>Warnings</span>
+              </div>
+              ${candidateQueue.map((candidate) => {
+                const needsReview = candidate.needs_review === true || candidate.needs_review === "true";
+                const fit = candidate.usefulness_label || candidate.fit_confidence || "-";
+                const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
+                return `
+                <div class="zne-candidate-row ${needsReview ? "review" : "ready"}">
+                  <span>
+                    <strong>${this._escape(candidate.name || candidate.entity_id || "-")}</strong>
+                    <small>${this._escape(candidate.entity_id || "")}</small>
+                  </span>
+                  <span>${this._escape(candidate.kind || "-")}</span>
+                  <span>${needsReview ? this._pill("status", "review") : this._pill("status", "ready")}</span>
+                  <span>${this._escape(candidate.state || "-")}${candidate.unit ? ` ${this._escape(candidate.unit)}` : ""}</span>
+                  <span>${this._escape(fit)}</span>
+                  <span>${this._escape(warning)}</span>
+                </div>
+              `;}).join("")}
+            </div>
+          `}
         </div>
 
         <!-- Device Detail (Drill-down) -->
@@ -2199,6 +2199,13 @@ class ZeroNetExportApp extends HTMLElement {
           gap: 12px;
         }
 
+        .zne-fleet-summary-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+          gap: 8px;
+          align-items: stretch;
+        }
+
         .zne-stat {
           display: inline-flex;
           align-items: center;
@@ -2206,6 +2213,15 @@ class ZeroNetExportApp extends HTMLElement {
           border: 1px solid var(--divider-color);
           border-radius: 4px;
           font-size: 13px;
+        }
+
+        .zne-fleet-summary-stats .zne-stat {
+          justify-content: flex-start;
+          min-width: 0;
+        }
+
+        .zne-stat strong {
+          margin-right: 4px;
         }
 
         .zne-stat.good {

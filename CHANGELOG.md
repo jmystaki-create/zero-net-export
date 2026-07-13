@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.9] - 2026-07-13
+
+### Changed
+- Improved the Managed Devices Fleet Summary layout so status chips keep clear spacing and wrap in an even compact grid.
+- Moved the Unmanaged Candidate Queue below the managed Fleet List so managed devices appear before unmanaged candidates in the page sequence.
+
 ## [0.4.8] - 2026-07-09
 
 ### Fixed

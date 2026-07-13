@@ -149,3 +149,27 @@ This file tracks user-requested product enhancements separately from confirmed b
 - **target-environment result:** supported in the existing ZNE-owned Home Assistant custom panel using current `hass.states` data and CSS only. No Home Assistant frontend patch, native page injection, direct live install write, or new recorder-backed attributes are required. Evidence: `validation/zne-fr-014-readiness-message-design.md`.
 - **implementation status:** app frontend now shows a summary verdict, `Do this first`, plain issue titles, and bullet/numbered guidance for source readings, reconciliation, controls, and managed-device queue work.
 - **validation plan:** frontend syntax check, focused app tests, `git diff --check`, then HACS/restart/browser proof in the release path.
+
+## ZNE-FR-015 - Managed Devices Fleet Summary layout polish
+
+- **status:** `repo_validated_pending_release_live_validation`
+- **area:** `application / managed_devices / layout`
+- **requested by:** Riley, 2026-07-13
+- **request:** The Managed Devices Fleet Summary layout looks odd when `0 Stale` wraps underneath the other summary chips.
+- **user outcome:** operators can scan total, enabled, disabled, blocked, and stale counts without cramped `0Stale` text or uneven ad hoc wrapping.
+- **acceptance target:** Fleet Summary counts and labels have clear spacing; the status chips wrap in an even compact layout on desktop and narrow widths; existing counts remain unchanged.
+- **target-environment result:** supported in the existing Zero Net Export Home Assistant custom panel with CSS/DOM changes only. No new Home Assistant API, frontend patch, or backend entity changes are required.
+- **implementation status:** repo implementation adds a dedicated compact grid class for Fleet Summary stats and spacing between the numeric count and label. Evidence: `validation/zne-fr-015-016-managed-devices-layout-order.md`.
+- **validation plan:** frontend syntax check, focused Managed Devices panel tests, `git diff --check`, then release/live browser proof after HACS install.
+
+## ZNE-FR-016 - Managed Devices page should list unmanaged candidates after managed devices
+
+- **status:** `repo_validated_pending_release_live_validation`
+- **area:** `application / managed_devices / page_sequence`
+- **requested by:** Riley, 2026-07-13
+- **request:** Unmanaged Devices should come after Managed Devices in the page sequence.
+- **user outcome:** the Managed Devices tab reads in priority order: managed fleet controls first, then unmanaged candidates to review/promote.
+- **acceptance target:** the Fleet List section renders before the Unmanaged Candidate Queue; unmanaged candidate counts and rows remain visible and unchanged.
+- **target-environment result:** supported in the existing Zero Net Export Home Assistant custom panel with DOM ordering only. No new Home Assistant API, frontend patch, or backend entity changes are required.
+- **implementation status:** repo implementation moves the Unmanaged Candidate Queue below the Fleet List. Evidence: `validation/zne-fr-015-016-managed-devices-layout-order.md`.
+- **validation plan:** frontend syntax check, focused Managed Devices panel tests, `git diff --check`, then release/live browser proof after HACS install.
