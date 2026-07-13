@@ -59,3 +59,20 @@ After packaging and installing through HACS:
 - Confirm Fleet Summary chips have clear count/label spacing and compact wrapping on desktop and narrow widths.
 - Confirm Fleet List appears before Unmanaged Candidate Queue.
 - Capture browser proof and run targeted Zero Net Export log checks.
+
+## Release / Live Validation Passed
+
+Release: `v0.4.9`
+
+Evidence: `validation/0.4.9-release-validation.md`
+
+Result: **PASS**
+
+- GitHub release `v0.4.9` was published from commit `e01a6d5927d2ad4cbcea6da37caf4fc99a7d3630`.
+- HACS installed `v0.4.9`; `update.zero_net_export_update` reported installed/latest `v0.4.9`.
+- Install fingerprint validation over Home Assistant SSH reported `overall_match=true`, manifest `0.4.9`, expected component commit `e01a6d5`, and no legacy artifacts.
+- Home Assistant restarted and loaded `sensor.zero_net_export_installed_version=0.4.9`.
+- Slave browser desktop proof showed app header `Version 0.4.9 · 1 plan`, `.zne-fleet-summary-stats` present, `0 Stale` with a `4px` count/label gap, and `Fleet List (1 devices)` before `Unmanaged Candidate Queue (29 candidates)`.
+- Slave browser narrow viewport proof at `390x844` retained separate stat text and `fleetListBeforeUnmanaged=true`.
+
+Known unrelated runtime risk: recorder attribute-size warnings for Zero Net Export entities remain and are tracked under `ZNE-595`.
