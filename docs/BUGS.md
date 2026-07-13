@@ -81,7 +81,7 @@ Suggested area labels:
 
 ## ZNE-598 - Review & promote click does not visibly open the workflow
 
-- **status:** `fixed_pending_validation`
+- **status:** `released_live_validated_v0.4.11`
 - **severity:** `medium`
 - **area:** `managed_devices / application`
 - **where seen:** live Home Assistant `v0.4.10` on 2026-07-13 after Riley reported that clicking `Review & promote` did not perform any clear action.
@@ -90,8 +90,8 @@ Suggested area labels:
 - **evidence:** Slave browser page snapshot showed the live installed app on `v0.4.10` with `switch.ac_outlet_1` and a `Review & promote` action, followed by no clear review panel in the visible Managed Devices area after the click attempt.
 - **suspected cause:** The review panel was rendered after the full unmanaged candidate table. With a long queue, selecting the first candidate left the review panel below the list, so the action looked like a no-op.
 - **repo fix:** the app now renders the promotion panel above the candidate table, focuses and scrolls to it after selection, labels the active button as `Reviewing`, and outlines the selected candidate row.
-- **validation status:** repo validation passed; live validation is pending the next GitHub/HACS release.
-- **next action:** release through the approved GitHub/HACS path, restart Home Assistant, then use Slave browser proof that clicking `Review & promote` visibly opens and focuses the workflow.
+- **validation status:** released/live-validated in `v0.4.11`. GitHub release, HACS install, Home Assistant restart, install fingerprint checks before and after restart, state checks, log review, and Slave browser proof all passed. Browser proof confirmed the workflow opens above the unmanaged candidate table and the selected row button changes to `Reviewing`. Evidence: `validation/zne-598-review-promote-visible-workflow.md`, `validation/0.4.11-release-validation.md`.
+- **next action:** none for this bug.
 
 ## ZNE-597 - Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW
 

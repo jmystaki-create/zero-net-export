@@ -1,7 +1,7 @@
 # ZNE-598 Review Promote Visible Workflow
 
 Date: 2026-07-13
-Status: fixed in repo, pending release/live validation
+Status: released/live-validated in `v0.4.11`
 
 ## Request
 
@@ -69,8 +69,15 @@ look like a no-op.
 - `python3 -m unittest discover -v`
   - Result: PASS, 637 tests
 
-## Release / Live Validation Pending
+## Release / Live Validation
 
-This is fixed in repo only. Live validation requires a GitHub/HACS release,
-Home Assistant restart, install fingerprint check, and Slave browser proof that
-clicking `Review & promote` visibly opens and focuses the review workflow.
+Release `v0.4.11` was published through GitHub, installed through HACS, Home
+Assistant restarted, and the installed package fingerprint matched the intended
+release build before and after restart (`overall_match=true`).
+
+Slave browser proof on installed `Version 0.4.11` confirmed that clicking
+`Review & promote` for `Lounge Room - Heated Floor` visibly opens
+`Review & promote: Lounge Room - Heated Floor` above the unmanaged candidate
+table, and the selected row action changes to `Reviewing`.
+
+Evidence: `validation/0.4.11-release-validation.md`.
