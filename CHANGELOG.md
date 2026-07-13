@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.10] - 2026-07-13
+
+### Added
+- Added Managed Devices app promotion for unmanaged candidates: operators can review a candidate, confirm settings, and call a new `zero_net_export.promote_managed_device` service to create a ZNE managed-load record while leaving the original Home Assistant device/entity untouched.
+
 ## [0.4.9] - 2026-07-13
 
 ### Changed

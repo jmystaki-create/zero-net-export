@@ -111,6 +111,115 @@ remove_managed_device:
       selector:
         boolean:
 
+promote_managed_device:
+  name: Promote unmanaged candidate
+  description: Promote one surfaced unmanaged candidate into the Zero Net Export managed fleet. This creates only a ZNE managed-load record and child device; the original Home Assistant device and entity are left untouched.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:
+    candidate_entity_id:
+      name: Candidate entity
+      description: Entity id from the Unmanaged Candidate Queue.
+      required: true
+      selector:
+        entity:
+    device_key:
+      name: Device key
+      description: Optional explicit Zero Net Export managed-device key.
+      selector:
+        text:
+    name:
+      name: Name
+      selector:
+        text:
+    kind:
+      name: Kind
+      selector:
+        select:
+          options:
+            - fixed
+            - variable
+    template_key:
+      name: Template
+      selector:
+        text:
+    enabled:
+      name: Enabled
+      selector:
+        boolean:
+    priority:
+      name: Priority
+      selector:
+        number:
+          min: 0
+          max: 1000
+          mode: box
+    nominal_power_w:
+      name: Nominal power W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    min_power_w:
+      name: Minimum power W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    max_power_w:
+      name: Maximum power W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    step_w:
+      name: Step W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    min_on_seconds:
+      name: Minimum on seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    min_off_seconds:
+      name: Minimum off seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    cooldown_seconds:
+      name: Cooldown seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    max_active_seconds:
+      name: Maximum active seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    confirm:
+      name: Confirm promotion
+      description: Must be true. This is a safety guard for scripts and manual service calls.
+      required: true
+      selector:
+        boolean:
+
 update_source_roles:
   name: Update source roles
   description: Update Zero Net Export source-role bindings for one config entry. This is the app-native save path for the Sources workflow.

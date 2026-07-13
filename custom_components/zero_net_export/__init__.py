@@ -78,6 +78,11 @@ STALE_MANAGED_LOAD_BUTTON_SUFFIXES = (
 )
 DATA_APP_PANEL_REGISTERED = "app_panel_registered"
 DATA_APP_STATIC_REGISTERED = "app_static_registered"
+PROMOTION_FIXED_CANDIDATE_DOMAINS = ("switch", "climate", "input_boolean", "light")
+PROMOTION_DEVICE_KIND_FIXED = "fixed"
+PROMOTION_DEVICE_KIND_VARIABLE = "variable"
+PROMOTION_ADAPTER_FIXED_TOGGLE = "fixed_toggle"
+PROMOTION_ADAPTER_VARIABLE_NUMBER = "variable_number"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -419,6 +424,28 @@ REMOVE_MANAGED_DEVICE_SCHEMA = vol.Schema(
     }
 )
 
+PROMOTE_MANAGED_DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Optional("entry_id"): str,
+        vol.Required("candidate_entity_id"): str,
+        vol.Optional("device_key"): str,
+        vol.Optional("name"): str,
+        vol.Optional("kind"): str,
+        vol.Optional("template_key"): str,
+        vol.Optional("enabled"): bool,
+        vol.Optional("priority"): int,
+        vol.Optional("nominal_power_w"): float,
+        vol.Optional("min_power_w"): float,
+        vol.Optional("max_power_w"): float,
+        vol.Optional("step_w"): float,
+        vol.Optional("min_on_seconds"): int,
+        vol.Optional("min_off_seconds"): int,
+        vol.Optional("cooldown_seconds"): int,
+        vol.Optional("max_active_seconds"): int,
+        vol.Required("confirm"): bool,
+    }
+)
+
 SOURCE_ROLE_KEYS = tuple(SOURCE_ROLE_LABELS.keys())
 
 UPDATE_SOURCE_ROLES_SCHEMA = vol.Schema(
@@ -473,6 +500,153 @@ def _managed_device_entry_and_payloads(hass: HomeAssistant, call: Any) -> tuple[
     if issues:
         raise ValueError("Managed-device inventory is invalid: " + "; ".join(issues[:3]))
     return entry, device_key, [_device_config_to_payload(device) for device in devices]
+
+
+def _candidate_kind_from_entity_id(entity_id: str) -> str:
+    domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+    return PROMOTION_DEVICE_KIND_FIXED if domain in PROMOTION_FIXED_CANDIDATE_DOMAINS else PROMOTION_DEVICE_KIND_VARIABLE
+
+
+def _candidate_template_defaults(kind: str, template_key: str | None) -> dict[str, Any]:
+    from .device_model import get_device_template, get_device_templates
+
+    template = get_device_template(kind, template_key)
+    if template is None:
+        templates = get_device_templates(kind)
+        template = templates[0] if templates else None
+    return dict(template.defaults) if template is not None else {}
+
+
+def _promoted_candidate_defaults(candidate: dict[str, Any], fit: dict[str, Any], template_defaults: dict[str, Any]) -> dict[str, Any]:
+    entity_id = str(candidate.get("entity_id") or "").strip()
+    kind = str(candidate.get("kind") or _candidate_kind_from_entity_id(entity_id))
+    domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+    defaults: dict[str, Any] = {
+        "name": str(candidate.get("name") or entity_id).strip(),
+        "entity_id": entity_id,
+        "kind": kind,
+        "adapter": PROMOTION_ADAPTER_FIXED_TOGGLE if kind == PROMOTION_DEVICE_KIND_FIXED else PROMOTION_ADAPTER_VARIABLE_NUMBER,
+        "nominal_power_w": 2400 if kind == PROMOTION_DEVICE_KIND_FIXED else 3600,
+        "priority": 100,
+        "enabled": True,
+        "min_on_seconds": 900 if kind == PROMOTION_DEVICE_KIND_FIXED else 300,
+        "min_off_seconds": 900 if kind == PROMOTION_DEVICE_KIND_FIXED else 60,
+        "cooldown_seconds": 60 if kind == PROMOTION_DEVICE_KIND_FIXED else 30,
+        "max_active_seconds": 14400 if kind == PROMOTION_DEVICE_KIND_FIXED else 28800,
+        "min_power_w": 1400,
+        "max_power_w": 7200,
+        "step_w": 100,
+    }
+    defaults.update(template_defaults)
+    confidence = str(fit.get("confidence") or "medium")
+    if kind == PROMOTION_DEVICE_KIND_FIXED:
+        if confidence == "high" and domain == "switch":
+            defaults["priority"] = max(int(defaults["priority"]), 120)
+            defaults["min_on_seconds"] = max(int(defaults["min_on_seconds"]), 900)
+            defaults["min_off_seconds"] = max(int(defaults["min_off_seconds"]), 900)
+        elif confidence == "low":
+            defaults["priority"] = min(int(defaults["priority"]), 60)
+        if domain == "light":
+            defaults["priority"] = min(int(defaults["priority"]), 80)
+        if domain == "input_boolean":
+            defaults["enabled"] = False
+    else:
+        if confidence == "high":
+            defaults["priority"] = 50
+            defaults["step_w"] = 100
+            defaults["min_on_seconds"] = max(int(defaults["min_on_seconds"]), 300)
+        elif confidence == "low":
+            defaults["priority"] = 70
+        if domain == "input_number":
+            defaults["enabled"] = False
+    return defaults
+
+
+def _promoted_candidate_payload(candidate: dict[str, Any], fit: dict[str, Any], call_data: dict[str, Any]) -> dict[str, Any]:
+    entity_id = str(candidate.get("entity_id") or "").strip()
+    kind = str(call_data.get("kind") or candidate.get("kind") or _candidate_kind_from_entity_id(entity_id))
+    if kind not in {PROMOTION_DEVICE_KIND_FIXED, PROMOTION_DEVICE_KIND_VARIABLE}:
+        raise ValueError("Promoted managed-device kind must be fixed or variable")
+    defaults = _promoted_candidate_defaults(
+        {**candidate, "kind": kind},
+        fit,
+        _candidate_template_defaults(kind, call_data.get("template_key")),
+    )
+    name = str(call_data.get("name") or defaults["name"]).strip()
+    payload: dict[str, Any] = {
+        "name": name,
+        "kind": kind,
+        "entity_id": entity_id,
+        "adapter": PROMOTION_ADAPTER_FIXED_TOGGLE if kind == PROMOTION_DEVICE_KIND_FIXED else PROMOTION_ADAPTER_VARIABLE_NUMBER,
+        "nominal_power_w": float(_coerce_number(call_data.get("nominal_power_w"), defaults["nominal_power_w"])),
+        "priority": int(_coerce_number(call_data.get("priority"), defaults["priority"])),
+        "enabled": bool(call_data.get("enabled", defaults["enabled"])),
+        "min_on_seconds": int(_coerce_number(call_data.get("min_on_seconds"), defaults["min_on_seconds"])),
+        "min_off_seconds": int(_coerce_number(call_data.get("min_off_seconds"), defaults["min_off_seconds"])),
+        "cooldown_seconds": int(_coerce_number(call_data.get("cooldown_seconds"), defaults["cooldown_seconds"])),
+        "max_active_seconds": int(_coerce_number(call_data.get("max_active_seconds"), defaults["max_active_seconds"])) or None,
+    }
+    device_key = str(call_data.get("device_key") or "").strip()
+    if device_key:
+        payload["key"] = device_key
+    if kind == PROMOTION_DEVICE_KIND_FIXED:
+        payload["min_power_w"] = payload["nominal_power_w"]
+        payload["max_power_w"] = payload["nominal_power_w"]
+        payload["step_w"] = payload["nominal_power_w"]
+    else:
+        payload["min_power_w"] = float(_coerce_number(call_data.get("min_power_w"), defaults["min_power_w"]))
+        payload["max_power_w"] = float(_coerce_number(call_data.get("max_power_w"), defaults["max_power_w"]))
+        payload["step_w"] = float(_coerce_number(call_data.get("step_w"), defaults["step_w"]))
+    return payload
+
+
+async def _async_promote_managed_device_from_candidate(hass: HomeAssistant, call: Any) -> None:
+    """Promote a surfaced unmanaged candidate into one ZNE managed-device record."""
+    from .candidate_utils import assess_candidate, discover_candidate_devices
+
+    if call.data.get("confirm") is not True:
+        raise ValueError("Set confirm=true to promote an unmanaged candidate")
+    entry = _entry_from_service_call(hass, call)
+    raw_inventory = entry.options.get(
+        CONF_DEVICE_INVENTORY_JSON,
+        entry.data.get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
+    )
+    devices, issues = parse_device_configs(raw_inventory)
+    if issues:
+        raise ValueError("Managed-device inventory is invalid: " + "; ".join(issues[:3]))
+    payloads = [_device_config_to_payload(device) for device in devices]
+    managed_entity_ids = {str(payload.get("entity_id")) for payload in payloads if payload.get("entity_id")}
+    candidate_entity_id = str(call.data["candidate_entity_id"]).strip()
+    if candidate_entity_id in managed_entity_ids:
+        raise ValueError(f"Candidate '{candidate_entity_id}' is already managed")
+    candidates = discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
+    candidate = next((item for item in candidates if item.get("entity_id") == candidate_entity_id), None)
+    if candidate is None:
+        raise ValueError(f"Candidate '{candidate_entity_id}' is not currently available for promotion")
+    fit = assess_candidate(candidate)
+    payload = _promoted_candidate_payload(candidate, fit, dict(call.data))
+    candidate_payloads = [*payloads, payload]
+    _validated_devices, validation_issues = parse_device_configs(json.dumps(candidate_payloads))
+    if validation_issues:
+        raise ValueError("Promoted managed-device settings are invalid: " + "; ".join(validation_issues[:3]))
+    promoted_key = _device_config_to_payload(_validated_devices[-1]).get("key")
+    duplicate_keys = [item.get("key") for item in candidate_payloads]
+    if len([key for key in duplicate_keys if key == promoted_key]) > 1:
+        raise ValueError(f"Managed device key '{promoted_key}' is already managed")
+
+    merged_options = dict(entry.options)
+    merged_options[CONF_DEVICE_INVENTORY_JSON] = json.dumps(candidate_payloads, indent=2, sort_keys=True)
+    hass.config_entries.async_update_entry(entry, options=merged_options)
+    await hass.config_entries.async_reload(entry.entry_id)
+    persistent_notification.async_create(
+        hass,
+        (
+            f"Promoted {payload.get('name') or candidate_entity_id} into the Zero Net Export managed fleet. "
+            "This created a ZNE managed-load record and child device; the original Home Assistant device and entity were not modified."
+        ),
+        title=f"{entry.title}: unmanaged candidate promoted",
+        notification_id=f"{DOMAIN}_{entry.entry_id}_managed_device_promoted",
+    )
 
 
 async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any) -> None:
@@ -640,14 +814,14 @@ async def async_remove_config_entry_device(
 
 
 def _register_services(hass: HomeAssistant) -> None:
-    if hass.services.has_service(DOMAIN, "update_managed_device"):
-        return
-
     async def _handle_update_managed_device(call: Any) -> None:
         await _async_update_managed_device_from_panel(hass, call)
 
     async def _handle_remove_managed_device(call: Any) -> None:
         await _async_remove_managed_device(hass, call)
+
+    async def _handle_promote_managed_device(call: Any) -> None:
+        await _async_promote_managed_device_from_candidate(hass, call)
 
     async def _handle_update_source_roles(call: Any) -> None:
         await _async_update_source_roles_from_app(hass, call)
@@ -668,48 +842,20 @@ def _register_services(hass: HomeAssistant) -> None:
         async_clear_repairs_issues(hass, entry)
         _LOGGER.info("Repairs issues cleared for Zero Net Export entry %s", entry.entry_id)
 
-    hass.services.async_register(
-        DOMAIN,
-        "update_managed_device",
-        _handle_update_managed_device,
-        schema=UPDATE_MANAGED_DEVICE_SCHEMA,
+    registrations = (
+        ("update_managed_device", _handle_update_managed_device, UPDATE_MANAGED_DEVICE_SCHEMA),
+        ("remove_managed_device", _handle_remove_managed_device, REMOVE_MANAGED_DEVICE_SCHEMA),
+        ("promote_managed_device", _handle_promote_managed_device, PROMOTE_MANAGED_DEVICE_SCHEMA),
+        ("update_source_roles", _handle_update_source_roles, UPDATE_SOURCE_ROLES_SCHEMA),
+        ("pause_executor", _handle_pause_executor, ENTRY_SCOPED_SERVICE_SCHEMA),
+        ("resume_executor", _handle_resume_executor, ENTRY_SCOPED_SERVICE_SCHEMA),
+        ("export_diagnostics", _handle_export_diagnostics, ENTRY_SCOPED_SERVICE_SCHEMA),
+        ("repair_issue", _handle_repair_issue, ENTRY_SCOPED_SERVICE_SCHEMA),
     )
-    hass.services.async_register(
-        DOMAIN,
-        "remove_managed_device",
-        _handle_remove_managed_device,
-        schema=REMOVE_MANAGED_DEVICE_SCHEMA,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "update_source_roles",
-        _handle_update_source_roles,
-        schema=UPDATE_SOURCE_ROLES_SCHEMA,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "pause_executor",
-        _handle_pause_executor,
-        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "resume_executor",
-        _handle_resume_executor,
-        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "export_diagnostics",
-        _handle_export_diagnostics,
-        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "repair_issue",
-        _handle_repair_issue,
-        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
-    )
+    for service_name, handler, schema in registrations:
+        if hass.services.has_service(DOMAIN, service_name):
+            continue
+        hass.services.async_register(DOMAIN, service_name, handler, schema=schema)
 
 
 async def _async_register_app_panel(hass: HomeAssistant) -> None:

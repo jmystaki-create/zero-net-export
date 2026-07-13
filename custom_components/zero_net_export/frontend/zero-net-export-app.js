@@ -5,6 +5,7 @@ class ZeroNetExportApp extends HTMLElement {
     this._busy = false;
     this._message = "";
     this._selectedEntryIdValue = "";
+    this._promoteCandidateId = "";
     this._onClick = this._onClick.bind(this);
     this._onChange = this._onChange.bind(this);
     this._realtimeTimer = undefined;
@@ -602,6 +603,120 @@ class ZeroNetExportApp extends HTMLElement {
     `).join("");
   }
 
+  _candidatePromotionDefaults(candidate) {
+    const kind = String((candidate && candidate.kind) || "fixed");
+    const ready = !(candidate && (candidate.needs_review === true || candidate.needs_review === "true"));
+    return {
+      name: (candidate && (candidate.name || candidate.entity_id)) || "",
+      kind,
+      template_key: kind === "variable" ? "generic_variable" : "generic_fixed",
+      enabled: ready,
+      priority: kind === "variable" ? 50 : ready ? 120 : 80,
+      nominal_power_w: kind === "variable" ? 3600 : 2400,
+      min_power_w: 1400,
+      max_power_w: 7200,
+      step_w: 100,
+      min_on_seconds: kind === "variable" ? 300 : 900,
+      min_off_seconds: kind === "variable" ? 60 : 900,
+      cooldown_seconds: kind === "variable" ? 30 : 60,
+      max_active_seconds: kind === "variable" ? 28800 : 14400,
+    };
+  }
+
+  _templateOptions(kind, selected) {
+    const options = kind === "variable"
+      ? [
+        ["generic_variable", "Generic variable load"],
+        ["ev_charger", "EV charger"],
+        ["battery_charge_sink", "Battery charge sink"],
+      ]
+      : [
+        ["generic_fixed", "Generic fixed load"],
+        ["hot_water", "Hot water element"],
+        ["pool_pump", "Pool pump"],
+        ["smart_plug", "Smart plug / relay"],
+      ];
+    return options.map(([value, label]) => `
+      <option value="${this._escape(value)}" ${value === selected ? "selected" : ""}>${this._escape(label)}</option>
+    `).join("");
+  }
+
+  _candidatePromotionPanel(candidate) {
+    if (!candidate) {
+      return "";
+    }
+    const defaults = this._candidatePromotionDefaults(candidate);
+    const kind = defaults.kind;
+    const needsReview = candidate.needs_review === true || candidate.needs_review === "true";
+    const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
+    const fit = candidate.usefulness_label || candidate.fit_confidence || "review first";
+    return `
+      <div class="zne-card zne-promotion-panel">
+        <h3>Review & promote: ${this._escape(candidate.name || candidate.entity_id || "candidate")}</h3>
+        <div class="zne-promotion-summary">
+          <div class="zne-row"><span>Entity</span><strong>${this._escape(candidate.entity_id || "-")}</strong></div>
+          <div class="zne-row"><span>Candidate fit</span><strong>${this._escape(fit)}</strong></div>
+          <div class="zne-row"><span>Review state</span><strong>${needsReview ? "Review required" : "Ready to promote"}</strong></div>
+          <div class="zne-row"><span>Warnings</span><strong>${this._escape(warning)}</strong></div>
+        </div>
+        <div class="zne-promotion-form">
+          <label>Name
+            <input data-zne-promote-field="name" type="text" autocomplete="off" value="${this._escape(defaults.name)}">
+          </label>
+          <label>Kind
+            <select data-zne-promote-field="kind">
+              <option value="fixed" ${kind === "fixed" ? "selected" : ""}>Fixed</option>
+              <option value="variable" ${kind === "variable" ? "selected" : ""}>Variable</option>
+            </select>
+          </label>
+          <label>Template
+            <select data-zne-promote-field="template_key">
+              ${this._templateOptions(kind, defaults.template_key)}
+            </select>
+          </label>
+          <label>Enabled after promotion
+            <input data-zne-promote-field="enabled" type="checkbox" ${defaults.enabled ? "checked" : ""}>
+          </label>
+          <label>Priority
+            <input data-zne-promote-field="priority" type="number" min="0" max="1000" value="${this._escape(defaults.priority)}">
+          </label>
+          <label>Nominal power W
+            <input data-zne-promote-field="nominal_power_w" type="number" min="1" value="${this._escape(defaults.nominal_power_w)}">
+          </label>
+          <label>Minimum power W
+            <input data-zne-promote-field="min_power_w" type="number" min="1" value="${this._escape(defaults.min_power_w)}">
+          </label>
+          <label>Maximum power W
+            <input data-zne-promote-field="max_power_w" type="number" min="1" value="${this._escape(defaults.max_power_w)}">
+          </label>
+          <label>Step W
+            <input data-zne-promote-field="step_w" type="number" min="1" value="${this._escape(defaults.step_w)}">
+          </label>
+          <label>Minimum on seconds
+            <input data-zne-promote-field="min_on_seconds" type="number" min="0" value="${this._escape(defaults.min_on_seconds)}">
+          </label>
+          <label>Minimum off seconds
+            <input data-zne-promote-field="min_off_seconds" type="number" min="0" value="${this._escape(defaults.min_off_seconds)}">
+          </label>
+          <label>Cooldown seconds
+            <input data-zne-promote-field="cooldown_seconds" type="number" min="0" value="${this._escape(defaults.cooldown_seconds)}">
+          </label>
+          <label>Maximum active seconds
+            <input data-zne-promote-field="max_active_seconds" type="number" min="0" value="${this._escape(defaults.max_active_seconds)}">
+          </label>
+        </div>
+        <label class="zne-bulk-confirm-row">
+          <input data-zne-promote-confirm type="checkbox">
+          Confirm this candidate should become a Zero Net Export managed load. The original Home Assistant device/entity will not be modified.
+        </label>
+        <div class="zne-actions">
+          <button type="button" data-zne-action="promote-candidate" data-candidate-entity-id="${this._escape(candidate.entity_id || "")}">Promote to fleet</button>
+          <button type="button" data-zne-action="candidate-cancel">Cancel</button>
+        </div>
+      </div>
+    `;
+  }
+
   _sourceState(role, suffix, suffixName) {
     if (!this._hass || !this._hass.states) {
       return undefined;
@@ -727,10 +842,43 @@ class ZeroNetExportApp extends HTMLElement {
       return;
     }
 
+    if (action === "candidate-review") {
+      this._promoteCandidateId = target.dataset.candidateEntityId || "";
+      this._message = this._promoteCandidateId ? "Review candidate settings before promotion." : "";
+      this._render();
+      return;
+    }
+
+    if (action === "candidate-cancel") {
+      this._promoteCandidateId = "";
+      this._message = "Candidate promotion cancelled.";
+      this._render();
+      return;
+    }
+
     const managedDeviceKeyInput = this.querySelector("[data-zne-managed-key]");
     const managedDeviceKey = managedDeviceKeyInput ? managedDeviceKeyInput.value.trim() : "";
     const managedConfirmInput = this.querySelector("[data-zne-managed-confirm]");
     const managedConfirm = managedConfirmInput ? managedConfirmInput.value.trim() : "";
+    const promoteCandidateId = target.dataset.candidateEntityId || this._promoteCandidateId || "";
+    const promoteConfirmInput = this.querySelector("[data-zne-promote-confirm]");
+    const promoteConfirmed = promoteConfirmInput ? promoteConfirmInput.checked : false;
+    const promoteValues = {};
+    this.querySelectorAll("[data-zne-promote-field]").forEach((input) => {
+      const key = input.dataset.znePromoteField;
+      if (!key) {
+        return;
+      }
+      if (input.type === "checkbox") {
+        promoteValues[key] = input.checked;
+        return;
+      }
+      if (input.type === "number") {
+        promoteValues[key] = Number(input.value);
+        return;
+      }
+      promoteValues[key] = input.value.trim();
+    });
     const sourceRoleValues = {};
     this.querySelectorAll("[data-zne-source-role]").forEach((input) => {
       const value = input.value.trim();
@@ -850,6 +998,23 @@ class ZeroNetExportApp extends HTMLElement {
           selectedInput.value = "";
         }
         this._message = `Managed record removal requested for ${deviceKey}. The original Home Assistant entity is left untouched.`;
+      }
+
+      if (action === "promote-candidate") {
+        if (!promoteCandidateId) {
+          throw new Error("Select an unmanaged candidate first.");
+        }
+        if (!promoteConfirmed) {
+          throw new Error("Confirm this candidate before promoting it.");
+        }
+        await this._hass.callService("zero_net_export", "promote_managed_device", {
+          ...this._entryServiceData(),
+          candidate_entity_id: promoteCandidateId,
+          ...promoteValues,
+          confirm: true,
+        });
+        this._promoteCandidateId = "";
+        this._message = "Candidate promotion requested. Home Assistant will reload this Zero Net Export plan.";
       }
 
       if (action === "update-source-roles") {
@@ -1196,6 +1361,9 @@ class ZeroNetExportApp extends HTMLElement {
     const readyCandidates = Number(overview?.attributes?.ready_candidate_count || Math.max(candidateCount - reviewNeeded, 0));
     const fixedCandidates = Number(overview?.attributes?.fixed_candidate_count || candidateQueue.filter(c => c.kind === "fixed").length || 0);
     const variableCandidates = Number(overview?.attributes?.variable_candidate_count || candidateQueue.filter(c => c.kind === "variable").length || 0);
+    const promotionCandidate = this._promoteCandidateId
+      ? candidateQueue.find(candidate => candidate.entity_id === this._promoteCandidateId)
+      : null;
 
     // Filter state (stored in data attributes on the section)
     const filterPlan = this.querySelector("[data-filter-plan]")?.value || "all";
@@ -1423,6 +1591,7 @@ class ZeroNetExportApp extends HTMLElement {
                 <span>Current</span>
                 <span>Fit</span>
                 <span>Warnings</span>
+                <span>Actions</span>
               </div>
               ${candidateQueue.map((candidate) => {
                 const needsReview = candidate.needs_review === true || candidate.needs_review === "true";
@@ -1439,11 +1608,18 @@ class ZeroNetExportApp extends HTMLElement {
                   <span>${this._escape(candidate.state || "-")}${candidate.unit ? ` ${this._escape(candidate.unit)}` : ""}</span>
                   <span>${this._escape(fit)}</span>
                   <span>${this._escape(warning)}</span>
+                  <span>
+                    <button type="button" data-zne-action="candidate-review" data-candidate-entity-id="${this._escape(candidate.entity_id || "")}">
+                      Review &amp; promote
+                    </button>
+                  </span>
                 </div>
               `;}).join("")}
             </div>
           `}
         </div>
+
+        ${this._candidatePromotionPanel(promotionCandidate)}
 
         <!-- Device Detail (Drill-down) -->
         ${selectedDevice ? `
@@ -2292,7 +2468,7 @@ class ZeroNetExportApp extends HTMLElement {
         .zne-candidate-header,
         .zne-candidate-row {
           display: grid;
-          grid-template-columns: minmax(160px, 1.4fr) minmax(64px, 0.45fr) minmax(86px, 0.55fr) minmax(64px, 0.5fr) minmax(110px, 0.8fr) minmax(160px, 1.3fr);
+          grid-template-columns: minmax(160px, 1.4fr) minmax(64px, 0.45fr) minmax(86px, 0.55fr) minmax(64px, 0.5fr) minmax(110px, 0.8fr) minmax(160px, 1.3fr) minmax(120px, 0.8fr);
           gap: 8px;
           align-items: start;
         }
@@ -2332,6 +2508,25 @@ class ZeroNetExportApp extends HTMLElement {
           font-size: 12px;
           margin-top: 3px;
           overflow-wrap: anywhere;
+        }
+
+        .zne-promotion-panel {
+          margin-top: 12px;
+        }
+
+        .zne-promotion-summary {
+          margin-bottom: 12px;
+        }
+
+        .zne-promotion-form {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+          gap: 10px;
+          align-items: end;
+        }
+
+        .zne-promotion-form label {
+          margin-bottom: 0;
         }
 
         .zne-device-detail {

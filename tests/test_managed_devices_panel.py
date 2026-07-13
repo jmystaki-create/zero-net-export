@@ -58,6 +58,22 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("candidate.warning_summary", source)
         self.assertIn("candidate.fit_confidence", source)
 
+    def test_managed_devices_panel_promotes_unmanaged_candidates_from_app(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_promoteCandidateId", source)
+        self.assertIn("_candidatePromotionPanel(candidate)", source)
+        self.assertIn('data-zne-action="candidate-review"', source)
+        self.assertIn("Review &amp; promote", source)
+        self.assertIn("Promote to fleet", source)
+        self.assertIn('data-zne-action="promote-candidate"', source)
+        self.assertIn("[data-zne-promote-field]", source)
+        self.assertIn("[data-zne-promote-confirm]", source)
+        self.assertIn('callService("zero_net_export", "promote_managed_device"', source)
+        self.assertIn("candidate_entity_id: promoteCandidateId", source)
+        self.assertIn("confirm: true", source)
+        self.assertIn("The original Home Assistant device/entity will not be modified", source)
+
     def test_managed_devices_panel_orders_managed_fleet_before_unmanaged_queue(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -208,7 +224,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.9"', source)
+        self.assertIn('"version": "0.4.10"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
@@ -252,8 +268,18 @@ class ManagedDevicesPanelTests(unittest.TestCase):
 
         self.assertIn("update_managed_device", init_source)
         self.assertIn("remove_managed_device", init_source)
+        self.assertIn("promote_managed_device", init_source)
+        self.assertIn("PROMOTE_MANAGED_DEVICE_SCHEMA", init_source)
+        self.assertIn("_async_promote_managed_device_from_candidate", init_source)
+        self.assertIn("discover_candidate_devices(hass.states.async_all(), managed_entity_ids)", init_source)
+        self.assertIn("Candidate '{candidate_entity_id}' is already managed", init_source)
+        self.assertIn("Candidate '{candidate_entity_id}' is not currently available for promotion", init_source)
+        self.assertIn("This created a ZNE managed-load record and child device", init_source)
         self.assertIn("update_managed_device:", services_source)
         self.assertIn("remove_managed_device:", services_source)
+        self.assertIn("promote_managed_device:", services_source)
+        self.assertIn("candidate_entity_id:", services_source)
+        self.assertIn("Confirm promotion", services_source)
         self.assertIn("The original Home Assistant device and entity are left untouched", services_source)
 
     def test_backend_source_role_update_service_is_supported_and_scoped(self) -> None:
@@ -278,7 +304,8 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn('len(entries) > 1', init_source)
         self.assertIn('raise ValueError("Set entry_id when more than one Zero Net Export plan is configured")', init_source)
         self.assertIn("def _coordinator_from_service_call", init_source)
-        self.assertIn("schema=ENTRY_SCOPED_SERVICE_SCHEMA", init_source)
+        self.assertIn('("pause_executor", _handle_pause_executor, ENTRY_SCOPED_SERVICE_SCHEMA)', init_source)
+        self.assertIn("hass.services.async_register(DOMAIN, service_name, handler, schema=schema)", init_source)
         self.assertIn('"pause_executor"', init_source)
         self.assertIn('"resume_executor"', init_source)
         self.assertIn('"export_diagnostics"', init_source)
