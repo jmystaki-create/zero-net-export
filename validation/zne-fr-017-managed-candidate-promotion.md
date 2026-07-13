@@ -1,7 +1,7 @@
 # ZNE-FR-017 Managed Candidate Promotion
 
 Date: 2026-07-13
-Status: repo-validated; release/live validation pending
+Status: released/live-validated in v0.4.10
 
 ## Request
 
@@ -12,7 +12,7 @@ that adds the Zero Net Export managed-device property in Home Assistant.
 ## Classification
 
 - Type: feature
-- State: Repo validated, pending release/live validation
+- State: Released/live-validated
 - Primary surface: Zero Net Export Home Assistant application, Managed Devices tab
 - Supporting surface: Home Assistant Zero Net Export integration/device registry
 
@@ -171,18 +171,39 @@ that adds the Zero Net Export managed-device property in Home Assistant.
 - `git diff --check`
   - Result: PASS
 
-## Release / Live Validation Pending
+## Release / Live Validation
 
-- Publish through the approved GitHub/HACS release path.
-- Install via HACS and restart Home Assistant.
-- Verify install fingerprint and targeted Zero Net Export logs.
-- Use Slave browser to open the installed Managed Devices app.
-- Promote a disposable unmanaged candidate through `Review & promote`.
-- Confirm the promoted row appears in Fleet List and leaves the unmanaged queue.
-- Confirm the Home Assistant Zero Net Export device/integration surface shows
-  the promoted managed child device.
-- Remove the disposable managed record and confirm the original HA entity/device
-  remains present.
+- Release: `v0.4.10`
+- GitHub release:
+  `https://github.com/jmystaki-create/zero-net-export/releases/tag/v0.4.10`
+- Release commit/tag source: `da01c4c`
+- HACS/Home Assistant install:
+  - `update.zero_net_export_update` installed/latest `v0.4.10`
+  - `sensor.zero_net_export_installed_version` state `0.4.10`
+- Install fingerprint:
+  - `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222`
+  - Result: PASS, `overall_match=true`, manifest `0.4.10`, no tracked-file mismatches
+- Services:
+  - `zero_net_export.promote_managed_device` registered
+  - `zero_net_export.remove_managed_device` registered
+  - `zero_net_export.update_managed_device` registered
+- Reversible live promotion proof:
+  - Candidate: `switch.ac_outlet_1` (`Lounge Room - Heated Floor`)
+  - Promotion service call used `enabled:false` and `confirm:true`
+  - Result: disabled managed record `zne_fr017_validation_ac_outlet_1` appeared in Fleet List
+  - Candidate queue result: `switch.ac_outlet_1` left the unmanaged queue while promoted
+  - Cleanup: `zero_net_export.remove_managed_device` with `confirm:true` removed the validation record
+  - Post-cleanup result: validation record count `0`, `switch.ac_outlet_1` restored to unmanaged candidates, original HA entity still present
+- Slave browser proof:
+  - App opened at `http://192.168.86.200:8123/zero-net-export?validation=zne-fr-017-v0410-promotion`
+  - Header showed `Version 0.4.10`
+  - Managed Devices showed Fleet List before Unmanaged Candidate Queue
+  - Candidate rows showed `Review & promote`
+  - Promotion panel rendered for `switch.ac_outlet_1` with editable settings and the confirmation text:
+    `The original Home Assistant device/entity will not be modified.`
+- Log review:
+  - Known Zero Net Export recorder attribute-size warnings remain and are tracked under `ZNE-595`
+  - No new Zero Net Export traceback or promotion-specific release blocker was found in the post-validation log review
 
 ## Recommendation
 
