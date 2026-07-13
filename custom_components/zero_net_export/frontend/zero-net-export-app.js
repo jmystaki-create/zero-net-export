@@ -651,7 +651,7 @@ class ZeroNetExportApp extends HTMLElement {
     const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
     const fit = candidate.usefulness_label || candidate.fit_confidence || "review first";
     return `
-      <div class="zne-card zne-promotion-panel">
+      <div class="zne-card zne-promotion-panel" data-zne-promotion-panel tabindex="-1">
         <h3>Review & promote: ${this._escape(candidate.name || candidate.entity_id || "candidate")}</h3>
         <div class="zne-promotion-summary">
           <div class="zne-row"><span>Entity</span><strong>${this._escape(candidate.entity_id || "-")}</strong></div>
@@ -846,6 +846,15 @@ class ZeroNetExportApp extends HTMLElement {
       this._promoteCandidateId = target.dataset.candidateEntityId || "";
       this._message = this._promoteCandidateId ? "Review candidate settings before promotion." : "";
       this._render();
+      if (this._promoteCandidateId) {
+        window.requestAnimationFrame(() => {
+          const panel = this.querySelector("[data-zne-promotion-panel]");
+          if (panel) {
+            panel.focus();
+            panel.scrollIntoView({ block: "start", behavior: "smooth" });
+          }
+        });
+      }
       return;
     }
 
@@ -1580,6 +1589,7 @@ class ZeroNetExportApp extends HTMLElement {
             <span class="zne-stat neutral"><strong>${fixedCandidates}</strong> Fixed</span>
             <span class="zne-stat neutral"><strong>${variableCandidates}</strong> Variable</span>
           </div>
+          ${this._candidatePromotionPanel(promotionCandidate)}
           ${candidateQueue.length === 0
             ? '<p class="zne-muted">No unmanaged candidates are currently surfaced.</p>'
             : `
@@ -1598,7 +1608,7 @@ class ZeroNetExportApp extends HTMLElement {
                 const fit = candidate.usefulness_label || candidate.fit_confidence || "-";
                 const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
                 return `
-                <div class="zne-candidate-row ${needsReview ? "review" : "ready"}">
+                <div class="zne-candidate-row ${candidate.entity_id === this._promoteCandidateId ? "selected" : ""} ${needsReview ? "review" : "ready"}">
                   <span>
                     <strong>${this._escape(candidate.name || candidate.entity_id || "-")}</strong>
                     <small>${this._escape(candidate.entity_id || "")}</small>
@@ -1610,7 +1620,7 @@ class ZeroNetExportApp extends HTMLElement {
                   <span>${this._escape(warning)}</span>
                   <span>
                     <button type="button" data-zne-action="candidate-review" data-candidate-entity-id="${this._escape(candidate.entity_id || "")}">
-                      Review &amp; promote
+                      ${candidate.entity_id === this._promoteCandidateId ? "Reviewing" : "Review &amp; promote"}
                     </button>
                   </span>
                 </div>
@@ -1618,8 +1628,6 @@ class ZeroNetExportApp extends HTMLElement {
             </div>
           `}
         </div>
-
-        ${this._candidatePromotionPanel(promotionCandidate)}
 
         <!-- Device Detail (Drill-down) -->
         ${selectedDevice ? `
@@ -2494,6 +2502,12 @@ class ZeroNetExportApp extends HTMLElement {
         .zne-candidate-row.ready {
           border-left: 3px solid var(--success-color, #2e7d32);
           padding-left: 8px;
+        }
+
+        .zne-candidate-row.selected {
+          outline: 2px solid #64b5f6;
+          outline-offset: -2px;
+          background: rgba(100, 181, 246, 0.10);
         }
 
         .zne-candidate-row span {

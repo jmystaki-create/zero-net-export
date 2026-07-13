@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.11] - 2026-07-13
+
+### Fixed
+- Made Managed Devices `Review & promote` clicks visibly open the candidate review workflow by rendering the review panel above the unmanaged table, scrolling/focusing it, and marking the selected row.
+
 ## [0.4.10] - 2026-07-13
 
 ### Added

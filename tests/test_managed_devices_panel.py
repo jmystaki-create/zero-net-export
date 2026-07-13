@@ -67,12 +67,22 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("Review &amp; promote", source)
         self.assertIn("Promote to fleet", source)
         self.assertIn('data-zne-action="promote-candidate"', source)
+        self.assertIn("data-zne-promotion-panel", source)
+        self.assertIn('tabindex="-1"', source)
+        self.assertIn('panel.scrollIntoView({ block: "start", behavior: "smooth" });', source)
+        self.assertIn('candidate.entity_id === this._promoteCandidateId ? "Reviewing" : "Review &amp; promote"', source)
+        self.assertIn(".zne-candidate-row.selected", source)
         self.assertIn("[data-zne-promote-field]", source)
         self.assertIn("[data-zne-promote-confirm]", source)
         self.assertIn('callService("zero_net_export", "promote_managed_device"', source)
         self.assertIn("candidate_entity_id: promoteCandidateId", source)
         self.assertIn("confirm: true", source)
         self.assertIn("The original Home Assistant device/entity will not be modified", source)
+
+        self.assertLess(
+            source.index("${this._candidatePromotionPanel(promotionCandidate)}"),
+            source.index('<div class="zne-candidate-table">'),
+        )
 
     def test_managed_devices_panel_orders_managed_fleet_before_unmanaged_queue(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -224,7 +234,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.10"', source)
+        self.assertIn('"version": "0.4.11"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
