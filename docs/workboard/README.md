@@ -46,7 +46,9 @@ Primary references:
 ## Architecture / Current State
 
 Current release: `v0.4.12` (recorder attribute-size cleanup for `ZNE-595`, installed through HACS and live validated 2026-07-15).
-Next: decide the next app workflow slice after the recorder warning blocker is closed.
+Next: fix `ZNE-599`, the Managed Devices promotion regression where the
+confirmation checkbox does not stay pressed and an unmanaged candidate is not
+added to the managed Fleet List.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -85,14 +87,14 @@ Current state:
 - `ZNE-FR-013` is released/live validated in `v0.4.3`: the Overview
   Readiness card now has dedicated formatting, current-focus context, and
   issue cards that explain what is wrong and how to resolve it.
-- `ZNE-FR-014` is repo-validated pending release/live validation: the Overview
+- `ZNE-FR-014` is released/live validated in `v0.4.5`: the Overview
   Readiness card now replaces dense command-center/device queue strings with a
   short verdict, `Do this first`, concise issue facts, and ordered resolution
   steps.
-- `ZNE-597` is repo-validated pending release/live validation: live Battery discharge power mapping was repaired
+- `ZNE-597` is released in `v0.4.4` with a focused validation follow-up: live Battery discharge power mapping was repaired
   from the cumulative Anker total sensor to `sensor.x1_p6k_us_s_discharge_power`;
   repo-side normalized source-reading unit presentation passed validation and
-  is pending release.
+  still needs a dedicated installed UI/unit proof.
 - `v0.4.11` fixed and live-validated the Managed Devices `Review & promote`
   visible workflow regression.
 - `ZNE-595` is released/live validated in `v0.4.12`: recorder-backed entity
@@ -100,14 +102,28 @@ Current state:
   diagnostics remain on diagnostics/app surfaces. Post-restart max observed ZNE
   attribute payload was `10483` bytes, and the reviewed post-restart log window
   had no ZNE recorder attribute-size warnings.
+- `ZNE-599` is open/high with a local frontend fix pending broader
+  validation/release: on installed `v0.4.12`, the unmanaged-candidate promotion
+  workflow opens but the required confirmation checkbox does not stay checked
+  and `Promote to fleet` does not add the candidate to the managed Fleet List.
+  The local fix persists promotion draft/confirmation state across app
+  re-renders and keeps promotion on `zero_net_export.promote_managed_device`.
 
 ## Known Bugs
 
 Active/high-signal items:
-- ZNE-597: repo-validated pending release/live validation; Battery Power used a cumulative Anker total sensor and
+- ZNE-599: local_fix_pending_release_validation; Managed Devices `Review & promote` confirmation does not
+  commit an unmanaged candidate into the managed Fleet List. Riley's
+  2026-07-15 screenshot/report shows `Lounge Room - Heated Floor`
+  (`switch.ac_outlet_1`) in review, the confirmation checkbox not staying
+  pressed, and the candidate still in the unmanaged queue. Focused local
+  validation passed with JS syntax check, managed-device panel unittest, and
+  diff whitespace check.
+- ZNE-597: released in `v0.4.4` with focused unit-display proof pending; Battery Power used a cumulative Anker total sensor and
   displayed normalized watts as kW. Live source-role repair now binds discharge
   power to `sensor.x1_p6k_us_s_discharge_power`, with ZNE status `ready` and
-  reconciliation error `0 W`; release the repo unit-presentation fix next.
+  reconciliation error `0 W`; code shipped in `v0.4.4`, and the remaining
+  action is focused installed proof that units display as normalized watts.
 - ZNE-596: released_live_validated in `v0.4.1`; the Sources app
   showed Battery state of charge as missing because the frontend derived
   `battery_soc_status` while the backend exposes `battery_state_of_charge_status`.
@@ -126,7 +142,8 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Fix post-v0.4.0/v0.4.2/v0.4.3 oversized recorder-backed entity attributes.
+- Fix and live-validate `ZNE-599` unmanaged candidate promotion confirmation.
+- Capture the focused installed `ZNE-597` Battery Power/unit proof.
 - Capture v0.4.0 browser visual proof once the OpenClaw managed browser host is available.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
@@ -136,10 +153,15 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Choose the next app workflow slice now that ZNE-595 is closed.
+**Immediate**: Finish `ZNE-599` so unmanaged candidates can be confirmed and
+promoted into the managed Fleet List on installed Home Assistant.
 
-1. Decide when to scope deferred bulk priority adjustment.
-2. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Run broader repo validation for the local promotion-state fix.
+2. Release through GitHub/HACS after explicit approval.
+3. Live-validate a safe candidate promotion.
+4. Capture the focused installed `ZNE-597` Battery Power/unit proof.
+5. Decide when to scope deferred bulk priority adjustment.
+6. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
@@ -150,9 +172,10 @@ Deferred / not current focus:
 - The current OpenClaw Workboard CLI can create/list/show cards, but this build does not expose an edit command for existing cards; detailed state updates may need repo Workboard docs plus new focused UI cards until card editing is available.
 - Current runtime status is `degraded` due to power-source reconciliation; track
   separately from Milestone 6 diagnostics service validation.
-- v0.4.0 log review found many Zero Net Export entity attributes exceeding Home
-  Assistant's 16 KB recorder attribute limit. Treat this as the next high-priority
-  implementation bug.
+- ZNE-595 recorder attribute warnings are fixed and live validated in `v0.4.12`;
+  continue scanning logs after future releases for recurrence.
+- ZNE-599 blocks the app-native unmanaged-candidate onboarding path until the
+  confirmation/promotion submit flow is fixed and live validated.
 - Keep using GitHub/HACS-only validation for releases; no direct component
   deployment.
 - Live validation must continue through GitHub/HACS, not direct file deployment.
@@ -198,6 +221,8 @@ Full product completion: not yet estimable from current evidence because runtime
 - [WB-ZNE-011 Overview Readiness clarity](cards/WB-ZNE-011-overview-readiness-clarity.md)
 - [WB-ZNE-012 Battery Power source mapping](cards/WB-ZNE-012-battery-power-source-mapping.md)
 - [WB-ZNE-013 Overview Readiness message design](cards/WB-ZNE-013-overview-readiness-message-design.md)
+- [WB-ZNE-014 Recorder attribute budget](cards/WB-ZNE-014-recorder-attribute-budget.md)
+- [WB-ZNE-015 Promotion confirmation regression](cards/WB-ZNE-015-promotion-confirmation-regression.md)
 
 ## OpenClaw UI Cards
 
@@ -216,6 +241,7 @@ Full product completion: not yet estimable from current evidence because runtime
 - `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - released/live validated via API/static/service checks.
 - `workboard-focused` - `ZNE: Overview console live metrics` - done; released/live validated in `v0.4.2`.
 - `workboard-focused` - `ZNE: Overview Readiness clarity` - done; released/live validated in `v0.4.3`.
-- `workboard-focused` - `ZNE: Battery Power source mapping` - repo validated pending release/live validation; live source-role repair done.
-- `workboard-focused` - `ZNE: Overview Readiness message design` - repo validated pending release/live validation.
-- `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - ready; next.
+- `workboard-focused` - `ZNE: Battery Power source mapping` - released in `v0.4.4`; focused installed unit-display proof still needed.
+- `2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` - doing; local frontend state fix pending broader validation/release; tracked as `ZNE-599`.
+- `workboard-focused` - `ZNE: Overview Readiness message design` - done; released/live validated in `v0.4.5`.
+- `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - done; released/live validated in `v0.4.12`.

@@ -36,9 +36,17 @@ Live validation:
 ## Evidence Needed To Mark Done
 
 - Validation plan is linked from active Workboard cards.
-- Latest release validation is recorded in `validation/0.2.4-release-validation.md`.
-- Sources browser proof gap is closed with desktop and narrow installed-app artifacts.
+- Latest release validation is recorded in `validation/0.4.12-release-validation.md`.
+- ZNE-595 recorder attribute cleanup has release/live validation evidence.
+- ZNE-599 needs frontend/backend regression tests plus installed browser/API
+  proof that a safe unmanaged candidate can be confirmed and promoted into the
+  managed Fleet List.
+- ZNE-597 still needs focused installed Battery Power/unit display proof.
 
 ## Current State
 
-Sources workflow has installed desktop and narrow browser proof on `0.2.4`.
+Latest installed release validation is `v0.4.12`. The next corrective validation
+target is `ZNE-599`; because it changes the app promotion write path, closure
+requires repo tests, frontend syntax validation, full discovery, GitHub/HACS
+install, Home Assistant restart, browser/API proof of a safe promotion, original
+entity preservation proof, and targeted log review.

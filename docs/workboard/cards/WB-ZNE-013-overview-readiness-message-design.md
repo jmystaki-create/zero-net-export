@@ -1,10 +1,10 @@
 # WB-ZNE-013 Overview Readiness Message Design
 
-Status: repo_validated_pending_release_live_validation
+Status: released_live_validated_v0.4.5
 Labels: application, overview, readiness, ux, validation
 Owner: dev
 Created: 2026-07-08
-Last updated: 2026-07-08
+Last updated: 2026-07-15
 
 ## Purpose
 
@@ -38,12 +38,9 @@ required.
 ## Validation
 
 - Repo validation recorded in `validation/zne-fr-014-readiness-message-design.md`.
-- Release/live validation pending through the normal GitHub/HACS/restart/browser
-  path.
+- Release/live validation recorded in `validation/0.4.5-release-validation.md`.
 
 ## Next Steps
 
-1. Release with the pending corrective `ZNE-597` work.
-2. Browser-check the Overview Readiness card at desktop and narrow widths.
-3. Confirm live copy shows a verdict, `Do this first`, concise facts, and
-   ordered resolution steps.
+No remaining action for this feature request. Continue to check Readiness copy
+opportunistically during future app browser validation.

@@ -23,9 +23,14 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 
 ## Next Active Tasks
 
-1. Start `ZNE-595` recorder attribute cleanup.
-2. Decide whether deferred bulk priority adjustment belongs in the next app
-   workflow milestone.
+1. Fix `ZNE-599` so unmanaged candidate promotion confirmation stays checked
+   and a confirmed candidate is added to the managed Fleet List.
+2. Capture focused installed `ZNE-597` Battery Power/unit display proof on the
+   current `v0.4.12` Home Assistant install.
+3. Choose the next app workflow slice and write acceptance criteria before
+   design/code.
+4. Decide whether deferred bulk priority adjustment belongs in that next app
+   workflow milestone or remains parked.
 
 Standing rule: keep the OpenClaw Workboard updated on every ZNE turn, including
 status, blockers, validation evidence, and next action.
@@ -48,5 +53,8 @@ status, blockers, validation evidence, and next action.
 ## Notes
 
 Overview console live metrics are released/live validated in `v0.4.2`.
-Overview Readiness clarity is released/live validated in `v0.4.3`; return to
-`ZNE-595`.
+Overview Readiness clarity is released/live validated in `v0.4.3`; the
+follow-up action-oriented message design is released/live validated in `v0.4.5`.
+ZNE-595 recorder cleanup is released/live validated in `v0.4.12`.
+ZNE-599 is now the active Managed Devices regression and should be fixed before
+new workflow-scope work.

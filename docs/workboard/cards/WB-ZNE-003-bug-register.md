@@ -27,7 +27,18 @@ Maintain a clear bug register that distinguishes active defects, fixed/live-vali
 - `validation/zne-594-state-length-feasibility.md`
 - `validation/zne-594-state-length-implementation.md`
 - `validation/0.2.4-release-validation.md`
+- `validation/zne-595-recorder-attribute-budget.md`
+- `validation/0.4.12-release-validation.md`
+- `validation/zne-597-battery-power-source-mapping.md`
 
 ## Current Focus
 
-ZNE-594 is released/live-validated fixed in `0.2.4`. The previous installed browser proof gap for the Sources workflow is now closed with desktop and narrow artifacts.
+ZNE-599 is open/high and is the immediate corrective priority. The installed
+`v0.4.12` Managed Devices app opens the unmanaged-candidate `Review & promote`
+workflow, but the required confirmation checkbox does not stay pressed and the
+candidate is not added to the managed Fleet List.
+
+ZNE-595 is released/live-validated fixed in `v0.4.12`; the recorder
+attribute-size warning blocker is closed. ZNE-597 is shipped in `v0.4.4` but
+still needs a focused installed Battery Power/unit display proof before full bug
+closure. Historical fixed bugs remain in `docs/BUGS.md`.

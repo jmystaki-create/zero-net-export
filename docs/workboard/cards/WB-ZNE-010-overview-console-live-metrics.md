@@ -41,4 +41,4 @@ Track Riley's 2026-07-08 request to make the Overview console feel alive by maki
 
 - Multi-plan installs may suffix entity IDs differently; validate against live app-visible entity names before calling multi-plan support complete.
 - This slice intentionally does not add a new polling API, so all values depend on existing HA state propagation and current ZNE entity surfaces.
-- ZNE-595 recorder attribute cleanup remains separate and is now the next implementation item.
+- ZNE-595 recorder attribute cleanup remains separate and is now released/live validated in `v0.4.12`.

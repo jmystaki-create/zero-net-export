@@ -10,8 +10,12 @@ Track blockers and unknowns that could prevent the app MVP from being validated 
 
 ## Current Blockers / Unknowns
 
+- ZNE-599 currently blocks the app-native unmanaged-candidate promotion path:
+  the confirmation checkbox does not stay pressed and the candidate is not added
+  to the managed Fleet List.
 - Browser proof path for the installed Sources workflow is now proven through the OpenClaw browser CLI; use it for future app-facing proof.
-- Runtime control remains limited by source-health warnings and managed-device readiness in the validation Home Assistant instance.
+- Runtime/source-health state must be rechecked before each new workflow slice;
+  latest release validation did not reopen a source-health blocker.
 - Live validation must continue through GitHub/HACS only.
 - Future app workflow scope needs milestone-specific acceptance criteria before implementation.
 - Historical native-device-page documentation can create drift if used instead of the current source-of-truth order.
@@ -31,4 +35,7 @@ Track blockers and unknowns that could prevent the app MVP from being validated 
 
 ## Next Diagnostic Step
 
-Read-only inspect current live source-health warnings and managed-device readiness blockers, then use that evidence to shape the next app milestone.
+Reproduce/inspect `ZNE-599` in the Managed Devices promotion workflow, then
+implement and release a corrective fix before scoping the next app milestone.
+After `ZNE-599`, run the focused read-only `ZNE-597` Battery Power/unit proof
+and inspect current live runtime/source-health readiness.

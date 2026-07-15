@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-07-08
+Last updated: 2026-07-15
 
 ## Workboard
 
@@ -30,8 +30,10 @@ or release readiness changes. Current relevant UI cards:
 `36a26d60` - `ZNE: Fix SOC source status display in Sources app` (done; released/live validated in `v0.4.1`),
 `workboard-focused` - `ZNE: Overview console live metrics` (done; released/live validated in `v0.4.2`),
 `workboard-focused` - `ZNE: Overview Readiness clarity` (done; released/live validated in `v0.4.3`),
-`workboard-focused` - `ZNE: Battery Power source mapping` (repo validated pending release/live validation; live source-role repair done),
-`workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready; next).
+`workboard-focused` - `ZNE: Battery Power source mapping` (released in `v0.4.4`; focused installed unit-display proof still needed),
+`workboard-focused` - `ZNE: Overview Readiness message design` (done; released/live validated in `v0.4.5`),
+`workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (done; released/live validated in `v0.4.12`),
+`2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` (doing; local frontend state fix pending broader validation/release; tracked as `ZNE-599`).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -41,18 +43,22 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest released**: `v0.4.3` is published, installed through HACS, restarted,
-and live/browser validated for the Overview Readiness clarity slice. The
-installed version sensor reports `0.4.3`; the Overview Readiness card shows
-status chips, current focus, and issue cards with `What is wrong` /
-`How to resolve` guidance. Evidence:
-`validation/0.4.3-release-validation.md` and
-`validation/zne-fr-013-overview-readiness-clarity.md`.
+**Latest released**: `v0.4.12` is published, installed through HACS, restarted,
+fingerprint-matched, and live validated for `ZNE-595` recorder-backed attribute
+cleanup. GitHub's public latest release is `v0.4.12` published on
+2026-07-15, and the Home Assistant/HACS update entity reported installed/latest
+`v0.4.12`. Evidence: `validation/0.4.12-release-validation.md` and
+`validation/zne-595-recorder-attribute-budget.md`.
 
-**Current next work**: release/live-validate repo-validated `ZNE-597` Battery
-Power source mapping/unit presentation, then continue `ZNE-595` recorder attribute
-cleanup. Oversized recorder-backed entity attribute warnings remain in the
-`v0.4.3` post-restart log review.
+**Current next work**: finish `ZNE-599`, the live Managed Devices regression
+where the unmanaged-candidate promotion confirmation checkbox does not stay
+pressed and confirmed candidates are not added to the managed Fleet List. A
+local frontend fix now persists promotion draft/confirmation state across app
+re-renders; remaining work is broader validation, approved GitHub/HACS release,
+and live safe-candidate promotion proof. After that, capture the small
+`ZNE-597` installed Battery Power/unit proof, then scope the next product
+increment from diagnostics/support, runtime visibility, controls, multi-plan UI
+proof, or deferred bulk priority adjustment.
 
 ## Current milestone
 
@@ -74,8 +80,9 @@ Evidence:
 - Release/live validation: `validation/0.4.0-release-validation.md`
 
 Next gate:
-- Fix oversized recorder-backed entity attributes found in the v0.4.0, v0.4.2,
-  and v0.4.3 log reviews.
+- Capture app/browser visual proof for the remaining product slices where it is
+  still missing, and define the next accepted app workflow milestone before
+  implementation.
 
 ### ZNE-APP-006 - Diagnostics & Support Polish
 
@@ -194,20 +201,25 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Fix post-v0.4.0 recorder attribute-size warnings.
-- Capture v0.4.0 browser proof when browser tooling is available.
+- Finish `ZNE-599` broader validation/release/live proof so unmanaged candidate
+  promotion can be confirmed and the promoted load appears in the managed Fleet
+  List on installed Home Assistant.
+- Capture focused installed proof that `ZNE-597` Battery Power/source-reading
+  units display normalized watts as `W`.
+- Capture v0.4.0 browser proof if that historical evidence is still useful;
+  later app browser proof exists for subsequent releases.
+- Define the next app workflow slice and acceptance criteria before new design
+  or code.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks
 
-- Runtime control remains limited until source-health warnings and managed
-  device readiness are resolved in the validation Home Assistant instance.
-- v0.4.0 log review found many Zero Net Export entity attributes exceeding Home
-  Assistant's 16 KB recorder attribute limit; trim recorder-backed attributes
-  and move bulky detail to diagnostics/app API surfaces.
-- v0.4.0 Sources app display had a SOC slug mismatch: backend status is exposed
-  as `battery_state_of_charge`, while the frontend derived `battery_soc`. Repo
-  fix exists as ZNE-596; live validation is pending.
+- Runtime/source-health state should be rechecked before each workflow slice;
+  the latest release validation for `v0.4.12` did not reopen a source-health
+  blocker.
+- ZNE-595 recorder attribute warnings are fixed and live validated in `v0.4.12`;
+  keep scanning logs after future releases for recurrence.
+- ZNE-596 Sources app SOC display is fixed and live validated in `v0.4.1`.
 - ZNE-594 is released/live-validated in `0.2.4`; continue watching logs for
   recurrence while broader app workflow validation proceeds.
 - Live validation must not use direct Home Assistant file-backend deployment.

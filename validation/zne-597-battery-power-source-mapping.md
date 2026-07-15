@@ -85,5 +85,10 @@ Post-repair Home Assistant state showed:
 
 ## Release State
 
-Repo-validated and pending release/live validation through the approved
-GitHub/HACS path.
+Repo-validated and shipped in public GitHub release `v0.4.4`; later installed
+validation advanced the live system to `v0.4.12`.
+
+Remaining validation gap: no dedicated release validation record captures the
+installed Overview Battery Power/source-reading unit display after the
+unit-presentation fix. Perform a focused read-only installed check and close
+`ZNE-597` only if normalized watt readings display with unit `W`.

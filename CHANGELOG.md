@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.13] - 2026-07-15
+
+### Fixed
+- Fixed Managed Devices unmanaged-candidate promotion confirmation checkbox state before `zero_net_export.promote_managed_device` submits.
+  The review form now keeps promotion draft values and the required confirmation
+  checkbox checked across Home Assistant app re-renders.
+
 ## [0.4.12] - 2026-07-15
 
 ### Fixed

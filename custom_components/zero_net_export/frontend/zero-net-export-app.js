@@ -6,6 +6,8 @@ class ZeroNetExportApp extends HTMLElement {
     this._message = "";
     this._selectedEntryIdValue = "";
     this._promoteCandidateId = "";
+    this._promotionDraft = {};
+    this._promoteConfirmed = false;
     this._onClick = this._onClick.bind(this);
     this._onChange = this._onChange.bind(this);
     this._realtimeTimer = undefined;
@@ -623,6 +625,34 @@ class ZeroNetExportApp extends HTMLElement {
     };
   }
 
+  _resetPromotionDraft() {
+    this._promotionDraft = {};
+    this._promoteConfirmed = false;
+  }
+
+  _capturePromotionDraft() {
+    const draft = {};
+    this.querySelectorAll("[data-zne-promote-field]").forEach((input) => {
+      const key = input.dataset.znePromoteField;
+      if (!key) {
+        return;
+      }
+      if (input.type === "checkbox") {
+        draft[key] = input.checked;
+        return;
+      }
+      if (input.type === "number") {
+        draft[key] = Number(input.value);
+        return;
+      }
+      draft[key] = input.value.trim();
+    });
+    this._promotionDraft = draft;
+    const confirmInput = this.querySelector("[data-zne-promote-confirm]");
+    this._promoteConfirmed = confirmInput ? confirmInput.checked : this._promoteConfirmed;
+    return draft;
+  }
+
   _templateOptions(kind, selected) {
     const options = kind === "variable"
       ? [
@@ -645,7 +675,7 @@ class ZeroNetExportApp extends HTMLElement {
     if (!candidate) {
       return "";
     }
-    const defaults = this._candidatePromotionDefaults(candidate);
+    const defaults = { ...this._candidatePromotionDefaults(candidate), ...this._promotionDraft };
     const kind = defaults.kind;
     const needsReview = candidate.needs_review === true || candidate.needs_review === "true";
     const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
@@ -706,7 +736,7 @@ class ZeroNetExportApp extends HTMLElement {
           </label>
         </div>
         <label class="zne-bulk-confirm-row">
-          <input data-zne-promote-confirm type="checkbox">
+          <input data-zne-promote-confirm type="checkbox" ${this._promoteConfirmed ? "checked" : ""}>
           Confirm this candidate should become a Zero Net Export managed load. The original Home Assistant device/entity will not be modified.
         </label>
         <div class="zne-actions">
@@ -816,6 +846,15 @@ class ZeroNetExportApp extends HTMLElement {
 
   _onChange(event) {
     const select = event.target.closest("select");
+    const promotionField = event.target.closest("[data-zne-promote-field]");
+    const promotionConfirm = event.target.closest("[data-zne-promote-confirm]");
+    if (promotionField || promotionConfirm) {
+      this._capturePromotionDraft();
+      if (promotionField && promotionField.dataset.znePromoteField === "kind") {
+        this._render();
+      }
+      return;
+    }
     if (!select) {
       return;
     }
@@ -843,7 +882,11 @@ class ZeroNetExportApp extends HTMLElement {
     }
 
     if (action === "candidate-review") {
-      this._promoteCandidateId = target.dataset.candidateEntityId || "";
+      const candidateId = target.dataset.candidateEntityId || "";
+      if (candidateId !== this._promoteCandidateId) {
+        this._resetPromotionDraft();
+      }
+      this._promoteCandidateId = candidateId;
       this._message = this._promoteCandidateId ? "Review candidate settings before promotion." : "";
       this._render();
       if (this._promoteCandidateId) {
@@ -860,6 +903,7 @@ class ZeroNetExportApp extends HTMLElement {
 
     if (action === "candidate-cancel") {
       this._promoteCandidateId = "";
+      this._resetPromotionDraft();
       this._message = "Candidate promotion cancelled.";
       this._render();
       return;
@@ -870,24 +914,8 @@ class ZeroNetExportApp extends HTMLElement {
     const managedConfirmInput = this.querySelector("[data-zne-managed-confirm]");
     const managedConfirm = managedConfirmInput ? managedConfirmInput.value.trim() : "";
     const promoteCandidateId = target.dataset.candidateEntityId || this._promoteCandidateId || "";
-    const promoteConfirmInput = this.querySelector("[data-zne-promote-confirm]");
-    const promoteConfirmed = promoteConfirmInput ? promoteConfirmInput.checked : false;
-    const promoteValues = {};
-    this.querySelectorAll("[data-zne-promote-field]").forEach((input) => {
-      const key = input.dataset.znePromoteField;
-      if (!key) {
-        return;
-      }
-      if (input.type === "checkbox") {
-        promoteValues[key] = input.checked;
-        return;
-      }
-      if (input.type === "number") {
-        promoteValues[key] = Number(input.value);
-        return;
-      }
-      promoteValues[key] = input.value.trim();
-    });
+    const promoteValues = this._capturePromotionDraft();
+    const promoteConfirmed = this._promoteConfirmed;
     const sourceRoleValues = {};
     this.querySelectorAll("[data-zne-source-role]").forEach((input) => {
       const value = input.value.trim();
@@ -1023,6 +1051,7 @@ class ZeroNetExportApp extends HTMLElement {
           confirm: true,
         });
         this._promoteCandidateId = "";
+        this._resetPromotionDraft();
         this._message = "Candidate promotion requested. Home Assistant will reload this Zero Net Export plan.";
       }
 

@@ -1,7 +1,7 @@
 # ZNE-FR-014 Readiness Message Design Validation
 
 Date: 2026-07-08
-Status: repo_validated_pending_release_live_validation
+Status: released_live_validated_v0.4.5
 
 ## Request
 
@@ -50,5 +50,10 @@ Passed:
 
 ## Release Validation
 
-Pending. Must go through GitHub release, HACS install/update, Home Assistant
-restart, installed-version/fingerprint checks, browser proof, and log review.
+Released in `v0.4.4`; Readiness behavior was live validated during corrective
+release `v0.4.5`.
+
+Evidence: `validation/0.4.5-release-validation.md` records GitHub release,
+HACS install, Home Assistant restart/recovery, installed package fingerprint,
+installed version sensor `0.4.5`, and browser proof that the Overview Readiness
+summary showed `Ready` with no blocking readiness issue.

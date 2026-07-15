@@ -1,6 +1,6 @@
 # WB-ZNE-012 Battery Power Source Mapping
 
-Status: Repo Validated Pending Release
+Status: Released Pending Focused Unit Proof
 Priority: High
 Labels: runtime, sources, overview, sensors, validation
 
@@ -36,7 +36,10 @@ Track Riley's 2026-07-08 report that Overview Battery Power looked wrong for a
 - Repo fix: coordinator now normalizes source-reading units alongside normalized
   values and preserves `raw_unit`.
 - Repo validation: passed.
-- Release/live validation: pending.
+- Release state: shipped in public release `v0.4.4`; current installed release
+  is `v0.4.12`.
+- Remaining validation: focused installed proof that Overview Battery Power and
+  source-reading entities display normalized watt values with unit `W`.
 
 ## Evidence
 
@@ -56,6 +59,8 @@ Track Riley's 2026-07-08 report that Overview Battery Power looked wrong for a
 
 ## Next Actions
 
-1. Commit and release the unit-presentation fix through GitHub/HACS.
-2. Restart Home Assistant and verify Overview Battery Power/unit live.
-3. Return to `ZNE-595` recorder attribute cleanup.
+1. Read-only verify Overview Battery Power and source-reading units on installed
+   `v0.4.12`.
+2. Record the focused evidence and close `ZNE-597` if units display normalized
+   watts as `W`.
+3. Use the result to inform the next app workflow slice.

@@ -140,15 +140,15 @@ This file tracks user-requested product enhancements separately from confirmed b
 
 ## ZNE-FR-014 - Overview Readiness should use plain action-oriented messages
 
-- **status:** `repo_validated_pending_release_live_validation`
+- **status:** `released_live_validated_v0.4.5`
 - **area:** `application / overview / readiness`
 - **requested by:** Riley, 2026-07-08
 - **request:** The v0.4.3 Readiness section is still poor and hard to understand; review the design and messages.
 - **user outcome:** operators see a short readiness verdict, the first action to take, and concise issue facts instead of raw command-center text or long right-aligned setup strings.
 - **acceptance target:** Readiness does not render raw command-center/device queue strings as label/value rows; it converts source and managed-device state into compact issue facts and ordered actions; narrow cards remain readable without clipped or right-aligned paragraphs.
 - **target-environment result:** supported in the existing ZNE-owned Home Assistant custom panel using current `hass.states` data and CSS only. No Home Assistant frontend patch, native page injection, direct live install write, or new recorder-backed attributes are required. Evidence: `validation/zne-fr-014-readiness-message-design.md`.
-- **implementation status:** app frontend now shows a summary verdict, `Do this first`, plain issue titles, and bullet/numbered guidance for source readings, reconciliation, controls, and managed-device queue work.
-- **validation plan:** frontend syntax check, focused app tests, `git diff --check`, then HACS/restart/browser proof in the release path.
+- **implementation status:** app frontend shows a summary verdict, `Do this first`, plain issue titles, and bullet/numbered guidance for source readings, reconciliation, controls, and managed-device queue work. Released in `v0.4.4`; corrective live validation of the Readiness behavior passed in `v0.4.5`.
+- **validation result:** `validation/0.4.5-release-validation.md` confirms GitHub release, HACS install, Home Assistant restart/recovery, install fingerprint match, installed version sensor `0.4.5`, and browser proof that the Overview Readiness summary showed `Ready` with no blocking readiness issue.
 
 ## ZNE-FR-015 - Managed Devices Fleet Summary layout polish
 
