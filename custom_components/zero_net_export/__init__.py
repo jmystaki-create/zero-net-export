@@ -396,6 +396,10 @@ def _coerce_number(value: Any, fallback: int | float) -> int | float:
     return parsed
 
 
+SERVICE_FLOAT = vol.Coerce(float)
+SERVICE_INT = vol.Coerce(int)
+
+
 UPDATE_MANAGED_DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional("entry_id"): str,
@@ -403,15 +407,15 @@ UPDATE_MANAGED_DEVICE_SCHEMA = vol.Schema(
         vol.Optional("name"): str,
         vol.Optional("entity_id"): str,
         vol.Optional("enabled"): bool,
-        vol.Optional("priority"): int,
-        vol.Optional("nominal_power_w"): float,
-        vol.Optional("min_power_w"): float,
-        vol.Optional("max_power_w"): float,
-        vol.Optional("step_w"): float,
-        vol.Optional("min_on_seconds"): int,
-        vol.Optional("min_off_seconds"): int,
-        vol.Optional("cooldown_seconds"): int,
-        vol.Optional("max_active_seconds"): int,
+        vol.Optional("priority"): SERVICE_INT,
+        vol.Optional("nominal_power_w"): SERVICE_FLOAT,
+        vol.Optional("min_power_w"): SERVICE_FLOAT,
+        vol.Optional("max_power_w"): SERVICE_FLOAT,
+        vol.Optional("step_w"): SERVICE_FLOAT,
+        vol.Optional("min_on_seconds"): SERVICE_INT,
+        vol.Optional("min_off_seconds"): SERVICE_INT,
+        vol.Optional("cooldown_seconds"): SERVICE_INT,
+        vol.Optional("max_active_seconds"): SERVICE_INT,
     }
 )
 
@@ -433,15 +437,15 @@ PROMOTE_MANAGED_DEVICE_SCHEMA = vol.Schema(
         vol.Optional("kind"): str,
         vol.Optional("template_key"): str,
         vol.Optional("enabled"): bool,
-        vol.Optional("priority"): int,
-        vol.Optional("nominal_power_w"): float,
-        vol.Optional("min_power_w"): float,
-        vol.Optional("max_power_w"): float,
-        vol.Optional("step_w"): float,
-        vol.Optional("min_on_seconds"): int,
-        vol.Optional("min_off_seconds"): int,
-        vol.Optional("cooldown_seconds"): int,
-        vol.Optional("max_active_seconds"): int,
+        vol.Optional("priority"): SERVICE_INT,
+        vol.Optional("nominal_power_w"): SERVICE_FLOAT,
+        vol.Optional("min_power_w"): SERVICE_FLOAT,
+        vol.Optional("max_power_w"): SERVICE_FLOAT,
+        vol.Optional("step_w"): SERVICE_FLOAT,
+        vol.Optional("min_on_seconds"): SERVICE_INT,
+        vol.Optional("min_off_seconds"): SERVICE_INT,
+        vol.Optional("cooldown_seconds"): SERVICE_INT,
+        vol.Optional("max_active_seconds"): SERVICE_INT,
         vol.Required("confirm"): bool,
     }
 )

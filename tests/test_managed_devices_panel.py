@@ -244,7 +244,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.13"', source)
+        self.assertIn('"version": "0.4.14"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
@@ -290,6 +290,8 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("remove_managed_device", init_source)
         self.assertIn("promote_managed_device", init_source)
         self.assertIn("PROMOTE_MANAGED_DEVICE_SCHEMA", init_source)
+        self.assertIn("SERVICE_FLOAT = vol.Coerce(float)", init_source)
+        self.assertIn("SERVICE_INT = vol.Coerce(int)", init_source)
         self.assertIn("_async_promote_managed_device_from_candidate", init_source)
         self.assertIn("discover_candidate_devices(hass.states.async_all(), managed_entity_ids)", init_source)
         self.assertIn("Candidate '{candidate_entity_id}' is already managed", init_source)
@@ -301,6 +303,21 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("candidate_entity_id:", services_source)
         self.assertIn("Confirm promotion", services_source)
         self.assertIn("The original Home Assistant device and entity are left untouched", services_source)
+
+    def test_managed_device_service_schemas_accept_ui_number_payloads(self) -> None:
+        init_source = INIT_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('vol.Optional("priority"): SERVICE_INT', init_source)
+        self.assertIn('vol.Optional("nominal_power_w"): SERVICE_FLOAT', init_source)
+        self.assertIn('vol.Optional("min_power_w"): SERVICE_FLOAT', init_source)
+        self.assertIn('vol.Optional("max_power_w"): SERVICE_FLOAT', init_source)
+        self.assertIn('vol.Optional("step_w"): SERVICE_FLOAT', init_source)
+        self.assertIn('vol.Optional("min_on_seconds"): SERVICE_INT', init_source)
+        self.assertIn('vol.Optional("min_off_seconds"): SERVICE_INT', init_source)
+        self.assertIn('vol.Optional("cooldown_seconds"): SERVICE_INT', init_source)
+        self.assertIn('vol.Optional("max_active_seconds"): SERVICE_INT', init_source)
+        self.assertNotIn('vol.Optional("nominal_power_w"): float', init_source)
+        self.assertNotIn('vol.Optional("priority"): int', init_source)
 
     def test_backend_source_role_update_service_is_supported_and_scoped(self) -> None:
         init_source = INIT_PATH.read_text(encoding="utf-8")

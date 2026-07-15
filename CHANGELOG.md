@@ -6,6 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.14] - 2026-07-15
+
+### Fixed
+- Fixed Managed Devices unmanaged-candidate promotion service validation after the confirmation checkbox state fix so integer UI number fields are accepted by `zero_net_export.promote_managed_device` and `zero_net_export.update_managed_device`.
+  This completes the promotion path after the confirmation checkbox state fix:
+  checked confirmation now reaches the backend and the candidate can be added
+  to the managed fleet without modifying the original Home Assistant entity.
+
 ## [0.4.13] - 2026-07-15
 
 ### Fixed

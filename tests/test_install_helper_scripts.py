@@ -53,7 +53,7 @@ class PrintExpectedInstallFingerprintTests(unittest.TestCase):
         self.assertEqual(payload["expected_commit"], "component2")
         self.assertEqual(payload["expected_component_commit"], "component2")
         self.assertEqual(payload["preferred_validation_commit"], "component2")
-        self.assertEqual(payload["manifest_version"], "0.4.13")
+        self.assertEqual(payload["manifest_version"], "0.4.14")
         self.assertIn("button.py", payload["tracked_files"])
 
 

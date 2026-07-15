@@ -35,6 +35,7 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     voluptuous_module.Schema = lambda value: value
     voluptuous_module.Required = lambda key, default=None: key
     voluptuous_module.Optional = lambda key, default=None: key
+    voluptuous_module.Coerce = lambda typ: typ
     sys.modules[voluptuous_module.__name__] = voluptuous_module
 
     homeassistant_pkg = types.ModuleType("homeassistant")
