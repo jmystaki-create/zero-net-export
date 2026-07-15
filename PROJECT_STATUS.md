@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-13
+last_modified: 2026-07-15
 
 ## Current Focus
 
@@ -23,6 +23,7 @@ last_modified: 2026-07-13
 - Current Managed Devices polish: `ZNE-FR-015` and `ZNE-FR-016` are released/live validated in `v0.4.9`. Fleet Summary now uses an even compact stats grid with count/label spacing, and the Unmanaged Candidate Queue now renders after the managed Fleet List. Evidence: `validation/zne-fr-015-016-managed-devices-layout-order.md` and `validation/0.4.9-release-validation.md`.
 - New Managed Devices feature request: `ZNE-FR-017` is released/live validated in `v0.4.10`. The Managed Devices app can promote rows from the Unmanaged Candidate Queue into the managed Fleet List through app-owned `Review & promote`, backed by `zero_net_export.promote_managed_device` and the existing managed-load child `device_info`; unsupported paths such as custom actions on another integration's original HA device page are excluded. Evidence: `validation/zne-fr-017-managed-candidate-promotion.md` and `validation/0.4.10-release-validation.md`.
 - Corrective Managed Devices polish: `ZNE-598` is released/live validated in `v0.4.11`. `Review & promote` now opens a visible workflow above the unmanaged candidate table, scrolls/focuses to it, and marks the selected row with `Reviewing`. Evidence: `validation/zne-598-review-promote-visible-workflow.md` and `validation/0.4.11-release-validation.md`.
+- Current corrective release candidate: `ZNE-595` is repo-validated for `v0.4.12`. Recorder-backed entity attributes now use compact summaries for validation details, managed-device runtime details, and unmanaged candidate rows, keeping bulky action history/source diagnostics/daily metrics/calibration detail on diagnostics/app surfaces. Evidence: `validation/zne-595-recorder-attribute-budget.md`. Next action: publish `v0.4.12`, install through HACS, restart Home Assistant, fingerprint-check, and review logs for recorder attribute-size warnings.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -60,7 +61,7 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 - ZNE-597 — Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW. Status: repo_validated_pending_release_live_validation. Evidence: `docs/BUGS.md`, `validation/zne-597-battery-power-source-mapping.md`. Next action: release through HACS, restart, and live-check Overview Battery Power/unit.
 - ZNE-598 — Managed Devices `Review & promote` appeared to do nothing because the selected candidate workflow was not visibly opened. Status: released_live_validated in `v0.4.11`. Evidence: `docs/BUGS.md`, `validation/zne-598-review-promote-visible-workflow.md`, `validation/0.4.11-release-validation.md`.
 - ZNE-596 — Sources app shows Battery state of charge as missing despite valid backend binding. Status: repo_validated/released_live_validated in `v0.4.1`. Evidence: `docs/BUGS.md`, `validation/zne-596-soc-source-status-display.md`, `validation/0.4.1-release-validation.md`.
-- ZNE-595 — recorder-backed entity attributes exceed Home Assistant's 16 KB limit. Status: open/high. Evidence: `docs/BUGS.md`, `validation/0.4.0-release-validation.md`. Next action: trim large source/action-history/diagnostic details from recorder-backed attributes and keep bulky detail in diagnostics/app API surfaces.
+- ZNE-595 — recorder-backed entity attributes exceed Home Assistant's 16 KB limit. Status: repo_validated_pending_release_live_validation for `v0.4.12`. Evidence: `docs/BUGS.md`, `validation/zne-595-recorder-attribute-budget.md`, `validation/0.4.0-release-validation.md`. Next action: publish/install `v0.4.12`, restart, and confirm no new Zero Net Export recorder attribute-size warnings in the reviewed log window.
 - ZNE-594 — next-step sensors can exceed Home Assistant's 255-character state limit. Status: released_live_validated in `0.2.4`. Evidence: `docs/BUGS.md`, `validation/zne-594-state-length-implementation.md`, `validation/0.2.4-release-validation.md`.
 - ZNE-593 — Managed Devices app summary formatting is broken. Status: validated in installed `0.2.2`. Evidence: `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-593-managed-devices-formatting-broken-v0.2.1.png`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`.
 - ZNE-592 — managed-load edit/remove button rows open unhelpful more-info dialogs. Status: live_validated_fixed in `0.1.109`. Evidence: `validation/zne-592-clickthrough-workflow-audit.md`, `validation/zne-592-native-clickthrough-feasibility.md`, `validation/0.1.109-release-validation.md`, `docs/BUGS.md`.
@@ -73,7 +74,7 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 - ZNE-FR-011 — Reconciliation Status should feel realtime. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
 - ZNE-FR-012 — Overview console should include Source Power, Battery Power, and Confidence. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
-- ZNE-FR-013 — Overview Readiness should explain errors and resolution steps. Status: released_live_validated in `v0.4.3`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-013-overview-readiness-clarity.md`, `validation/0.4.3-release-validation.md`. Next action: start `ZNE-595` recorder attribute cleanup.
+- ZNE-FR-013 — Overview Readiness should explain errors and resolution steps. Status: released_live_validated in `v0.4.3`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-013-overview-readiness-clarity.md`, `validation/0.4.3-release-validation.md`.
 - ZNE-FR-014 — Overview Readiness should use plain action-oriented messages. Status: repo_validated_pending_release_live_validation. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-014-readiness-message-design.md`. Next action: release through HACS with the pending `ZNE-597` corrective work and browser-check the narrow Readiness card.
 - ZNE-FR-015 — Managed Devices Fleet Summary layout polish. Status: released_live_validated in `v0.4.9`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-015-016-managed-devices-layout-order.md`, `validation/0.4.9-release-validation.md`.
 - ZNE-FR-016 — Managed Devices page should list unmanaged candidates after managed devices. Status: released_live_validated in `v0.4.9`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-015-016-managed-devices-layout-order.md`, `validation/0.4.9-release-validation.md`.

@@ -12,6 +12,8 @@ from .entity import (
     managed_load_detail,
     managed_load_display_name,
     managed_load_settings_action_name,
+    recorder_safe_managed_detail,
+    recorder_safe_validation_details,
     register_managed_load_platform_sync,
 )
 
@@ -51,7 +53,7 @@ class ZeroNetExportEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
 
     @property
     def extra_state_attributes(self):
-        return self._validation_details
+        return recorder_safe_validation_details(self._validation_details)
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.async_set_enabled(True)
@@ -77,7 +79,7 @@ class ZeroNetExportDeviceEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
 
     @property
     def extra_state_attributes(self):
-        return managed_load_detail(self.coordinator, self._device_key)
+        return recorder_safe_managed_detail(managed_load_detail(self.coordinator, self._device_key))
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.async_set_device_enabled_override(self._device_key, True)

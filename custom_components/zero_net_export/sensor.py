@@ -25,6 +25,7 @@ from .entity import (
     FLEET_WORKSPACE_SENSOR_KEYS,
     ZeroNetExportEntity,
     attach_managed_load_device,
+    enforce_recorder_attribute_budget,
     integration_page_managed_load_details,
     managed_load_detail,
     managed_load_detail_mapping,
@@ -34,6 +35,9 @@ from .entity import (
     remove_integration_page_child_device_registry,
     remove_stale_managed_child_devices_for_entry,
     remove_unmanaged_candidate_child_devices_for_entry,
+    recorder_safe_candidate_item,
+    recorder_safe_managed_detail,
+    recorder_safe_validation_details,
     sync_integration_page_child_device_registry,
     legacy_unmanaged_candidate_device_info,
     unmanaged_candidate_cleanup_device_info,
@@ -580,14 +584,14 @@ def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[st
 def _candidate_queue_item(candidate: dict[str, object]) -> dict[str, object]:
     fit = assess_candidate(candidate)
     warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
-    return {
+    return recorder_safe_candidate_item({
         **dict(candidate),
         "fit_confidence": str(fit.get("confidence") or "medium"),
         "needs_review": candidate_needs_review(fit),
         "usefulness_label": _candidate_usefulness_summary(candidate),
         "warnings": warnings,
         "warning_summary": "; ".join(warnings) if warnings else "No immediate warnings",
-    }
+    })
 
 
 def _managed_device_details(state) -> dict[str, dict[str, object]]:
@@ -1567,11 +1571,15 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
-            return {
+            return enforce_recorder_attribute_budget({
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "config_entry_id": self.coordinator.entry.entry_id,
                 "managed_devices": [
-                    {"entry_id": self.coordinator.entry.entry_id, "key": device_key, **dict(detail)}
+                    {
+                        "entry_id": self.coordinator.entry.entry_id,
+                        "key": device_key,
+                        **recorder_safe_managed_detail(detail),
+                    }
                     for device_key, detail in sorted(device_details.items(), key=lambda item: _device_sort_key(item[1]))
                 ],
                 **counts,
@@ -1603,10 +1611,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "blocked_planned_action_count": int(getattr(state, "blocked_planned_action_count", 0) or 0),
                 "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),
                 "variable_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'variable'),
-                "top_candidate": top_candidate,
+                "top_candidate": _candidate_queue_item(top_candidate) if top_candidate else None,
                 "top_candidate_name": str(top_candidate.get('name') or top_candidate.get('entity_id') or '').strip() if top_candidate else None,
-                "review_candidate": review_candidate,
-                "ready_candidate": ready_candidate,
+                "review_candidate": _candidate_queue_item(review_candidate) if review_candidate else None,
+                "ready_candidate": _candidate_queue_item(ready_candidate) if ready_candidate else None,
                 "first_blocked_device": _first_matching_device_name(
                     device_details,
                     predicate=_device_has_blocked_activity,
@@ -1624,7 +1632,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "blocking_validation_details": blocking_validation_details,
                 "source_repair_path": SOURCES_CONFIGURE_PATH,
                 "top_candidate_fit": _candidate_fit_details(top_candidate) if top_candidate else None,
-            }
+            })
         if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
             state = self._state
             if state is None:
@@ -1644,7 +1652,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             }
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
-            return {
+            return enforce_recorder_attribute_budget({
                 "source_status": command_center.get("source_status"),
                 "source_attention_roles": command_center.get("source_attention_roles"),
                 "fleet_activity_summary": format_fleet_activity_for_operator(command_center.get("fleet_activity_summary")),
@@ -1661,9 +1669,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "policy_path": command_center.get("policy_path"),
                 "support_path": command_center.get("support_path"),
                 "current_next_step": command_center.get("next_action_summary"),
-            }
+            })
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
-            return self._validation_details
+            return recorder_safe_validation_details(self._validation_details)
         return None
 
     @property
@@ -1690,8 +1698,9 @@ class ZeroNetExportSourceBaseSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
+        diagnostic = recorder_safe_validation_details(self._source_diagnostic)
         return {
-            **self._source_diagnostic,
+            **diagnostic,
             "freshness": self._source_freshness,
         }
 
@@ -1864,7 +1873,7 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         if state is None:
             return {}
         return {
-            **_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key),
+            **recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)),
             "bucket": "Managed Devices",
             "integration_page_group": "Managed Devices",
         }
@@ -1902,7 +1911,7 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return {}
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key))
 
 
 class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
@@ -1926,7 +1935,7 @@ class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return {}
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key))
 
 
 class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
@@ -1950,7 +1959,7 @@ class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return {}
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key))
 
 
 class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
@@ -1987,7 +1996,7 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return {}
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key))
 
 
 class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
@@ -2016,7 +2025,7 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return {}
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key))
 
 
 class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
@@ -2042,7 +2051,7 @@ class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return {}
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_coordinator(self.coordinator, state, self._device_key))
 
 
 class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):

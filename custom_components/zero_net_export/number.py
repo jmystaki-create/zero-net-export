@@ -13,6 +13,8 @@ from .entity import (
     managed_load_detail,
     managed_load_display_name,
     managed_load_settings_action_name,
+    recorder_safe_managed_detail,
+    recorder_safe_validation_details,
     register_managed_load_platform_sync,
 )
 
@@ -62,7 +64,7 @@ class ZeroNetExportNumber(ZeroNetExportEntity, NumberEntity):
 
     @property
     def extra_state_attributes(self):
-        return self._validation_details
+        return recorder_safe_validation_details(self._validation_details)
 
     async def async_set_native_value(self, value: float):
         if self._key == "target_export_w":
@@ -102,7 +104,7 @@ class ZeroNetExportDevicePriorityNumber(ZeroNetExportEntity, NumberEntity):
 
     @property
     def extra_state_attributes(self):
-        return managed_load_detail(self.coordinator, self._device_key)
+        return recorder_safe_managed_detail(managed_load_detail(self.coordinator, self._device_key))
 
     async def async_set_native_value(self, value: float):
         await self.coordinator.async_set_device_priority_override(self._device_key, int(value))

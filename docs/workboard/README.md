@@ -1,6 +1,6 @@
 # Zero Net Export Workboard
 
-Last updated: 2026-07-08
+Last updated: 2026-07-15
 
 This workboard is the operational project view for Zero Net Export. It summarizes what exists, what is broken, what is next, and how far the project is from a useful Home Assistant application MVP.
 
@@ -45,8 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.4.3` (Overview Readiness clarity for `ZNE-FR-013`, installed through HACS and live/browser validated 2026-07-08).
-Next: release/live-validate repo-validated `ZNE-597` Battery Power source mapping/unit presentation, then continue ZNE-595 recorder attribute cleanup.
+Current release: `v0.4.11` (Managed Devices `Review & promote` visibility fix for `ZNE-598`, installed through HACS and live/browser validated 2026-07-13).
+Next: publish/install/live-validate `v0.4.12` for `ZNE-595` recorder attribute cleanup.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -93,6 +93,11 @@ Current state:
   from the cumulative Anker total sensor to `sensor.x1_p6k_us_s_discharge_power`;
   repo-side normalized source-reading unit presentation passed validation and
   is pending release.
+- `v0.4.11` fixed and live-validated the Managed Devices `Review & promote`
+  visible workflow regression.
+- `ZNE-595` is repo-validated for `v0.4.12`: recorder-backed entity attributes
+  now expose compact summaries while bulky action history/source diagnostics
+  remain on diagnostics/app surfaces.
 
 ## Known Bugs
 
@@ -106,10 +111,9 @@ Active/high-signal items:
   `battery_soc_status` while the backend exposes `battery_state_of_charge_status`.
   Live API/browser validation confirmed the app now shows `status: ok`, binding
   `sensor.x1_p6k_us_s_state_of_charge`, and the current reading.
-- ZNE-595: open/high after `v0.4.0`; many recorder-backed entity attributes
-  exceed Home Assistant's 16 KB attribute limit. Next implementation focus is
-  trimming recorder attributes and moving bulky detail to diagnostics/app API
-  surfaces.
+- ZNE-595: repo-validated pending `v0.4.12` release/live validation; many
+  recorder-backed entity attributes exceeded Home Assistant's 16 KB attribute
+  limit after `v0.4.0`.
 - ZNE-594: released/live-validated fixed in `0.2.4`; continue watching logs for recurrence.
 - ZNE-APP-002: released/live-validated; installed desktop/narrow browser proof is captured.
 - Runtime control readiness is now proven on the validation Home Assistant
@@ -131,18 +135,14 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Release/live-validate the pending ZNE-597 Battery Power fix and
-ZNE-FR-014 Readiness message design together, then start ZNE-595 recorder
-attribute cleanup.
+**Immediate**: Release/live-validate `v0.4.12` for ZNE-595 recorder attribute
+cleanup.
 
-1. Validate and release the Battery Power unit-presentation and Readiness message-design fixes through HACS/live validation.
-2. Move bulky source/action-history/diagnostic detail
-   out of recorder-backed attributes.
-3. Keep concise entity attributes for dashboard use.
-4. Preserve full detail through diagnostics export and app API surfaces.
-5. Validate with tests and Home Assistant log review after HACS install/restart.
-6. Decide when to scope deferred bulk priority adjustment.
-7. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Publish and install `v0.4.12` through the GitHub/HACS path.
+2. Restart Home Assistant and fingerprint-check the installed package.
+3. Check representative ZNE attribute sizes and targeted logs for recorder warnings.
+4. Decide when to scope deferred bulk priority adjustment.
+5. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks

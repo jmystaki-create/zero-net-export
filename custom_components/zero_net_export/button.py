@@ -21,11 +21,15 @@ from .entity import (
     MANAGED_LOAD_SETTINGS_ICON,
     ZeroNetExportEntity,
     attach_managed_load_device,
+    enforce_recorder_attribute_budget,
     integration_page_managed_load_details,
     managed_load_detail_mapping,
     managed_load_details_mapping,
     managed_load_display_name,
     managed_load_settings_action_name,
+    recorder_safe_candidate_item,
+    recorder_safe_managed_detail,
+    recorder_safe_validation_details,
     register_managed_load_platform_sync,
 )
 from .native_support import (
@@ -1069,7 +1073,7 @@ class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEnt
 
     @property
     def extra_state_attributes(self):
-        return self._validation_details
+        return recorder_safe_validation_details(self._validation_details)
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_controller_overrides()
@@ -1131,7 +1135,11 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         attention_devices, remaining_devices = _partition_review_devices(ordered)
-        return {
+        compact_candidates = [recorder_safe_candidate_item(candidate) for candidate in candidates]
+        compact_attention = [recorder_safe_managed_detail(detail) for detail in attention_devices]
+        compact_remaining = [recorder_safe_managed_detail(detail) for detail in remaining_devices]
+        compact_ordered = [recorder_safe_managed_detail(detail) for detail in ordered]
+        return enforce_recorder_attribute_budget({
             'configure_path': DEVICES_CONFIGURE_PATH,
             'detailed_management_path': DETAILED_MANAGEMENT_PATH,
             'current_focus_section': command_center.get('recommended_section'),
@@ -1162,17 +1170,17 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'managed_snapshot': _managed_snapshot_summary(ordered),
             'unmanaged_snapshot': _unmanaged_snapshot_summary(candidates),
             'candidate_count': len(candidates),
-            'candidate_devices': candidates,
-            'top_candidate': top_candidate,
+            'candidate_devices': compact_candidates,
+            'top_candidate': recorder_safe_candidate_item(top_candidate) if top_candidate else None,
             'top_candidate_fit': top_candidate_fit,
-            'first_review_candidate': review_candidate,
+            'first_review_candidate': recorder_safe_candidate_item(review_candidate) if review_candidate else None,
             'first_review_candidate_fit': review_candidate_fit,
-            'ready_next_candidate': ready_candidate,
+            'ready_next_candidate': recorder_safe_candidate_item(ready_candidate) if ready_candidate else None,
             'ready_next_candidate_fit': ready_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
-            'attention_devices': attention_devices[:12],
-            'steady_devices': remaining_devices[:12],
-            'devices': ordered[:12],
+            'attention_devices': compact_attention[:12],
+            'steady_devices': compact_remaining[:12],
+            'devices': compact_ordered[:12],
             'promotion_handoff': "\n".join(
                 _managed_devices_workspace_handoff(
                     command_center,
@@ -1181,7 +1189,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 )
             ),
             'workspace_boundary': _managed_devices_workspace_boundary(),
-        }
+        })
 
     async def async_press(self) -> None:
         state = self._state
@@ -1306,7 +1314,11 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         attention_devices, remaining_devices = _partition_review_devices(ordered)
-        return {
+        compact_candidates = [recorder_safe_candidate_item(candidate) for candidate in candidates]
+        compact_attention = [recorder_safe_managed_detail(detail) for detail in attention_devices]
+        compact_remaining = [recorder_safe_managed_detail(detail) for detail in remaining_devices]
+        compact_ordered = [recorder_safe_managed_detail(detail) for detail in ordered]
+        return enforce_recorder_attribute_budget({
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
             "current_focus_section": command_center.get("recommended_section"),
@@ -1339,17 +1351,17 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
             "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
             "unmanaged_candidate_count": len(candidates),
-            "top_unmanaged_candidate": top_candidate,
+            "top_unmanaged_candidate": recorder_safe_candidate_item(top_candidate) if top_candidate else None,
             "top_candidate_fit": top_candidate_fit,
-            "first_review_candidate": review_candidate,
+            "first_review_candidate": recorder_safe_candidate_item(review_candidate) if review_candidate else None,
             "first_review_candidate_fit": review_candidate_fit,
-            "ready_next_candidate": ready_candidate,
+            "ready_next_candidate": recorder_safe_candidate_item(ready_candidate) if ready_candidate else None,
             "ready_next_candidate_fit": ready_candidate_fit,
-            "candidate_devices": candidates,
+            "candidate_devices": compact_candidates,
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
-            "attention_devices": attention_devices[:12],
-            "steady_devices": remaining_devices[:12],
-            "devices": ordered[:12],
+            "attention_devices": compact_attention[:12],
+            "steady_devices": compact_remaining[:12],
+            "devices": compact_ordered[:12],
             "promotion_handoff": "\n".join(
                 _managed_devices_workspace_handoff(
                     command_center,
@@ -1358,7 +1370,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 )
             ),
             "workspace_boundary": _managed_devices_workspace_boundary(),
-        }
+        })
 
     async def async_press(self) -> None:
         state = self._state
@@ -1492,7 +1504,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         ready_candidate = _first_ready_candidate(candidates)
         ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
-        return {
+        return enforce_recorder_attribute_budget({
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
             "current_focus_section": command_center.get("recommended_section"),
@@ -1507,14 +1519,14 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
             ),
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
             "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
-            "top_unmanaged_candidate": top_candidate,
+            "top_unmanaged_candidate": recorder_safe_candidate_item(top_candidate) if top_candidate else None,
             "top_candidate_fit": top_candidate_fit,
-            "first_review_candidate": review_candidate,
+            "first_review_candidate": recorder_safe_candidate_item(review_candidate) if review_candidate else None,
             "first_review_candidate_fit": review_candidate_fit,
-            "ready_next_candidate": ready_candidate,
+            "ready_next_candidate": recorder_safe_candidate_item(ready_candidate) if ready_candidate else None,
             "ready_next_candidate_fit": ready_candidate_fit,
-            **detail,
-        }
+            **recorder_safe_managed_detail(detail),
+        })
 
     async def async_press(self) -> None:
         detail = self._detail()
@@ -1837,7 +1849,7 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
 
     @property
     def extra_state_attributes(self):
-        return _managed_device_detail_for_state(self._state, self._device_key)
+        return recorder_safe_managed_detail(_managed_device_detail_for_state(self._state, self._device_key))
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_device_overrides(self._device_key)

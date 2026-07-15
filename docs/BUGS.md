@@ -148,7 +148,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-595 - recorder-backed entity attributes exceed Home Assistant's 16 KB limit
 
-- **status:** `open`
+- **status:** `repo_validated_pending_release_live_validation`
 - **severity:** `high`
 - **area:** `sensors / diagnostics / recorder`
 - **where seen:** live Home Assistant log review on 2026-07-07 after installing and restarting `v0.4.0`.
@@ -163,7 +163,9 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Tests cover representative attribute-size trimming.
   - Live Home Assistant post-restart log review shows no Zero Net Export 16 KB recorder attribute warnings in the reviewed window.
 - **validation plan:** add repo tests for attribute trimming, run full test discovery, py_compile, JS syntax if frontend API behavior changes, publish through GitHub/HACS, restart Home Assistant, inspect key entity states, and review `ha core logs` for recorder warnings.
-- **next action:** implement a focused attribute-budget cleanup.
+- **repo fix:** recorder-safe attribute helpers now compact validation details, managed-device runtime details, unmanaged candidate rows, and final list-heavy attributes across sensors, binary sensors, switches, selects, numbers, and buttons. Bulky action history, source diagnostics, source freshness, daily metrics, and calibration hints stay off recorder-backed attributes.
+- **validation status:** repo validation passed for the `v0.4.12` candidate. Evidence: `validation/zne-595-recorder-attribute-budget.md`.
+- **next action:** publish `v0.4.12`, install through HACS, restart Home Assistant, fingerprint-check before/after restart, then confirm representative ZNE attribute sizes and log review show no new 16 KB recorder warnings.
 
 ## ZNE-594 - next-step sensors can exceed Home Assistant's 255-character state limit
 

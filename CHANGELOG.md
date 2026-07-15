@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.12] - 2026-07-15
+
+### Fixed
+- Trimmed recorder-backed entity attributes so Zero Net Export keeps bulky action history, source diagnostics, freshness detail, calibration hints, daily metrics, managed-device runtime detail, and long candidate queues off frequently recorded Home Assistant entity attributes while preserving compact dashboard-safe summaries.
+
 ## [0.4.11] - 2026-07-13
 
 ### Fixed

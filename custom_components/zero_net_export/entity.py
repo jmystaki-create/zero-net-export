@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import hashlib
+import json
 import re
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -27,6 +28,66 @@ FLEET_WORKSPACE_SENSOR_KEYS = {
     "candidate_shortlist",
     "candidate_shortlist_fit",
     "fleet_console_next_step",
+}
+
+RECORDER_ATTRIBUTE_TARGET_BYTES = 12_000
+
+_BULKY_VALIDATION_DETAIL_KEYS = {
+    "action_history",
+    "calibration_hints",
+    "daily_metrics",
+    "source_diagnostics",
+    "source_freshness",
+}
+
+_MANAGED_DETAIL_RECORDER_KEYS = {
+    "action_executable",
+    "active_runtime_today_seconds",
+    "blocked_by",
+    "current_active_seconds",
+    "current_power_w",
+    "effective_enabled",
+    "effective_priority",
+    "enabled",
+    "entity_id",
+    "failed_action_count",
+    "guard_reason",
+    "guard_status",
+    "kind",
+    "last_action",
+    "last_action_at",
+    "last_action_result_message",
+    "last_action_seconds_ago",
+    "last_action_status",
+    "last_applied_at",
+    "last_applied_power_w",
+    "last_requested_power_w",
+    "max_power_w",
+    "min_power_w",
+    "name",
+    "nominal_power_w",
+    "observed_active",
+    "planned_action",
+    "planned_power_delta_w",
+    "priority",
+    "step_w",
+    "successful_action_count",
+    "target_power_w",
+    "usable",
+}
+
+_CANDIDATE_RECORDER_KEYS = {
+    "device_class",
+    "domain",
+    "entity_id",
+    "fit_confidence",
+    "kind",
+    "name",
+    "needs_review",
+    "state",
+    "unit",
+    "usefulness_label",
+    "warning_summary",
 }
 
 
@@ -104,6 +165,101 @@ def integration_page_managed_load_details(entry, state) -> dict[str, dict[str, o
 def validation_details_mapping(value: object) -> dict:
     """Return validation details, tolerating malformed runtime containers."""
     return dict(value) if isinstance(value, Mapping) else {}
+
+
+def _json_size(value: object) -> int:
+    try:
+        return len(json.dumps(value, default=str, sort_keys=True))
+    except (TypeError, ValueError):
+        return len(str(value))
+
+
+def recorder_safe_validation_details(value: object) -> dict:
+    """Return dashboard-safe runtime details for HA entity attributes.
+
+    Full source diagnostics, action history, daily metrics, and calibration
+    details stay available through diagnostics export/app surfaces. Entity
+    attributes are recorded frequently, so they must stay comfortably under Home
+    Assistant's recorder attribute limit.
+    """
+    if not isinstance(value, Mapping):
+        return {}
+    details = validation_details_mapping(value)
+    if not details:
+        return {}
+    safe = {
+        key: item
+        for key, item in details.items()
+        if key not in _BULKY_VALIDATION_DETAIL_KEYS
+    }
+    safe.setdefault("action_history_count", details.get("action_history_count", 0))
+    if "source_diagnostics" in details:
+        source_diagnostics = details.get("source_diagnostics") or {}
+        if isinstance(source_diagnostics, Mapping):
+            safe["source_role_count"] = len(source_diagnostics)
+            safe["source_roles_ok_count"] = sum(
+                1
+                for item in source_diagnostics.values()
+                if isinstance(item, Mapping) and item.get("status") == "ok"
+            )
+    if "source_freshness" in details:
+        source_freshness = details.get("source_freshness") or {}
+        if isinstance(source_freshness, Mapping):
+            safe["stale_source_role_count"] = sum(
+                1
+                for item in source_freshness.values()
+                if isinstance(item, Mapping) and item.get("stale")
+            )
+    safe["full_detail_surface"] = "Diagnostics export and Zero Net Export app"
+    return safe
+
+
+def recorder_safe_managed_detail(value: object) -> dict:
+    """Return a compact managed-load detail mapping for entity attributes."""
+    detail = managed_load_detail_mapping(value)
+    return {
+        key: item
+        for key, item in detail.items()
+        if key in _MANAGED_DETAIL_RECORDER_KEYS
+    }
+
+
+def recorder_safe_candidate_item(value: object) -> dict:
+    """Return a compact unmanaged candidate row for entity attributes."""
+    candidate = managed_load_detail_mapping(value)
+    return {
+        key: item
+        for key, item in candidate.items()
+        if key in _CANDIDATE_RECORDER_KEYS
+    }
+
+
+def enforce_recorder_attribute_budget(attributes: dict | None) -> dict | None:
+    """Trim optional bulky list attributes if a mapping still grows too large."""
+    if attributes is None:
+        return None
+    safe = dict(attributes)
+    if _json_size(safe) <= RECORDER_ATTRIBUTE_TARGET_BYTES:
+        return safe
+
+    for key in ("candidate_devices", "managed_devices", "attention_devices", "steady_devices", "devices"):
+        value = safe.get(key)
+        if isinstance(value, list) and len(value) > 12:
+            safe[f"{key}_omitted_count"] = len(value) - 12
+            safe[key] = value[:12]
+        if _json_size(safe) <= RECORDER_ATTRIBUTE_TARGET_BYTES:
+            return safe
+
+    for key in ("candidate_devices", "managed_devices", "attention_devices", "steady_devices", "devices"):
+        value = safe.get(key)
+        if isinstance(value, list) and len(value) > 6:
+            safe[f"{key}_omitted_count"] = len(value) - 6
+            safe[key] = value[:6]
+        if _json_size(safe) <= RECORDER_ATTRIBUTE_TARGET_BYTES:
+            return safe
+
+    safe["attribute_budget_note"] = "Large detail trimmed; use Diagnostics export or the app for full detail."
+    return safe
 
 
 def zero_net_export_device_info(coordinator) -> dict:
