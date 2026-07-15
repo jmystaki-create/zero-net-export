@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.15] - 2026-07-15
+
+### Fixed
+- Fixed the Managed Devices unmanaged-candidate promotion Fleet List after `zero_net_export.promote_managed_device` so numeric managed-device priority values sort and filter without a frontend render error.
+  Promoted candidates now stay visible in the managed Fleet List after
+  `zero_net_export.promote_managed_device` reloads the plan.
+
 ## [0.4.14] - 2026-07-15
 
 ### Fixed

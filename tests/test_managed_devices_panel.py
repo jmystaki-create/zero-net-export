@@ -109,6 +109,17 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn(".zne-stat strong", source)
         self.assertIn("margin-right: 4px;", source)
 
+    def test_managed_devices_panel_sorts_numeric_priorities_after_promotion(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("const prioritySortValue = (priority) => {", source)
+        self.assertIn("Number.isFinite(Number(priority))", source)
+        self.assertIn("return Number(priority);", source)
+        self.assertIn("valA = prioritySortValue(a.priority);", source)
+        self.assertIn("valB = prioritySortValue(b.priority);", source)
+        self.assertNotIn("(a.priority || \"\").toLowerCase()", source)
+        self.assertNotIn("(b.priority || \"\").toLowerCase()", source)
+
     def test_app_exposes_safe_edit_actions_through_home_assistant_services(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -244,7 +255,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.14"', source)
+        self.assertIn('"version": "0.4.15"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

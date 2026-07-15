@@ -1432,12 +1432,18 @@ class ZeroNetExportApp extends HTMLElement {
     // Apply sorting
     const sortField = sortBy;
     const reverse = sortDir === "asc" ? -1 : 1;
+    const prioritySortValue = (priority) => {
+      if (Number.isFinite(Number(priority))) {
+        return Number(priority);
+      }
+      const priorityOrder = {"high": 3, "medium": 2, "low": 1, "": 0};
+      return priorityOrder[String(priority || "").toLowerCase()] || 0;
+    };
     filtered = [...filtered].sort((a, b) => {
       let valA, valB;
       if (sortField === "priority") {
-        const priorityOrder = {"high": 3, "medium": 2, "low": 1, "": 0};
-        valA = priorityOrder[(a.priority || "").toLowerCase()] || 0;
-        valB = priorityOrder[(b.priority || "").toLowerCase()] || 0;
+        valA = prioritySortValue(a.priority);
+        valB = prioritySortValue(b.priority);
       } else if (sortField === "status") {
         valA = a.enabled ? 1 : 0;
         valB = b.enabled ? 1 : 0;
@@ -1514,7 +1520,7 @@ class ZeroNetExportApp extends HTMLElement {
             <label>Priority
               <select data-filter-priority>
                 <option value="all">All Priorities</option>
-                ${priorities.map(p => `<option value="${this._escape(p)}" ${p === filterPriority ? "selected" : ""}>${this._escape(p)}</option>`).join("")}
+                ${priorities.map(p => `<option value="${this._escape(p)}" ${String(p) === filterPriority ? "selected" : ""}>${this._escape(p)}</option>`).join("")}
               </select>
             </label>
             <label>Readiness
