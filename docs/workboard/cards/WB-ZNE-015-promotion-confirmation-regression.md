@@ -1,8 +1,8 @@
 # WB-ZNE-015 Promotion Confirmation Regression
 
-Status: Doing
+Status: Done
 Priority: High
-Labels: bug, managed-devices, app-frontend, validation, release
+Labels: bug, managed-devices, app-frontend, validation, release, released-live-validated
 
 ## Purpose
 
@@ -29,20 +29,26 @@ in the `Review & promote` workflow does not keep the tick pressed, and clicking
 evidence shows `Lounge Room - Heated Floor` / `switch.ac_outlet_1` selected as
 `Reviewing` in the unmanaged queue, with the review form open above the table.
 
-## Current Implementation State
+## Result
 
-A local frontend fix now persists promotion draft values and the required
-confirmation checkbox state on the custom element, so Home Assistant app
-re-renders should not clear the tick before `Promote to fleet` submits. The
-submit path remains the app-owned backend service
-`zero_net_export.promote_managed_device` with `confirm: true`; the original Home
-Assistant entity/device is not mutated by the app.
+Released/live validated in `v0.4.15`.
 
-Focused validation passed:
+The final fix spans the full app/backend promotion path:
 
-- `node --check custom_components/zero_net_export/frontend/zero-net-export-app.js`
-- `python3 -m unittest tests.test_managed_devices_panel -v` (`23` tests)
-- `git diff --check`
+- promotion draft values and confirmation state persist on the custom element
+  across Home Assistant app re-renders;
+- confirmed submit stays on `zero_net_export.promote_managed_device` with
+  `confirm: true`;
+- backend service schemas coerce UI numeric payloads before validation;
+- the Fleet List sorts/filters numeric managed-device priority values without a
+  frontend render error.
+
+Live proof promoted `switch.ac_outlet_1` to managed key
+`lounge_room_heated_floor` with `enabled: false`, preserved the original Home
+Assistant entity, removed the switch from the unmanaged queue, and rendered the
+managed Fleet List in a fresh `v0.4.15` browser tab with no console errors.
+
+Evidence: `validation/0.4.15-release-validation.md`.
 
 ## Acceptance Criteria
 
@@ -57,15 +63,20 @@ Focused validation passed:
 - The original Home Assistant entity/device remains present and unmodified.
 - Regression tests cover the confirmation gate and successful promotion flow.
 
-## Validation Plan
+## Validation Completed
 
-1. Run broader repo validation.
-2. Release through GitHub/HACS after explicit approval.
-3. Restart Home Assistant and validate a safe
-   unmanaged candidate promotion with browser/API proof and targeted log review.
+- `python3 -m unittest discover -s tests -v` passed (`641` tests).
+- Focused release tests passed (`87` tests).
+- `node --check custom_components/zero_net_export/frontend/zero-net-export-app.js` passed.
+- `python3 -m compileall -q custom_components/zero_net_export tests scripts` passed.
+- `git diff --check` passed.
+- GitHub/HACS release `v0.4.15` installed, Home Assistant restarted, and install
+  fingerprints matched before and after restart.
+- Live browser/API validation confirmed the promotion result and clean fresh
+  console.
 
 ## Next Actions
 
-1. Complete broader validation and release preparation for the local fix.
-2. Use a safe candidate such as `switch.ac_outlet_1` or another disposable load
-   for live validation.
+No further `ZNE-599` action. Continue with the focused read-only installed
+`ZNE-597` Battery Power/source-reading unit proof, then choose the next app
+workflow slice.

@@ -33,7 +33,7 @@ or release readiness changes. Current relevant UI cards:
 `workboard-focused` - `ZNE: Battery Power source mapping` (released in `v0.4.4`; focused installed unit-display proof still needed),
 `workboard-focused` - `ZNE: Overview Readiness message design` (done; released/live validated in `v0.4.5`),
 `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (done; released/live validated in `v0.4.12`),
-`2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` (doing; local frontend state fix pending broader validation/release; tracked as `ZNE-599`).
+`2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` (done; released/live validated in `v0.4.15`; tracked as `ZNE-599`).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -43,20 +43,14 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest released**: `v0.4.12` is published, installed through HACS, restarted,
-fingerprint-matched, and live validated for `ZNE-595` recorder-backed attribute
-cleanup. GitHub's public latest release is `v0.4.12` published on
+**Latest released**: `v0.4.15` is published, installed through HACS, restarted,
+fingerprint-matched, and live validated for `ZNE-599` unmanaged-candidate
+promotion. GitHub's public latest release is `v0.4.15` published on
 2026-07-15, and the Home Assistant/HACS update entity reported installed/latest
-`v0.4.12`. Evidence: `validation/0.4.12-release-validation.md` and
-`validation/zne-595-recorder-attribute-budget.md`.
+`v0.4.15`. Evidence: `validation/0.4.15-release-validation.md`.
 
-**Current next work**: finish `ZNE-599`, the live Managed Devices regression
-where the unmanaged-candidate promotion confirmation checkbox does not stay
-pressed and confirmed candidates are not added to the managed Fleet List. A
-local frontend fix now persists promotion draft/confirmation state across app
-re-renders; remaining work is broader validation, approved GitHub/HACS release,
-and live safe-candidate promotion proof. After that, capture the small
-`ZNE-597` installed Battery Power/unit proof, then scope the next product
+**Current next work**: capture the small `ZNE-597` installed Battery
+Power/source-reading unit proof on `v0.4.15`, then scope the next product
 increment from diagnostics/support, runtime visibility, controls, multi-plan UI
 proof, or deferred bulk priority adjustment.
 
@@ -201,9 +195,6 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Finish `ZNE-599` broader validation/release/live proof so unmanaged candidate
-  promotion can be confirmed and the promoted load appears in the managed Fleet
-  List on installed Home Assistant.
 - Capture focused installed proof that `ZNE-597` Battery Power/source-reading
   units display normalized watts as `W`.
 - Capture v0.4.0 browser proof if that historical evidence is still useful;
@@ -215,10 +206,12 @@ Remaining:
 ## Risks
 
 - Runtime/source-health state should be rechecked before each workflow slice;
-  the latest release validation for `v0.4.12` did not reopen a source-health
-  blocker.
+  `v0.4.15` validation observed transient/source availability blockers during
+  restart recovery windows, separate from the promotion fix.
 - ZNE-595 recorder attribute warnings are fixed and live validated in `v0.4.12`;
   keep scanning logs after future releases for recurrence.
+- ZNE-599 unmanaged-candidate promotion is fixed and live validated in
+  `v0.4.15`.
 - ZNE-596 Sources app SOC display is fixed and live validated in `v0.4.1`.
 - ZNE-594 is released/live-validated in `0.2.4`; continue watching logs for
   recurrence while broader app workflow validation proceeds.

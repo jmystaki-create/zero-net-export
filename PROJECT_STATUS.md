@@ -6,18 +6,15 @@ last_modified: 2026-07-15
 
 ## Current Focus
 
-**Current baseline:** `v0.4.12` is the latest public GitHub release and the
+**Current baseline:** `v0.4.15` is the latest public GitHub release and the
 installed Home Assistant/HACS version. Release validation is complete for
-`ZNE-595`; the recorder attribute-size warning blocker is closed. New live
-regression `ZNE-599` is now the active corrective priority: the Managed
-Devices app opens the unmanaged-candidate promotion workflow, but the required
-confirmation checkbox does not stay checked and the candidate is not added to
-the managed Fleet List. A local frontend fix now persists the promotion review
-draft and confirmation state across Home Assistant app re-renders; it is
-pending broader validation, release, HACS install, and live promotion proof.
-After `ZNE-599`, complete the small validation
-follow-up for `ZNE-597` Battery Power/unit presentation because no dedicated
-release validation record exists for that exact UI proof.
+`ZNE-599`; unmanaged-candidate promotion now succeeds from the Managed Devices
+app, the required confirmation checkbox persists across renders, the backend
+accepts UI numeric payloads, and the promoted device appears in the managed
+Fleet List without frontend render errors. After `ZNE-599`, complete the small
+validation follow-up for `ZNE-597` Battery Power/unit presentation because no
+dedicated validation record exists for that exact UI proof on the current
+installed release.
 
 **Milestone 7: Multi-Plan And Service Separation** (status: `released_live_validated_api_static`, target: `v0.4.0`)
 - Workboard card: `ZNE: Milestone 7 Multi-Plan And Service Separation`
@@ -37,7 +34,7 @@ release validation record exists for that exact UI proof.
 - New Managed Devices feature request: `ZNE-FR-017` is released/live validated in `v0.4.10`. The Managed Devices app can promote rows from the Unmanaged Candidate Queue into the managed Fleet List through app-owned `Review & promote`, backed by `zero_net_export.promote_managed_device` and the existing managed-load child `device_info`; unsupported paths such as custom actions on another integration's original HA device page are excluded. Evidence: `validation/zne-fr-017-managed-candidate-promotion.md` and `validation/0.4.10-release-validation.md`.
 - Corrective Managed Devices polish: `ZNE-598` is released/live validated in `v0.4.11`. `Review & promote` now opens a visible workflow above the unmanaged candidate table, scrolls/focuses to it, and marks the selected row with `Reviewing`. Evidence: `validation/zne-598-review-promote-visible-workflow.md` and `validation/0.4.11-release-validation.md`.
 - Current corrective release: `ZNE-595` is released/live validated in `v0.4.12`. Recorder-backed entity attributes now use compact summaries for validation details, managed-device runtime details, and unmanaged candidate rows, keeping bulky action history/source diagnostics/daily metrics/calibration detail on diagnostics/app surfaces. Evidence: `validation/zne-595-recorder-attribute-budget.md` and `validation/0.4.12-release-validation.md`.
-- New Managed Devices promotion regression: `ZNE-599` is open/high with a local fix pending release. Riley reported on installed `v0.4.12` that the confirmation checkbox in the unmanaged-candidate `Review & promote` workflow does not stay pressed and the candidate is not added to the managed Fleet List. Local code now stores promotion draft/confirmation state on the custom element and submits from that captured state. Focused validation passed with `node --check`, `python3 -m unittest tests.test_managed_devices_panel -v` (`23` tests), and `git diff --check`. Next action: run broader validation, release through GitHub/HACS after approval, and live-validate a safe candidate promotion.
+- Managed Devices promotion regression: `ZNE-599` is released/live validated in `v0.4.15`. Riley reported on installed `v0.4.12` that the confirmation checkbox in the unmanaged-candidate `Review & promote` workflow did not stay pressed and the candidate was not added to the managed Fleet List. The fix persisted promotion draft/confirmation state, coerced UI numeric payloads at the service schema boundary, and made numeric priorities render safely after promotion. Evidence: `validation/0.4.15-release-validation.md`.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -72,8 +69,8 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 ## Active Bugs
 
-- ZNE-599 — Promote confirmation does not add unmanaged candidate to managed fleet. Status: open/high, local_fix_pending_release_validation. Evidence: Riley screenshot/report on 2026-07-15 against installed `v0.4.12`; frontend state fix in `custom_components/zero_net_export/frontend/zero-net-export-app.js`; focused panel tests passed. Next action: broader validation, release through GitHub/HACS after approval, then live promotion proof.
-- ZNE-597 — Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW. Status: released_in_v0.4.4_pending_focused_unit_ui_proof. Evidence: `docs/BUGS.md`, `validation/zne-597-battery-power-source-mapping.md`. Next action: focused installed `v0.4.12` check of Overview Battery Power and source-reading unit display.
+- ZNE-597 — Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW. Status: released_in_v0.4.4_pending_focused_unit_ui_proof. Evidence: `docs/BUGS.md`, `validation/zne-597-battery-power-source-mapping.md`. Next action: focused installed `v0.4.15` check of Overview Battery Power and source-reading unit display.
+- ZNE-599 — Promote confirmation does not add unmanaged candidate to managed fleet. Status: released_live_validated in `v0.4.15`. Evidence: `docs/BUGS.md`, `validation/0.4.15-release-validation.md`.
 - ZNE-598 — Managed Devices `Review & promote` appeared to do nothing because the selected candidate workflow was not visibly opened. Status: released_live_validated in `v0.4.11`. Evidence: `docs/BUGS.md`, `validation/zne-598-review-promote-visible-workflow.md`, `validation/0.4.11-release-validation.md`.
 - ZNE-596 — Sources app shows Battery state of charge as missing despite valid backend binding. Status: repo_validated/released_live_validated in `v0.4.1`. Evidence: `docs/BUGS.md`, `validation/zne-596-soc-source-status-display.md`, `validation/0.4.1-release-validation.md`.
 - ZNE-595 — recorder-backed entity attributes exceed Home Assistant's 16 KB limit. Status: released_live_validated in `v0.4.12`. Evidence: `docs/BUGS.md`, `validation/zne-595-recorder-attribute-budget.md`, `validation/0.4.12-release-validation.md`, `validation/0.4.0-release-validation.md`.

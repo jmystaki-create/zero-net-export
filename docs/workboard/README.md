@@ -45,10 +45,10 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.4.12` (recorder attribute-size cleanup for `ZNE-595`, installed through HACS and live validated 2026-07-15).
-Next: fix `ZNE-599`, the Managed Devices promotion regression where the
-confirmation checkbox does not stay pressed and an unmanaged candidate is not
-added to the managed Fleet List.
+Current release: `v0.4.15` (`ZNE-599` Managed Devices promotion regression
+fix, installed through HACS and live validated 2026-07-15).
+Next: capture the focused installed `ZNE-597` Battery Power/source-reading unit
+proof, then choose the next app workflow slice.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -102,23 +102,22 @@ Current state:
   diagnostics remain on diagnostics/app surfaces. Post-restart max observed ZNE
   attribute payload was `10483` bytes, and the reviewed post-restart log window
   had no ZNE recorder attribute-size warnings.
-- `ZNE-599` is open/high with a local frontend fix pending broader
-  validation/release: on installed `v0.4.12`, the unmanaged-candidate promotion
-  workflow opens but the required confirmation checkbox does not stay checked
-  and `Promote to fleet` does not add the candidate to the managed Fleet List.
-  The local fix persists promotion draft/confirmation state across app
-  re-renders and keeps promotion on `zero_net_export.promote_managed_device`.
+- `ZNE-599` is released/live validated in `v0.4.15`: the unmanaged-candidate
+  promotion workflow now preserves confirmation state across app re-renders,
+  accepts UI numeric service payloads, promotes through
+  `zero_net_export.promote_managed_device`, and renders the promoted numeric
+  priority in the Fleet List without frontend errors. Evidence:
+  `validation/0.4.15-release-validation.md`.
 
 ## Known Bugs
 
 Active/high-signal items:
-- ZNE-599: local_fix_pending_release_validation; Managed Devices `Review & promote` confirmation does not
-  commit an unmanaged candidate into the managed Fleet List. Riley's
-  2026-07-15 screenshot/report shows `Lounge Room - Heated Floor`
-  (`switch.ac_outlet_1`) in review, the confirmation checkbox not staying
-  pressed, and the candidate still in the unmanaged queue. Focused local
-  validation passed with JS syntax check, managed-device panel unittest, and
-  diff whitespace check.
+- ZNE-599: released/live-validated in `v0.4.15`; Managed Devices
+  `Review & promote` now commits a confirmed unmanaged candidate into the
+  managed Fleet List through the supported promotion service. Live proof
+  promoted `switch.ac_outlet_1` to managed key `lounge_room_heated_floor` with
+  `enabled: false`, preserved the original entity, removed it from the
+  unmanaged queue, and showed a clean fresh browser console.
 - ZNE-597: released in `v0.4.4` with focused unit-display proof pending; Battery Power used a cumulative Anker total sensor and
   displayed normalized watts as kW. Live source-role repair now binds discharge
   power to `sensor.x1_p6k_us_s_discharge_power`, with ZNE status `ready` and
@@ -142,8 +141,8 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Fix and live-validate `ZNE-599` unmanaged candidate promotion confirmation.
 - Capture the focused installed `ZNE-597` Battery Power/unit proof.
+- Choose the next app workflow slice.
 - Capture v0.4.0 browser visual proof once the OpenClaw managed browser host is available.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
@@ -153,15 +152,12 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Finish `ZNE-599` so unmanaged candidates can be confirmed and
-promoted into the managed Fleet List on installed Home Assistant.
+**Immediate**: Capture the read-only installed `ZNE-597` Battery
+Power/source-reading unit proof on `v0.4.15`.
 
-1. Run broader repo validation for the local promotion-state fix.
-2. Release through GitHub/HACS after explicit approval.
-3. Live-validate a safe candidate promotion.
-4. Capture the focused installed `ZNE-597` Battery Power/unit proof.
-5. Decide when to scope deferred bulk priority adjustment.
-6. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Capture the focused installed `ZNE-597` Battery Power/unit proof.
+2. Decide when to scope deferred bulk priority adjustment.
+3. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
@@ -174,8 +170,8 @@ promoted into the managed Fleet List on installed Home Assistant.
   separately from Milestone 6 diagnostics service validation.
 - ZNE-595 recorder attribute warnings are fixed and live validated in `v0.4.12`;
   continue scanning logs after future releases for recurrence.
-- ZNE-599 blocks the app-native unmanaged-candidate onboarding path until the
-  confirmation/promotion submit flow is fixed and live validated.
+- ZNE-599 is fixed/live validated in `v0.4.15`; keep watching the
+  unmanaged-candidate onboarding path during future app workflow work.
 - Keep using GitHub/HACS-only validation for releases; no direct component
   deployment.
 - Live validation must continue through GitHub/HACS, not direct file deployment.
@@ -242,6 +238,6 @@ Full product completion: not yet estimable from current evidence because runtime
 - `workboard-focused` - `ZNE: Overview console live metrics` - done; released/live validated in `v0.4.2`.
 - `workboard-focused` - `ZNE: Overview Readiness clarity` - done; released/live validated in `v0.4.3`.
 - `workboard-focused` - `ZNE: Battery Power source mapping` - released in `v0.4.4`; focused installed unit-display proof still needed.
-- `2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` - doing; local frontend state fix pending broader validation/release; tracked as `ZNE-599`.
+- `2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` - done; released/live validated in `v0.4.15`; tracked as `ZNE-599`.
 - `workboard-focused` - `ZNE: Overview Readiness message design` - done; released/live validated in `v0.4.5`.
 - `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - done; released/live validated in `v0.4.12`.

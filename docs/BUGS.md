@@ -81,7 +81,7 @@ Suggested area labels:
 
 ## ZNE-599 - Promote confirmation does not add unmanaged candidate to managed fleet
 
-- **status:** `local_fix_pending_release_validation`
+- **status:** `released_live_validated_v0.4.15`
 - **severity:** `high`
 - **area:** `managed_devices / application`
 - **where seen:** Riley screenshot/report from live Home Assistant Managed Devices app on 2026-07-15, after `v0.4.12` was installed and live validated.
@@ -91,8 +91,9 @@ Suggested area labels:
 - **impact:** Blocks the app-native unmanaged-candidate onboarding workflow that `ZNE-FR-017` intended to provide. Operators cannot promote discovered unmanaged loads from the Managed Devices app even though the visible review workflow opens.
 - **target-environment feasibility:** expected to be supported inside the existing Zero Net Export Home Assistant custom panel/static frontend and backend service path already released for `ZNE-FR-017`. This is tracked as a Zero Net Export frontend/backend promotion-flow regression, not a Home Assistant native-surface limitation.
 - **suspected cause:** confirmed frontend state gap. The promotion panel was rebuilt from default values during app re-renders, while the confirmation checkbox and promotion form draft were not stored on the custom element.
-- **repo fix:** the app now stores promotion draft values and the required confirmation checkbox state on the custom element, refreshes that state from promotion field/checkbox changes, preserves it across Home Assistant-driven renders, resets it only when cancelling, submitting successfully, or selecting a different candidate, and still submits through `zero_net_export.promote_managed_device` with `confirm: true`.
-- **repo validation:** `node --check custom_components/zero_net_export/frontend/zero-net-export-app.js` passed; `python3 -m unittest tests.test_managed_devices_panel -v` passed (`23` tests); `git diff --check` passed. `python`/global `pytest` are not available in this shell, so focused validation used stdlib `unittest`.
+- **repo fix:** the app now stores promotion draft values and the required confirmation checkbox state on the custom element, refreshes that state from promotion field/checkbox changes, preserves it across Home Assistant-driven renders, resets it only when cancelling, submitting successfully, or selecting a different candidate, and still submits through `zero_net_export.promote_managed_device` with `confirm: true`. Follow-up release fixes also coerce UI numeric service payloads and render numeric managed-device priorities safely after promotion.
+- **repo validation:** `python3 -m unittest discover -s tests -v` passed (`641` tests); focused release tests passed (`87` tests); `node --check custom_components/zero_net_export/frontend/zero-net-export-app.js`, `python3 -m compileall -q custom_components/zero_net_export tests scripts`, and `git diff --check` passed.
+- **live validation:** released through GitHub/HACS as `v0.4.15`, installed/restarted/fingerprint matched before and after restart, and live validated in Home Assistant. `switch.ac_outlet_1` promoted to managed key `lounge_room_heated_floor` with `enabled: false`; the original HA entity remains `switch.ac_outlet_1`; the candidate disappeared from the unmanaged queue; the managed Fleet List renders in a fresh `v0.4.15` browser tab with no console errors. Evidence: `validation/0.4.15-release-validation.md`.
 - **acceptance criteria:**
   - Confirmation checkbox in the review form toggles on/off reliably and remains checked until cancelled, submitted, or another candidate is selected.
   - `Promote to fleet` remains blocked until confirmation is checked and required form values are valid.
@@ -101,8 +102,8 @@ Suggested area labels:
   - Original Home Assistant entity/device is not modified or removed by promotion.
   - Regression tests cover the confirmation gate and successful promotion flow.
   - Installed Home Assistant validation uses a safe candidate such as `switch.ac_outlet_1` or another disposable load, captures browser/API proof, and checks logs.
-- **validation plan:** run broader repo validation; release through GitHub/HACS after explicit approval; restart Home Assistant; promote a safe unmanaged candidate; confirm it appears in the managed Fleet List, disappears from ready unmanaged candidates, original HA entity remains present, and targeted logs are clean.
-- **next action:** complete broader validation and release/live validation for `ZNE-599` before new app workflow scope work.
+- **validation plan:** complete; see `validation/0.4.15-release-validation.md`.
+- **next action:** no further `ZNE-599` action. Continue with the focused installed `ZNE-597` Battery Power/source-reading unit proof, then choose the next app workflow slice.
 
 ## ZNE-598 - Review & promote click does not visibly open the workflow
 
@@ -129,8 +130,8 @@ Suggested area labels:
 - **evidence:** live HA state showed `number.x1_p6k_us_s_battery_capacity=20000 Wh`, `sensor.x1_p6k_us_s_state_of_charge=49%`, `sensor.anker_battery_discharge_power=29.97 kW` with `state_class=total`, `sensor.zero_net_export_battery_discharge_power_reading=29970.0` with unit `kW`, and `sensor.zero_net_export_reason=Validation degraded: battery_discharge_power state_class is total; expected measurement`.
 - **live repair:** updated `battery_discharge_power_entity` through `zero_net_export.update_source_roles` to `sensor.x1_p6k_us_s_discharge_power`, a `kW` power `measurement` sensor. Post-service live state showed `sensor.zero_net_export_battery_discharge_power_status=ok`, binding `sensor.x1_p6k_us_s_discharge_power`, normalized value `420 W`, ZNE status `ready`, and reconciliation error `0 W`.
 - **repo fix:** coordinator source normalization now converts the displayed diagnostic unit from `kW` to `W` when it converts the value to watts, and preserves the original source unit as `raw_unit`.
-- **validation status:** repo validation passed; the source-role repair was validated through HA state API, and the code shipped in public GitHub release `v0.4.4`. Later installed releases reached `v0.4.12`, but no dedicated validation record captures the Overview Battery Power/source-reading unit display after the unit-presentation fix.
-- **next action:** perform a focused read-only installed `v0.4.12` check of Overview Battery Power and source-reading units; close this bug only if the display uses normalized watts with unit `W`.
+- **validation status:** repo validation passed; the source-role repair was validated through HA state API, and the code shipped in public GitHub release `v0.4.4`. Later installed releases reached `v0.4.15`, but no dedicated validation record captures the Overview Battery Power/source-reading unit display after the unit-presentation fix.
+- **next action:** perform a focused read-only installed `v0.4.15` check of Overview Battery Power and source-reading units; close this bug only if the display uses normalized watts with unit `W`.
 - `diagnostics`
 - `release`
 - `docs`
