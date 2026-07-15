@@ -148,7 +148,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-595 - recorder-backed entity attributes exceed Home Assistant's 16 KB limit
 
-- **status:** `repo_validated_pending_release_live_validation`
+- **status:** `released_live_validated_v0.4.12`
 - **severity:** `high`
 - **area:** `sensors / diagnostics / recorder`
 - **where seen:** live Home Assistant log review on 2026-07-07 after installing and restarting `v0.4.0`.
@@ -164,8 +164,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Live Home Assistant post-restart log review shows no Zero Net Export 16 KB recorder attribute warnings in the reviewed window.
 - **validation plan:** add repo tests for attribute trimming, run full test discovery, py_compile, JS syntax if frontend API behavior changes, publish through GitHub/HACS, restart Home Assistant, inspect key entity states, and review `ha core logs` for recorder warnings.
 - **repo fix:** recorder-safe attribute helpers now compact validation details, managed-device runtime details, unmanaged candidate rows, and final list-heavy attributes across sensors, binary sensors, switches, selects, numbers, and buttons. Bulky action history, source diagnostics, source freshness, daily metrics, and calibration hints stay off recorder-backed attributes.
-- **validation status:** repo validation passed for the `v0.4.12` candidate. Evidence: `validation/zne-595-recorder-attribute-budget.md`.
-- **next action:** publish `v0.4.12`, install through HACS, restart Home Assistant, fingerprint-check before/after restart, then confirm representative ZNE attribute sizes and log review show no new 16 KB recorder warnings.
+- **validation status:** released/live-validated in `v0.4.12`. GitHub release, HACS install, Home Assistant restart, install fingerprint checks before and after restart, version state checks, attribute-size checks, and post-restart log review passed. Evidence: `validation/zne-595-recorder-attribute-budget.md`, `validation/0.4.12-release-validation.md`.
+- **next action:** none for this bug.
 
 ## ZNE-594 - next-step sensors can exceed Home Assistant's 255-character state limit
 

@@ -45,8 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.4.11` (Managed Devices `Review & promote` visibility fix for `ZNE-598`, installed through HACS and live/browser validated 2026-07-13).
-Next: publish/install/live-validate `v0.4.12` for `ZNE-595` recorder attribute cleanup.
+Current release: `v0.4.12` (recorder attribute-size cleanup for `ZNE-595`, installed through HACS and live validated 2026-07-15).
+Next: decide the next app workflow slice after the recorder warning blocker is closed.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -95,9 +95,11 @@ Current state:
   is pending release.
 - `v0.4.11` fixed and live-validated the Managed Devices `Review & promote`
   visible workflow regression.
-- `ZNE-595` is repo-validated for `v0.4.12`: recorder-backed entity attributes
-  now expose compact summaries while bulky action history/source diagnostics
-  remain on diagnostics/app surfaces.
+- `ZNE-595` is released/live validated in `v0.4.12`: recorder-backed entity
+  attributes now expose compact summaries while bulky action history/source
+  diagnostics remain on diagnostics/app surfaces. Post-restart max observed ZNE
+  attribute payload was `10483` bytes, and the reviewed post-restart log window
+  had no ZNE recorder attribute-size warnings.
 
 ## Known Bugs
 
@@ -111,9 +113,8 @@ Active/high-signal items:
   `battery_soc_status` while the backend exposes `battery_state_of_charge_status`.
   Live API/browser validation confirmed the app now shows `status: ok`, binding
   `sensor.x1_p6k_us_s_state_of_charge`, and the current reading.
-- ZNE-595: repo-validated pending `v0.4.12` release/live validation; many
-  recorder-backed entity attributes exceeded Home Assistant's 16 KB attribute
-  limit after `v0.4.0`.
+- ZNE-595: released/live-validated in `v0.4.12`; many recorder-backed entity
+  attributes exceeded Home Assistant's 16 KB attribute limit after `v0.4.0`.
 - ZNE-594: released/live-validated fixed in `0.2.4`; continue watching logs for recurrence.
 - ZNE-APP-002: released/live-validated; installed desktop/narrow browser proof is captured.
 - Runtime control readiness is now proven on the validation Home Assistant
@@ -135,14 +136,10 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Release/live-validate `v0.4.12` for ZNE-595 recorder attribute
-cleanup.
+**Immediate**: Choose the next app workflow slice now that ZNE-595 is closed.
 
-1. Publish and install `v0.4.12` through the GitHub/HACS path.
-2. Restart Home Assistant and fingerprint-check the installed package.
-3. Check representative ZNE attribute sizes and targeted logs for recorder warnings.
-4. Decide when to scope deferred bulk priority adjustment.
-5. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Decide when to scope deferred bulk priority adjustment.
+2. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks

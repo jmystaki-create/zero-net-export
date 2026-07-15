@@ -1,7 +1,7 @@
 # ZNE-595 Recorder Attribute Budget Validation
 
 Date: 2026-07-15
-Status: repo-validated; release/live validation pending
+Status: released/live-validated in `v0.4.12`
 
 ## Scope
 
@@ -39,14 +39,24 @@ Passed:
 - `node --check custom_components/zero_net_export/frontend/zero-net-export-app.js`
 - `git diff --check`
 
-## Release Validation Plan
+## Release Validation
 
-1. Publish `v0.4.12` through GitHub.
-2. Install `v0.4.12` through the Home Assistant/HACS update entity.
-3. Restart Home Assistant.
-4. Confirm install fingerprint match before and after restart.
-5. Confirm installed/latest version reports `v0.4.12`.
-6. Check representative ZNE entity attribute sizes stay below the 16 KB recorder
-   ceiling.
-7. Review Home Assistant logs for new Zero Net Export recorder attribute-size
-   warnings.
+Release `v0.4.12` was published through GitHub, installed through the Home
+Assistant/HACS update entity, restarted, and live-validated.
+
+Evidence:
+
+- GitHub release: `https://github.com/jmystaki-create/zero-net-export/releases/tag/v0.4.12`
+- Release commit: `94215e4`
+- HACS/Home Assistant update entity reported installed/latest `v0.4.12`.
+- Install fingerprint matched before and after restart:
+  - `tmp/install-fingerprint-compare-v0.4.12-before-restart.json`
+  - `tmp/install-fingerprint-compare-v0.4.12-after-restart.json`
+- Post-restart Home Assistant state:
+  - `sensor.zero_net_export_installed_version=0.4.12`
+  - `sensor.zero_net_export_previous_installed_version=0.4.11`
+  - `update.zero_net_export_update` installed/latest `v0.4.12`
+- Post-restart attribute-size check covered 167 ZNE entities; maximum observed
+  ZNE attribute payload was `10483` bytes.
+- Post-restart log scan found `0` Zero Net Export recorder attribute-size
+  warnings in the reviewed window after the `17:50` restart boot messages.
