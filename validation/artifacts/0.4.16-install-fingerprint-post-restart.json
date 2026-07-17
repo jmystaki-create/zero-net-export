@@ -1,0 +1,765 @@
+{
+  "actual": {
+    "component_root": "/homeassistant/custom_components/zero_net_export",
+    "inspection_transport": "ssh",
+    "legacy_artifacts": {
+      "legacy_backup_paths": [],
+      "legacy_component_child_paths": [],
+      "stale_bytecode_paths": []
+    },
+    "manifest_version": "0.4.16",
+    "ssh_host": "root@192.168.86.200",
+    "ssh_port": 2222,
+    "tracked_files": {
+      "__init__.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/__init__.py",
+        "sha256_12": "7504d484ebc1",
+        "size_bytes": 42846
+      },
+      "app_api.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/app_api.py",
+        "sha256_12": "c0a250dbb12b",
+        "size_bytes": 1140
+      },
+      "binary_sensor.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/binary_sensor.py",
+        "sha256_12": "d4f6fa5f2e18",
+        "size_bytes": 5256
+      },
+      "button.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/button.py",
+        "sha256_12": "ecac35f93588",
+        "size_bytes": 87472
+      },
+      "candidate_utils.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/candidate_utils.py",
+        "sha256_12": "d8d9ce72471c",
+        "size_bytes": 36308
+      },
+      "config_flow.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/config_flow.py",
+        "sha256_12": "ef3833e816ef",
+        "size_bytes": 208110
+      },
+      "const.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/const.py",
+        "sha256_12": "b520d9b6afb0",
+        "size_bytes": 4347
+      },
+      "coordinator.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/coordinator.py",
+        "sha256_12": "8cebaf9f50cd",
+        "size_bytes": 78829
+      },
+      "device_model.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/device_model.py",
+        "sha256_12": "2ed7589ef751",
+        "size_bytes": 23566
+      },
+      "diagnostics.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/diagnostics.py",
+        "sha256_12": "b6370f69af63",
+        "size_bytes": 10057
+      },
+      "entity.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/entity.py",
+        "sha256_12": "af3b0469ba10",
+        "size_bytes": 38132
+      },
+      "executor.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/executor.py",
+        "sha256_12": "d1c646aaf10b",
+        "size_bytes": 4259
+      },
+      "manifest.json": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/manifest.json",
+        "sha256_12": "a6e1e6a366ee",
+        "size_bytes": 511
+      },
+      "native_support.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/native_support.py",
+        "sha256_12": "caedbb128f86",
+        "size_bytes": 283152
+      },
+      "number.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/number.py",
+        "sha256_12": "a290613f0a43",
+        "size_bytes": 4301
+      },
+      "planner.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/planner.py",
+        "sha256_12": "237e50137e1e",
+        "size_bytes": 23304
+      },
+      "release_info.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/release_info.py",
+        "sha256_12": "bbfe548d28bf",
+        "size_bytes": 15860
+      },
+      "repairs.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/repairs.py",
+        "sha256_12": "5d37ea9abb87",
+        "size_bytes": 12834
+      },
+      "select.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/select.py",
+        "sha256_12": "c0b33e1f1813",
+        "size_bytes": 1217
+      },
+      "sensor.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/sensor.py",
+        "sha256_12": "c271716674d8",
+        "size_bytes": 97951
+      },
+      "strings.json": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/strings.json",
+        "sha256_12": "888ac832bc85",
+        "size_bytes": 34603
+      },
+      "switch.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/switch.py",
+        "sha256_12": "de5b0e8328ed",
+        "size_bytes": 3292
+      },
+      "translations/en.json": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/translations/en.json",
+        "sha256_12": "888ac832bc85",
+        "size_bytes": 34603
+      },
+      "validation.py": {
+        "exists": true,
+        "path": "/homeassistant/custom_components/zero_net_export/validation.py",
+        "sha256_12": "dad40e160045",
+        "size_bytes": 28750
+      }
+    }
+  },
+  "comparison": {
+    "all_tracked_files_match": true,
+    "legacy_artifacts": {
+      "legacy_backup_paths": [],
+      "legacy_component_child_paths": [],
+      "stale_bytecode_paths": []
+    },
+    "legacy_artifacts_match": true,
+    "manifest_mismatch": null,
+    "manifest_version_matches": true,
+    "mismatches": [],
+    "overall_match": true,
+    "recommendation": "Install fingerprint matches the intended repo build and no legacy discovery artifacts were found. A Home Assistant restart from this install path should now be trustworthy.",
+    "tracked_files": {
+      "__init__.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/__init__.py",
+          "sha256_12": "7504d484ebc1",
+          "size_bytes": 42846
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/__init__.py",
+          "sha256_12": "7504d484ebc1",
+          "size_bytes": 42846
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "app_api.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/app_api.py",
+          "sha256_12": "c0a250dbb12b",
+          "size_bytes": 1140
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/app_api.py",
+          "sha256_12": "c0a250dbb12b",
+          "size_bytes": 1140
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "binary_sensor.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/binary_sensor.py",
+          "sha256_12": "d4f6fa5f2e18",
+          "size_bytes": 5256
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/binary_sensor.py",
+          "sha256_12": "d4f6fa5f2e18",
+          "size_bytes": 5256
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "button.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/button.py",
+          "sha256_12": "ecac35f93588",
+          "size_bytes": 87472
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/button.py",
+          "sha256_12": "ecac35f93588",
+          "size_bytes": 87472
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "candidate_utils.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/candidate_utils.py",
+          "sha256_12": "d8d9ce72471c",
+          "size_bytes": 36308
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/candidate_utils.py",
+          "sha256_12": "d8d9ce72471c",
+          "size_bytes": 36308
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "config_flow.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/config_flow.py",
+          "sha256_12": "ef3833e816ef",
+          "size_bytes": 208110
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/config_flow.py",
+          "sha256_12": "ef3833e816ef",
+          "size_bytes": 208110
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "const.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/const.py",
+          "sha256_12": "b520d9b6afb0",
+          "size_bytes": 4347
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/const.py",
+          "sha256_12": "b520d9b6afb0",
+          "size_bytes": 4347
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "coordinator.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/coordinator.py",
+          "sha256_12": "8cebaf9f50cd",
+          "size_bytes": 78829
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/coordinator.py",
+          "sha256_12": "8cebaf9f50cd",
+          "size_bytes": 78829
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "device_model.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/device_model.py",
+          "sha256_12": "2ed7589ef751",
+          "size_bytes": 23566
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/device_model.py",
+          "sha256_12": "2ed7589ef751",
+          "size_bytes": 23566
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "diagnostics.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/diagnostics.py",
+          "sha256_12": "b6370f69af63",
+          "size_bytes": 10057
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/diagnostics.py",
+          "sha256_12": "b6370f69af63",
+          "size_bytes": 10057
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "entity.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/entity.py",
+          "sha256_12": "af3b0469ba10",
+          "size_bytes": 38132
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/entity.py",
+          "sha256_12": "af3b0469ba10",
+          "size_bytes": 38132
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "executor.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/executor.py",
+          "sha256_12": "d1c646aaf10b",
+          "size_bytes": 4259
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/executor.py",
+          "sha256_12": "d1c646aaf10b",
+          "size_bytes": 4259
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "manifest.json": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/manifest.json",
+          "sha256_12": "a6e1e6a366ee",
+          "size_bytes": 511
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/manifest.json",
+          "sha256_12": "a6e1e6a366ee",
+          "size_bytes": 511
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "native_support.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/native_support.py",
+          "sha256_12": "caedbb128f86",
+          "size_bytes": 283152
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/native_support.py",
+          "sha256_12": "caedbb128f86",
+          "size_bytes": 283152
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "number.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/number.py",
+          "sha256_12": "a290613f0a43",
+          "size_bytes": 4301
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/number.py",
+          "sha256_12": "a290613f0a43",
+          "size_bytes": 4301
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "planner.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/planner.py",
+          "sha256_12": "237e50137e1e",
+          "size_bytes": 23304
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/planner.py",
+          "sha256_12": "237e50137e1e",
+          "size_bytes": 23304
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "release_info.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/release_info.py",
+          "sha256_12": "bbfe548d28bf",
+          "size_bytes": 15860
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/release_info.py",
+          "sha256_12": "bbfe548d28bf",
+          "size_bytes": 15860
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "repairs.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/repairs.py",
+          "sha256_12": "5d37ea9abb87",
+          "size_bytes": 12834
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/repairs.py",
+          "sha256_12": "5d37ea9abb87",
+          "size_bytes": 12834
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "select.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/select.py",
+          "sha256_12": "c0b33e1f1813",
+          "size_bytes": 1217
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/select.py",
+          "sha256_12": "c0b33e1f1813",
+          "size_bytes": 1217
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "sensor.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/sensor.py",
+          "sha256_12": "c271716674d8",
+          "size_bytes": 97951
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/sensor.py",
+          "sha256_12": "c271716674d8",
+          "size_bytes": 97951
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "strings.json": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/strings.json",
+          "sha256_12": "888ac832bc85",
+          "size_bytes": 34603
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/strings.json",
+          "sha256_12": "888ac832bc85",
+          "size_bytes": 34603
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "switch.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/switch.py",
+          "sha256_12": "de5b0e8328ed",
+          "size_bytes": 3292
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/switch.py",
+          "sha256_12": "de5b0e8328ed",
+          "size_bytes": 3292
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "translations/en.json": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/translations/en.json",
+          "sha256_12": "888ac832bc85",
+          "size_bytes": 34603
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/translations/en.json",
+          "sha256_12": "888ac832bc85",
+          "size_bytes": 34603
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      },
+      "validation.py": {
+        "actual": {
+          "exists": true,
+          "path": "/homeassistant/custom_components/zero_net_export/validation.py",
+          "sha256_12": "dad40e160045",
+          "size_bytes": 28750
+        },
+        "exists_matches": true,
+        "expected": {
+          "exists": true,
+          "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/validation.py",
+          "sha256_12": "dad40e160045",
+          "size_bytes": 28750
+        },
+        "matches": true,
+        "sha256_12_matches": true,
+        "size_bytes_matches": true
+      }
+    }
+  },
+  "expected": {
+    "component_root": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export",
+    "expected_commit": "a5830fb",
+    "expected_component_commit": "a5830fb",
+    "manifest_version": "0.4.16",
+    "preferred_validation_commit": "a5830fb",
+    "repo_head_commit": "a5830fb",
+    "repo_root": "/root/.openclaw/workspace/projects/zero-net-export",
+    "tracked_files": {
+      "__init__.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/__init__.py",
+        "sha256_12": "7504d484ebc1",
+        "size_bytes": 42846
+      },
+      "app_api.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/app_api.py",
+        "sha256_12": "c0a250dbb12b",
+        "size_bytes": 1140
+      },
+      "binary_sensor.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/binary_sensor.py",
+        "sha256_12": "d4f6fa5f2e18",
+        "size_bytes": 5256
+      },
+      "button.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/button.py",
+        "sha256_12": "ecac35f93588",
+        "size_bytes": 87472
+      },
+      "candidate_utils.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/candidate_utils.py",
+        "sha256_12": "d8d9ce72471c",
+        "size_bytes": 36308
+      },
+      "config_flow.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/config_flow.py",
+        "sha256_12": "ef3833e816ef",
+        "size_bytes": 208110
+      },
+      "const.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/const.py",
+        "sha256_12": "b520d9b6afb0",
+        "size_bytes": 4347
+      },
+      "coordinator.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/coordinator.py",
+        "sha256_12": "8cebaf9f50cd",
+        "size_bytes": 78829
+      },
+      "device_model.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/device_model.py",
+        "sha256_12": "2ed7589ef751",
+        "size_bytes": 23566
+      },
+      "diagnostics.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/diagnostics.py",
+        "sha256_12": "b6370f69af63",
+        "size_bytes": 10057
+      },
+      "entity.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/entity.py",
+        "sha256_12": "af3b0469ba10",
+        "size_bytes": 38132
+      },
+      "executor.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/executor.py",
+        "sha256_12": "d1c646aaf10b",
+        "size_bytes": 4259
+      },
+      "manifest.json": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/manifest.json",
+        "sha256_12": "a6e1e6a366ee",
+        "size_bytes": 511
+      },
+      "native_support.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/native_support.py",
+        "sha256_12": "caedbb128f86",
+        "size_bytes": 283152
+      },
+      "number.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/number.py",
+        "sha256_12": "a290613f0a43",
+        "size_bytes": 4301
+      },
+      "planner.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/planner.py",
+        "sha256_12": "237e50137e1e",
+        "size_bytes": 23304
+      },
+      "release_info.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/release_info.py",
+        "sha256_12": "bbfe548d28bf",
+        "size_bytes": 15860
+      },
+      "repairs.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/repairs.py",
+        "sha256_12": "5d37ea9abb87",
+        "size_bytes": 12834
+      },
+      "select.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/select.py",
+        "sha256_12": "c0b33e1f1813",
+        "size_bytes": 1217
+      },
+      "sensor.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/sensor.py",
+        "sha256_12": "c271716674d8",
+        "size_bytes": 97951
+      },
+      "strings.json": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/strings.json",
+        "sha256_12": "888ac832bc85",
+        "size_bytes": 34603
+      },
+      "switch.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/switch.py",
+        "sha256_12": "de5b0e8328ed",
+        "size_bytes": 3292
+      },
+      "translations/en.json": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/translations/en.json",
+        "sha256_12": "888ac832bc85",
+        "size_bytes": 34603
+      },
+      "validation.py": {
+        "exists": true,
+        "path": "/root/.openclaw/workspace/projects/zero-net-export/custom_components/zero_net_export/validation.py",
+        "sha256_12": "dad40e160045",
+        "size_bytes": 28750
+      }
+    }
+  },
+  "expected_source": "/root/.openclaw/workspace/projects/zero-net-export/tmp/expected-install-fingerprint.json",
+  "input_install_path": "/config/custom_components"
+}

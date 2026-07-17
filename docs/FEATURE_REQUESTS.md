@@ -188,7 +188,7 @@ This file tracks user-requested product enhancements separately from confirmed b
 
 ## ZNE-FR-018 - Managed Devices Fleet List on/off traffic light
 
-- **status:** `release_prepped_pending_hacs_live_validation`
+- **status:** `released_live_validated`
 - **area:** `application / managed_devices / runtime_visibility`
 - **requested by:** Riley, 2026-07-17
 - **request:** In the Managed Devices Fleet List, each item should show whether the device is currently on or off using a green/red traffic-light indicator.
@@ -196,4 +196,4 @@ This file tracks user-requested product enhancements separately from confirmed b
 - **acceptance target:** every Fleet List row renders a compact traffic-light indicator; active devices show green `On`; inactive devices show red `Off`; the indicator uses the existing backend runtime state and includes a text/accessible label so color is not the only signal; existing enable/disable status, sorting, filters, and candidate queue ordering remain unchanged.
 - **target-environment result:** supported in the existing Zero Net Export Home Assistant custom panel using the backend-fed `sensor.managed_devices_overview` `managed_devices[*].observed_active` field. No Home Assistant frontend patch, native row injection, direct live install write, or new backend API field is required.
 - **implementation status:** repo implementation adds a `Power` column to the Managed Devices Fleet List and renders a green/red `zne-traffic-light` from each managed device row's `observed_active` value.
-- **validation result:** repo validation passed `node --check custom_components/zero_net_export/frontend/zero-net-export-app.js`, `python3 -m unittest tests.test_managed_devices_panel` (`Ran 26 tests`, OK), and `git diff --check`. Release prep targets `v0.4.16`; HACS install/restart/live validation remains pending. `pytest` was not available in the shell environment. Evidence: `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`.
+- **validation result:** released in `v0.4.16` through GitHub/HACS, installed in Home Assistant, restarted, fingerprint matched before and after restart, and browser validated. Live proof showed the installed app header `Version 0.4.16`, the Managed Devices Fleet List `Power` column, and green `On` indicators for both current managed rows. Repo validation passed `node --check`, Python compile, focused release tests (`88` tests), full discovery (`642` tests), and `git diff --check`. Evidence: `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`, `validation/0.4.16-release-validation.md`, `validation/artifacts/zne-fr-018-v0.4.16-managed-devices-traffic-light.png`.

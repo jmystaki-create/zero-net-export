@@ -1,7 +1,7 @@
 # ZNE-FR-018 Managed Devices on/off traffic light validation
 
 Date: 2026-07-17
-Status: repo validated, pending release/live validation
+Status: released and live-validated in `v0.4.16`
 
 ## Request
 
@@ -39,8 +39,14 @@ Riley requested a per-item traffic light in the Managed Devices Fleet List showi
   - Evidence: `Ran 26 tests in 0.005s`, `OK`.
 - `git diff --check`
   - Result: passed.
+- `python3 -m unittest discover -s tests -v`
+  - Result: passed.
+  - Evidence: `Ran 642 tests in 1.938s`, `OK`.
+- GitHub/HACS/Home Assistant release validation
+  - Result: passed in `v0.4.16`.
+  - Evidence: `validation/0.4.16-release-validation.md`.
 
 ## Notes
 
 - `pytest` and `python -m pytest` could not be used in this shell because `pytest` is not installed and `python` is not available on PATH. The focused test file is standard-library `unittest`, so it was validated directly with `python3 -m unittest`.
-- Live Home Assistant browser validation remains pending the normal release path.
+- Live Home Assistant browser validation confirmed installed `v0.4.16` renders the Managed Devices Fleet List with a `Power` column and green `On` indicators for the current managed rows. Evidence: `validation/artifacts/zne-fr-018-v0.4.16-managed-devices-traffic-light.png`.
