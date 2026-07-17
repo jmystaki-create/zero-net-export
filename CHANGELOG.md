@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.16] - 2026-07-17
+
+### Added
+- Added a Managed Devices Fleet List `Power` traffic-light indicator so each managed row shows green `On` or red `Off` from the existing observed runtime activity state.
+
 ## [0.4.15] - 2026-07-15
 
 ### Fixed

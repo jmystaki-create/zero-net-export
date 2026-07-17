@@ -566,6 +566,18 @@ class ZeroNetExportApp extends HTMLElement {
     return `<span class="zne-pill ${this._statusClass(value)}">${this._escape(label)}: ${this._escape(value)}</span>`;
   }
 
+  _deviceActivityIndicator(device) {
+    const active = device && (device.observed_active === true || device.observed_active === "true");
+    const label = active ? "On" : "Off";
+    const tone = active ? "on" : "off";
+    return `
+      <span class="zne-traffic-light ${tone}" title="Device is currently ${label.toLowerCase()}" aria-label="Device is currently ${label.toLowerCase()}">
+        <span class="zne-traffic-light-dot" aria-hidden="true"></span>
+        <span>${label}</span>
+      </span>
+    `;
+  }
+
   _navButton(id, label) {
     const active = this._activeSection === id ? "active" : "";
     return `<button class="zne-nav ${active}" type="button" data-section="${this._escape(id)}">${this._escape(label)}</button>`;
@@ -1580,6 +1592,7 @@ class ZeroNetExportApp extends HTMLElement {
             <div class="zne-fleet-table">
               <div class="zne-fleet-header">
                 <span style="width: 30px;">&#160;</span>
+                <span>Power</span>
                 <span>Device Key</span>
                 <span>Plan</span>
                 <span>Status</span>
@@ -1596,6 +1609,7 @@ class ZeroNetExportApp extends HTMLElement {
                   <span style="width: 30px; text-align: center;">
                     <input type="checkbox" class="zne-bulk-checkbox" data-device-key="${this._escape(d.key)}" />
                   </span>
+                  <span>${this._deviceActivityIndicator(d)}</span>
                   <span><strong>${this._escape(d.key)}</strong></span>
                   <span>${this._escape(d.entry_id || "-")}</span>
                   <span>${this._pill(d.enabled ? "Enabled" : "Disabled", d.enabled ? "good" : "neutral")}</span>
@@ -2464,7 +2478,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-header {
           display: grid;
-          grid-template-columns: 0.3fr 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+          grid-template-columns: 30px minmax(58px, .55fr) minmax(100px, 1fr) minmax(90px, 1fr) minmax(92px, .8fr) minmax(64px, .7fr) minmax(90px, 1fr) minmax(80px, .8fr) minmax(82px, .8fr) minmax(84px, .8fr);
           gap: 8px;
           padding: 8px 0;
           border-bottom: 2px solid var(--divider-color);
@@ -2475,7 +2489,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-row {
           display: grid;
-          grid-template-columns: 0.3fr 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+          grid-template-columns: 30px minmax(58px, .55fr) minmax(100px, 1fr) minmax(90px, 1fr) minmax(92px, .8fr) minmax(64px, .7fr) minmax(90px, 1fr) minmax(80px, .8fr) minmax(82px, .8fr) minmax(84px, .8fr);
           gap: 8px;
           padding: 10px 0;
           border-bottom: 1px solid var(--divider-color);
@@ -2500,6 +2514,36 @@ class ZeroNetExportApp extends HTMLElement {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+
+        .zne-traffic-light {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 1;
+        }
+
+        .zne-traffic-light-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, .08), 0 0 8px currentColor;
+          flex: 0 0 12px;
+        }
+
+        .zne-traffic-light.on {
+          color: var(--success-color, #2e7d32);
+        }
+
+        .zne-traffic-light.off {
+          color: var(--error-color, #c62828);
+        }
+
+        .zne-traffic-light.on .zne-traffic-light-dot,
+        .zne-traffic-light.off .zne-traffic-light-dot {
+          background: currentColor;
         }
 
         .zne-candidate-table {
@@ -2650,6 +2694,14 @@ class ZeroNetExportApp extends HTMLElement {
           }
 
           .zne-candidate-row {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          .zne-fleet-header {
+            display: none;
+          }
+
+          .zne-fleet-row {
             grid-template-columns: minmax(0, 1fr);
           }
 

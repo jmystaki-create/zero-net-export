@@ -2,19 +2,25 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-15
+last_modified: 2026-07-17
 
 ## Current Focus
 
-**Current baseline:** `v0.4.15` is the latest public GitHub release and the
-installed Home Assistant/HACS version. Release validation is complete for
-`ZNE-599`; unmanaged-candidate promotion now succeeds from the Managed Devices
-app, the required confirmation checkbox persists across renders, the backend
-accepts UI numeric payloads, and the promoted device appears in the managed
-Fleet List without frontend render errors. After `ZNE-599`, complete the small
-validation follow-up for `ZNE-597` Battery Power/unit presentation because no
-dedicated validation record exists for that exact UI proof on the current
-installed release.
+**Current release candidate:** `v0.4.16` is approved for formal release to
+GitHub/HACS/Home Assistant. It adds the `ZNE-FR-018` Managed Devices Fleet List
+green/red `Power` traffic-light indicator from existing `observed_active`
+runtime state. Repo validation is complete; HACS install, Home Assistant
+restart, fingerprint comparison, log review, and live UI proof remain pending.
+
+**Current installed baseline:** `v0.4.15` is the installed Home Assistant/HACS
+version until `v0.4.16` is visible in GitHub/HACS and upgraded. Release
+validation is complete for `ZNE-599`; unmanaged-candidate promotion now
+succeeds from the Managed Devices app, the required confirmation checkbox
+persists across renders, the backend accepts UI numeric payloads, and the
+promoted device appears in the managed Fleet List without frontend render
+errors. After `ZNE-FR-018`, complete the small validation follow-up for
+`ZNE-597` Battery Power/unit presentation because no dedicated validation
+record exists for that exact UI proof on the current installed release.
 
 **Milestone 7: Multi-Plan And Service Separation** (status: `released_live_validated_api_static`, target: `v0.4.0`)
 - Workboard card: `ZNE: Milestone 7 Multi-Plan And Service Separation`
@@ -35,6 +41,7 @@ installed release.
 - Corrective Managed Devices polish: `ZNE-598` is released/live validated in `v0.4.11`. `Review & promote` now opens a visible workflow above the unmanaged candidate table, scrolls/focuses to it, and marks the selected row with `Reviewing`. Evidence: `validation/zne-598-review-promote-visible-workflow.md` and `validation/0.4.11-release-validation.md`.
 - Current corrective release: `ZNE-595` is released/live validated in `v0.4.12`. Recorder-backed entity attributes now use compact summaries for validation details, managed-device runtime details, and unmanaged candidate rows, keeping bulky action history/source diagnostics/daily metrics/calibration detail on diagnostics/app surfaces. Evidence: `validation/zne-595-recorder-attribute-budget.md` and `validation/0.4.12-release-validation.md`.
 - Managed Devices promotion regression: `ZNE-599` is released/live validated in `v0.4.15`. Riley reported on installed `v0.4.12` that the confirmation checkbox in the unmanaged-candidate `Review & promote` workflow did not stay pressed and the candidate was not added to the managed Fleet List. The fix persisted promotion draft/confirmation state, coerced UI numeric payloads at the service schema boundary, and made numeric priorities render safely after promotion. Evidence: `validation/0.4.15-release-validation.md`.
+- Managed Devices runtime visibility feature: `ZNE-FR-018` is release-prepped for `v0.4.16`. The Fleet List now shows a compact `Power` traffic-light indicator for each managed row: green `On` or red `Off` from `observed_active`, with text and accessible labels. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -91,3 +98,4 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 - ZNE-FR-015 — Managed Devices Fleet Summary layout polish. Status: released_live_validated in `v0.4.9`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-015-016-managed-devices-layout-order.md`, `validation/0.4.9-release-validation.md`.
 - ZNE-FR-016 — Managed Devices page should list unmanaged candidates after managed devices. Status: released_live_validated in `v0.4.9`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-015-016-managed-devices-layout-order.md`, `validation/0.4.9-release-validation.md`.
 - ZNE-FR-017 — Promote unmanaged candidates from Managed Devices. Status: released_live_validated in `v0.4.10`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-017-managed-candidate-promotion.md`, `validation/0.4.10-release-validation.md`.
+- ZNE-FR-018 — Managed Devices Fleet List on/off traffic light. Status: release_prepped_pending_hacs_live_validation in `v0.4.16`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`.

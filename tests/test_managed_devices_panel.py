@@ -120,6 +120,19 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertNotIn("(a.priority || \"\").toLowerCase()", source)
         self.assertNotIn("(b.priority || \"\").toLowerCase()", source)
 
+    def test_managed_devices_panel_shows_on_off_traffic_light_per_fleet_row(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_deviceActivityIndicator(device)", source)
+        self.assertIn('device.observed_active === true || device.observed_active === "true"', source)
+        self.assertIn('const label = active ? "On" : "Off";', source)
+        self.assertIn('const tone = active ? "on" : "off";', source)
+        self.assertIn("<span>Power</span>", source)
+        self.assertIn("${this._deviceActivityIndicator(d)}", source)
+        self.assertIn(".zne-traffic-light.on", source)
+        self.assertIn(".zne-traffic-light.off", source)
+        self.assertIn("Device is currently", source)
+
     def test_app_exposes_safe_edit_actions_through_home_assistant_services(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -255,7 +268,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.15"', source)
+        self.assertIn('"version": "0.4.16"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
