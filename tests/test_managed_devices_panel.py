@@ -204,16 +204,47 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn('"sensor.zero_net_export_last_reconciliation_error_w"', source)
         self.assertIn('"sensor.zero_net_export_confidence"', source)
         self.assertIn("const batteryPower = hasBatteryPower ? dischargeValue - chargeValue : undefined", source)
-        self.assertIn("Source Power", source)
-        self.assertIn("Battery Power", source)
+        self.assertIn("Live Power Snapshot", source)
+        self.assertIn("Source", source)
+        self.assertIn("Battery", source)
+        self.assertIn("Grid/Surplus", source)
         self.assertIn("Confidence", source)
         self.assertIn("Last update", source)
+        self.assertIn("_metricTile(metric)", source)
+        self.assertIn("zne-metric-tiles", source)
         self.assertIn("zne-metric-value", source)
         self.assertIn("zne-metric-updated", source)
         self.assertIn("zne-metric-detail", source)
         self.assertIn("text-align: left;", source)
         self.assertIn("Source blocker:", source)
         self.assertIn("Stale source:", source)
+
+    def test_overview_uiux_refactor_preserves_functionality_guards(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_overviewHealthModel(status, safeMode, sourceMismatch, readiness, metrics, entries)", source)
+        self.assertIn("_primaryReviewItem(readiness)", source)
+        self.assertIn("_nextActionPanel(reviewItem)", source)
+        self.assertIn("_executorControlModel(metrics.executorState)", source)
+        self.assertIn("_planStateLabel(entry)", source)
+        self.assertIn("Current state", source)
+        self.assertIn("Attention required", source)
+        self.assertIn("Review managed devices", source)
+        self.assertIn('data-section="managed"', source)
+        self.assertIn("Live Power Snapshot", source)
+        self.assertIn("Executor Control", source)
+        self.assertIn("Setup in progress", source)
+        self.assertIn("Diagnostics remains a separate app section", Path(REPO_ROOT / "validation" / "zne-uiux-overview-refactor-feasibility.md").read_text(encoding="utf-8"))
+
+        running_block = source[source.index('if (normalized === "running")'):source.index('if (normalized === "paused")')]
+        self.assertIn('label: "Pause Executor"', running_block)
+        self.assertIn('action: "pause-executor"', running_block)
+        self.assertNotIn('label: "Resume Executor"', running_block)
+
+        paused_block = source[source.index('if (normalized === "paused")'):source.index('return {\n      state: executorState || "unknown"')]
+        self.assertIn('label: "Resume Executor"', paused_block)
+        self.assertIn('action: "resume-executor"', paused_block)
+        self.assertNotIn('label: "Pause Executor"', paused_block)
 
     def test_overview_readiness_console_explains_errors_and_resolution_steps(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -268,7 +299,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.16"', source)
+        self.assertIn('"version": "0.4.17"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

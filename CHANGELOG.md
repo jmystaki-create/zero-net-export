@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.17] - 2026-08-02
+
+### Changed
+- Refactored the sidebar app Overview into an operator-first command center with one health summary, promoted managed-device review action, live power snapshot tiles, state-aware executor controls, and user-facing plan setup wording while preserving tabs, selected-plan context, Diagnostics, readiness explanations, and destructive confirmations.
+
 ## [0.4.16] - 2026-07-17
 
 ### Added

@@ -5,54 +5,28 @@ Last updated: 2026-07-15
 ## Workboard
 
 The maintained project Workboard lives at `docs/workboard/README.md`.
-Initial cards are under `docs/workboard/cards/` and cover project charter,
-architecture inventory, bug register, MVP definition, next 10 implementation
-tasks, blockers/unknowns, testing/validation plan, and weekly status report.
-The OpenClaw Workboard UI is the active visible board for ZNE. Check and update
-it every ZNE work turn when status, validation state, blockers, next actions,
-or release readiness changes. Current relevant UI cards:
-`72ed354f` - `ZNE: Sources browser proof captured` (done),
-`7f983131` - `ZNE: Define next app milestone` (done),
-`a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` (done),
-`a8048485` - `ZNE: Milestone 3 populated fleet live proof` (done),
-`fe67044b-fd94-4529-b8f4-455e94f0639a` -
-`ZNE: Decide Milestone 3 bulk priority scope` (superseded; deferred),
-`348000d4` - `ZNE: Milestone 3 closed` (done),
-`06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` (ready),
-`8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` (done),
-`f8d93513-ed96-4228-b1c8-0885e608544d` -
-`ZNE: Milestone 4 live baseline captured` (done),
-`a1b2c3d4` - `ZNE: Milestone 5 Runtime Visibility - Manual Override` (done),
-`zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (released/live smoke validated),
-`workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` (done),
-`workboard-focused` - `ZNE: complete v0.3.3 service/action validation` (done),
-`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (released/live validated via API/static/service checks),
-`36a26d60` - `ZNE: Fix SOC source status display in Sources app` (done; released/live validated in `v0.4.1`),
-`workboard-focused` - `ZNE: Overview console live metrics` (done; released/live validated in `v0.4.2`),
-`workboard-focused` - `ZNE: Overview Readiness clarity` (done; released/live validated in `v0.4.3`),
-`workboard-focused` - `ZNE: Battery Power source mapping` (released in `v0.4.4`; focused installed unit-display proof still needed),
-`workboard-focused` - `ZNE: Overview Readiness message design` (done; released/live validated in `v0.4.5`),
-`workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (done; released/live validated in `v0.4.12`),
-`2fbac9e1-3c0c-4198-80ba-396b729f2f9e` - `ZNE: Fix unmanaged candidate promotion confirmation` (done; released/live validated in `v0.4.15`; tracked as `ZNE-599`).
-Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
-released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
-browser proof is recorded. References:
-`validation/zne-app-milestone-3-feasibility.md`,
-`docs/ZNE_APP_MILESTONE_3_PLAN.md`,
-`validation/zne-app-milestone-3-stage-2-validation.md`,
-`validation/0.2.5-release-validation.md`, and repo Workboard card
-`WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest released**: `v0.4.15` is published, installed through HACS, restarted,
-fingerprint-matched, and live validated for `ZNE-599` unmanaged-candidate
-promotion. GitHub's public latest release is `v0.4.15` published on
-2026-07-15, and the Home Assistant/HACS update entity reported installed/latest
-`v0.4.15`. Evidence: `validation/0.4.15-release-validation.md`.
+The workboard was reset on 2026-08-02 to remove stale historical cards and track only the current Zero Net Export main Overview UI/UX refactor derived from `ui_ux_review.md`.
 
-**Current next work**: capture the small `ZNE-597` installed Battery
-Power/source-reading unit proof on `v0.4.15`, then scope the next product
-increment from diagnostics/support, runtime visibility, controls, multi-plan UI
-proof, or deferred bulk priority adjustment.
+Current state: implemented and repo-validated, pending GitHub/HACS release and
+live Home Assistant browser proof. Evidence:
+`validation/zne-uiux-overview-refactor-feasibility.md` and
+`validation/zne-uiux-overview-refactor-implementation.md`.
+
+Active workboard scope:
+- `WB-ZNE-UIUX-001` Health State Model
+- `WB-ZNE-UIUX-002` Managed Device Review Primary Action
+- `WB-ZNE-UIUX-003` Live Power Snapshot
+- `WB-ZNE-UIUX-004` State-Aware Executor Controls
+- `WB-ZNE-UIUX-005` Diagnostics And Raw Detail Preservation
+- `WB-ZNE-UIUX-006` Plan And Editable Workflow Preservation
+- `WB-ZNE-UIUX-007` Readiness Explanation Preservation
+- `WB-ZNE-UIUX-008` Destructive Confirmation Guardrails
+- `WB-ZNE-UIUX-009` Responsive Overview Layout
+- `WB-ZNE-UIUX-010` Validation And Release Readiness
+- `WB-ZNE-UIUX-011` Target Feasibility And Implementation Plan
+
+Historical release and validation records remain in `validation/`, `CHANGELOG.md`, `docs/BUGS.md`, `docs/FEATURE_REQUESTS.md`, and earlier roadmap/project-status history, but they are no longer active workboard cards.
 
 ## Current milestone
 

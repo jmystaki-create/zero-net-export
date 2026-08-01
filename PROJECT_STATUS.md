@@ -2,9 +2,17 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-17
+last_modified: 2026-08-02
 
 ## Current Focus
+
+**Active UI/UX work:** the `ui_ux_review.md` Overview refactor is implemented
+and repo-validated but not yet released/installed through HACS. The active
+workboard cards are `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011`. Evidence:
+`validation/zne-uiux-overview-refactor-feasibility.md` and
+`validation/zne-uiux-overview-refactor-implementation.md`. Next release gate:
+commit/release through GitHub/HACS, restart Home Assistant, capture desktop and
+narrow browser proof, and check targeted frontend logs if errors appear.
 
 **Current baseline:** `v0.4.16` is the latest public GitHub release and the
 installed Home Assistant/HACS version. Release validation is complete for
@@ -16,7 +24,7 @@ because no dedicated validation record exists for that exact UI proof on the
 current installed release.
 
 **Milestone 7: Multi-Plan And Service Separation** (status: `released_live_validated_api_static`, target: `v0.4.0`)
-- Workboard card: `ZNE: Milestone 7 Multi-Plan And Service Separation`
+- Workboard status: historical Milestone 7 card removed from active workboard during the 2026-08-02 UI/UX reset; release evidence remains in validation docs.
 - Feasibility: ACCEPTED (see `validation/zne-app-milestone-7-multi-plan-feasibility.md`)
 - Implementation plan: defined (see `docs/ZNE_APP_MILESTONE_7_PLAN.md`)
 - Implementation validation: passed (see `validation/zne-app-milestone-7-implementation.md`)
@@ -55,7 +63,7 @@ Project direction changed on 2026-06-26: Zero Net Export is now a Home Assistant
 
 The immediate work is release readiness for the Home Assistant application path. Riley answered the initial application direction questions on 2026-06-26: sidebar by default, app name `Zero Net Export`, editable first release, multi-plan/service support from day one, conservative frontend stack default, core workflow coverage, strong destructive-action confirmation, keep Lovelace examples, HACS-only frontend delivery, and minimum Home Assistant version `2026.6.4+` based on the live validation target. Riley then approved the GitHub/HACS-only release pathway and `0.2.0` version on 2026-06-26. Milestone 1 is planned in `docs/ZNE_APP_MILESTONE_1_PLAN.md` with feasibility recorded in `validation/zne-app-milestone-1-feasibility.md`. Home Assistant `2026.6.4` source/live proof supports the app implementation path: serve frontend assets with `StaticPathConfig` / `hass.http.async_register_static_paths(...)`, then register the sidebar app with `panel_custom.async_register_panel(...)`. Releases `0.2.0` and `0.2.1` were published through the approved GitHub/HACS path and live-validated. Corrective `0.2.2` is now published as GitHub Release `v0.2.2` from commit `9c3f886`; HACS downloaded `v0.2.2`, Home Assistant restarted, install fingerprint matched before and after restart, `sensor.zero_net_export_installed_version=0.2.2`, `update.zero_net_export_update` reports installed/latest `v0.2.2`, app/static routes return HTTP 200, and no targeted Zero Net Export log errors/warnings were found. Live validation added a temporary disabled `light.7th` managed record through the supported HA subentry flow, captured desktop/narrow Managed Devices formatting proof with `any_overlap=false`, removed the record through the installed app `REMOVE FROM ZNE` confirmation path, and confirmed `sensor.zero_net_export_managed_devices_count=0`, no `7th_validation_load` entities remain, and original `light.7th` remains present/off. Evidence: `validation/0.2.0-release-validation.md`, `validation/0.2.1-release-validation.md`, `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`, and `validation/artifacts/zne-0.2.2-managed-devices-remove-after.png`. The existing backend/control engine remains the foundation: config entries, coordinator/runtime state, source validation, planner/executor logic, managed-device model, entities, services/actions, repairs, notifications, diagnostics, and install validation helpers.
 
-A repo-tracked Workboard now exists in `docs/workboard/README.md` with eight initial cards under `docs/workboard/cards/`: project charter, architecture inventory, bug register, MVP definition, next 10 implementation tasks, blockers and unknowns, testing and validation plan, and weekly status report. The OpenClaw Workboard UI is also populated on board `main` with the same operating cards plus focused cards for completed Sources, Milestone 3, Milestone 4, Milestone 5, and Milestone 6 work. Treat the OpenClaw Workboard as wired into the Zero Net Export project: every ZNE work turn must check and update relevant Workboard state when project state, validation state, blockers, next actions, or release readiness change. If the current Workboard CLI cannot edit an existing card, create a focused card when needed and keep repo Workboard docs aligned.
+The repo-tracked Workboard has been reset in `docs/workboard/README.md` for the current Overview UI/UX refactor. Historical cards and stale OpenClaw UI card references were removed from active workboard state. Active cards now run from `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011` and cover the full `ui_ux_review.md`: health-state model, managed-device next action, live power snapshot, state-aware executor controls, Diagnostics/raw detail preservation, plan/edit workflow preservation, readiness explanations, destructive confirmation guardrails, responsive layout, validation/release readiness, and target feasibility/implementation planning. Treat the OpenClaw Workboard as wired into the Zero Net Export project: every ZNE work turn must check and update relevant Workboard state when project state, validation state, blockers, next actions, or release readiness change.
 
 Native Home Assistant surfaces are now supporting/fallback surfaces. The primary operator workflow should move into a Zero Net Export-owned Home Assistant application/panel covering overview, sources, managed devices, controls, runtime, diagnostics, support, and multi-plan/service separation. Riley approved starting the next milestone on 2026-06-30, then accepted `ZNE-APP-002` for implementation. `ZNE-APP-002` is documented as the app-native Sources workflow milestone with acceptance criteria in `docs/ZNE_APP_MILESTONE_2_SOURCES_PLAN.md`, feasibility in `validation/zne-app-milestone-2-sources-feasibility.md`, and repo validation in `validation/zne-app-milestone-2-sources-implementation.md`. Release `0.2.3` is now published as GitHub Release `v0.2.3` from commit `d619a00`, installed through HACS, restarted, fingerprint-matched before and after restart, route/static/state/log checked, and HACS metadata reports installed/latest `v0.2.3`. Reversible source-role write proof is live-validated through the supported `zero_net_export.update_source_roles` service using optional `battery_soc_entity`; it was restored to unset. Browser screenshot proof for the installed Sources workflow was captured on installed `0.2.4` with desktop/narrow artifacts. Evidence: `validation/0.2.3-release-validation.md`, `validation/artifacts/zne-0.2.4-sources-desktop.png`, `validation/artifacts/zne-0.2.4-sources-narrow.png`.
 

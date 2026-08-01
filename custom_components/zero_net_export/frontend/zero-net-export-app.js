@@ -225,6 +225,8 @@ class ZeroNetExportApp extends HTMLElement {
     return {
       label,
       value: missing ? "unknown" : this._formatNumber(value, unit),
+      numericValue: missing ? undefined : Number(value),
+      unit,
       status: missing ? "missing" : staleSources.length ? "stale" : "live",
       detail: staleSources.length
         ? `Stale: ${staleSources.join(", ")}`
@@ -265,7 +267,7 @@ class ZeroNetExportApp extends HTMLElement {
     const hasBatteryPower = !this._isMissingState(batteryChargeState) || !this._isMissingState(batteryDischargeState);
     const batteryPower = hasBatteryPower ? dischargeValue - chargeValue : undefined;
     const batteryNote = hasBatteryPower
-      ? (batteryPower >= 0 ? "Positive means battery discharge" : "Negative means battery charging")
+      ? (batteryPower >= 0 ? "Discharging" : "Charging")
       : "Map battery charge/discharge source roles to populate this";
     const confidenceValue = confidenceState && !this._isMissingState(confidenceState)
       ? confidenceState.state
@@ -285,13 +287,19 @@ class ZeroNetExportApp extends HTMLElement {
       .sort()
       .pop();
 
+    const batteryMetric = this._metricDetail("Battery", batteryPower, "W", [batteryDischargeState, batteryChargeState], batteryNote);
+    if (batteryMetric.numericValue !== undefined) {
+      batteryMetric.value = this._formatNumber(Math.abs(batteryMetric.numericValue), "W");
+      batteryMetric.detail = batteryMetric.numericValue < 0 ? "Charging" : "Discharging";
+    }
+
     return {
       rows: [
         this._metricDetail("Home Load", this._numericStateValue(homeLoadState), "W", [homeLoadState]),
-        this._metricDetail("Source Power", this._numericStateValue(solarState), "W", [solarState], "Solar production source"),
-        this._metricDetail("Battery Power", batteryPower, "W", [batteryDischargeState, batteryChargeState], batteryNote),
-        this._metricDetail("Surplus/Deficit", this._numericStateValue(surplusState), "W", [surplusState]),
-        this._metricDetail("Reconciliation Error", this._numericStateValue(errorState), "W", [errorState]),
+        this._metricDetail("Source", this._numericStateValue(solarState), "W", [solarState], "Solar production source"),
+        batteryMetric,
+        this._metricDetail("Grid/Surplus", this._numericStateValue(surplusState), "W", [surplusState], "Balanced at zero when export is controlled"),
+        this._metricDetail("Error", this._numericStateValue(errorState), "W", [errorState]),
       ],
       confidence: confidenceValue,
       executorState: this._stateText("sensor.zero_net_export_executor_state", "unknown"),
@@ -310,6 +318,18 @@ class ZeroNetExportApp extends HTMLElement {
           ${metric.updated ? `<small class="zne-metric-updated">Updated ${this._escape(metric.updated)}</small>` : ""}
           ${metric.detail ? `<small class="zne-metric-detail">${this._escape(metric.detail)}</small>` : ""}
         </strong>
+      </div>
+    `;
+  }
+
+  _metricTile(metric) {
+    const detail = metric.detail || (metric.updated ? `Updated ${metric.updated}` : "");
+    return `
+      <div class="zne-metric-tile ${this._escape(metric.status)}">
+        <span>${this._escape(metric.label)}</span>
+        <strong>${this._escape(metric.value)}</strong>
+        ${detail ? `<small>${this._escape(detail)}</small>` : ""}
+        ${metric.updated ? `<small>Updated ${this._escape(metric.updated)}</small>` : ""}
       </div>
     `;
   }
@@ -549,6 +569,128 @@ class ZeroNetExportApp extends HTMLElement {
         </div>
       </div>
     `;
+  }
+
+  _primaryReviewItem(readiness) {
+    return readiness.items.find((item) => item.title === "Review managed-device queue");
+  }
+
+  _setupAttention(entries) {
+    return entries.find((entry) => String(entry.state || "").includes("SETUP_IN_PROGRESS"));
+  }
+
+  _overviewHealthModel(status, safeMode, sourceMismatch, readiness, metrics, entries) {
+    const normalizedStatus = String(status || "").toLowerCase();
+    const normalizedSafeMode = String(safeMode || "").toLowerCase();
+    const normalizedMismatch = String(sourceMismatch || "").toLowerCase();
+    const executorState = String(metrics.executorState || "unknown").toLowerCase();
+    const setupEntry = this._setupAttention(entries);
+    const reviewItem = this._primaryReviewItem(readiness);
+    const hasBlockingReadiness = readiness.items.some((item) => item.tone === "bad" || item.tone === "warn");
+    const balanceMetric = metrics.rows.find((metric) => metric.label === "Grid/Surplus");
+    const balance = balanceMetric && balanceMetric.value !== "unknown" ? `${balanceMetric.value} ${Number(balanceMetric.numericValue) === 0 ? "balanced" : "surplus/deficit"}` : "power balance unknown";
+    const updated = metrics.updated ? `Updated ${metrics.updated}` : "Waiting for runtime update";
+
+    if (normalizedSafeMode === "on") {
+      return {
+        tone: "bad",
+        title: "Safe mode active",
+        detail: "Control is being held conservative until the reported blockers are resolved.",
+        meta: [`Executor ${metrics.executorState}`, balance, updated],
+      };
+    }
+    if (normalizedMismatch === "on" || hasBlockingReadiness || !["ready", "ok", "healthy"].includes(normalizedStatus)) {
+      return {
+        tone: "bad",
+        title: "Attention required",
+        detail: "Resolve the readiness items below before treating Zero Net Export as fully healthy.",
+        meta: [`Status ${status}`, balance, updated],
+      };
+    }
+    if (executorState === "paused") {
+      return {
+        tone: "warn",
+        title: "Executor paused",
+        detail: "Live readings are available, but new control actions are paused for the selected plan.",
+        meta: ["Resume is available", balance, updated],
+      };
+    }
+    if (setupEntry) {
+      return {
+        tone: "warn",
+        title: "Setup attention required",
+        detail: "Runtime is ready, but the selected plan still reports setup-in-progress metadata.",
+        meta: [`Plan ${setupEntry.title || setupEntry.entry_id}`, balance, updated],
+      };
+    }
+    if (reviewItem) {
+      return {
+        tone: "warn",
+        title: "Review recommended",
+        detail: "Runtime is ready, but managed-device review work is waiting.",
+        meta: [`Executor ${metrics.executorState}`, balance, updated],
+      };
+    }
+    return {
+      tone: "good",
+      title: "Running normally",
+      detail: "Zero Net Export is running with no blocking readiness issue reported.",
+      meta: [`Executor ${metrics.executorState}`, balance, updated],
+    };
+  }
+
+  _nextActionPanel(reviewItem) {
+    if (!reviewItem) {
+      return "";
+    }
+    const facts = reviewItem.detail.slice(0, 3);
+    return `
+      <div class="zne-next-action">
+        <div>
+          <span>Attention required</span>
+          <strong>Review managed devices</strong>
+          ${facts.length ? `<p>${facts.map((fact) => this._escape(fact)).join(" ")}</p>` : ""}
+        </div>
+        <button type="button" data-section="managed">Open Managed Devices</button>
+      </div>
+    `;
+  }
+
+  _executorControlModel(executorState) {
+    const normalized = String(executorState || "unknown").toLowerCase();
+    if (normalized === "running") {
+      return {
+        state: "Running",
+        detail: "Pausing stops new control actions; current device states remain unchanged.",
+        actions: [{ label: "Pause Executor", action: "pause-executor", className: "" }],
+      };
+    }
+    if (normalized === "paused") {
+      return {
+        state: "Paused",
+        detail: "Resuming allows new control actions for the selected plan.",
+        actions: [{ label: "Resume Executor", action: "resume-executor", className: "" }],
+      };
+    }
+    return {
+      state: executorState || "unknown",
+      detail: "Executor state is not fresh enough to choose a single safe action.",
+      actions: [
+        { label: "Pause Executor", action: "pause-executor", className: "secondary" },
+        { label: "Resume Executor", action: "resume-executor", className: "secondary" },
+      ],
+    };
+  }
+
+  _planStateLabel(entry) {
+    const state = String(entry.state || "unknown");
+    if (state.includes("SETUP_IN_PROGRESS")) {
+      return "Setup in progress";
+    }
+    if (state.includes("LOADED")) {
+      return "Loaded";
+    }
+    return state.replace(/^ConfigEntryState\./, "").replace(/_/g, " ").toLowerCase();
   }
 
   _statusClass(value) {
@@ -1262,13 +1404,27 @@ class ZeroNetExportApp extends HTMLElement {
     const sourceMismatch = this._stateText("binary_sensor.zero_net_export_source_mismatch", "unknown");
     const metrics = this._reconciliationMetrics();
     const readiness = this._readinessModel(status, safeMode, sourceMismatch);
+    const health = this._overviewHealthModel(status, safeMode, sourceMismatch, readiness, metrics, entries);
+    const reviewItem = this._primaryReviewItem(readiness);
+    const executorControl = this._executorControlModel(metrics.executorState);
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
           <h2>Overview</h2>
           <div>${this._pill("Status", status)} ${this._pill("Safe mode", safeMode)} ${this._pill("Source mismatch", sourceMismatch)}</div>
         </div>
-        <div class="zne-grid">
+        <div class="zne-health-summary ${this._escape(health.tone)}">
+          <div>
+            <span>Current state</span>
+            <strong>${this._escape(health.title)}</strong>
+            <p>${this._escape(health.detail)}</p>
+          </div>
+          <div class="zne-health-meta">
+            ${health.meta.map((item) => `<span>${this._escape(item)}</span>`).join("")}
+          </div>
+        </div>
+        ${this._nextActionPanel(reviewItem)}
+        <div class="zne-overview-layout">
           <div class="zne-card zne-readiness-card">
             <h3>Readiness</h3>
             <div class="zne-readiness-summary ${this._escape(readiness.summary.tone)}">
@@ -1287,37 +1443,38 @@ class ZeroNetExportApp extends HTMLElement {
               ${readiness.items.map((item) => this._readinessItemTemplate(item)).join("")}
             </div>
           </div>
-          <div class="zne-card">
-            <h3>Reconciliation Status</h3>
+          <div class="zne-card zne-power-card">
+            <h3>Live Power Snapshot</h3>
             <div class="zne-live-strip">
               ${this._pill("Refresh", "live")}
               <span>${metrics.updated ? `Last update ${this._escape(metrics.updated)}` : "Waiting for runtime update"}</span>
             </div>
-            ${metrics.rows.map((metric) => this._metricRow(metric)).join("")}
-            <div class="zne-row">
-              <span>Confidence</span>
-              <strong>
-                ${this._pill("confidence", metrics.confidence)}
-                <small>${metrics.confidence === "unknown" ? "Waiting for source validation confidence" : "From source reconciliation quality"}</small>
-              </strong>
+            <div class="zne-metric-tiles">
+              ${metrics.rows.map((metric) => this._metricTile(metric)).join("")}
+              <div class="zne-metric-tile">
+                <span>Confidence</span>
+                <strong>${this._escape(metrics.confidence)}</strong>
+                <small>${metrics.confidence === "unknown" ? "Waiting for source validation confidence" : "Source reconciliation quality"}</small>
+              </div>
             </div>
-            <div class="zne-row">
-              <span>Executor State</span>
-              <strong>${this._stateText("sensor.zero_net_export_executor_state", "unknown")}</strong>
-            </div>
-            ${metrics.staleSummary && metrics.staleSummary !== "None" ? `
+            ${metrics.staleSummary && !["None", "No required source roles currently look stale"].includes(metrics.staleSummary) ? `
               <p class="zne-alert">Stale source: ${this._escape(metrics.staleSummary)}</p>
             ` : ""}
             ${metrics.sourceBlocker && metrics.sourceBlocker !== "None" ? `
               <p class="zne-alert">Source blocker: ${this._escape(metrics.sourceBlocker)}</p>
             ` : ""}
           </div>
-          <div class="zne-card">
+          <div class="zne-card zne-executor-card">
             <h3>Executor Control</h3>
-            <p class="zne-muted">Pause stops new actions. Existing device states remain unchanged.</p>
+            <div class="zne-executor-state">
+              <span>State</span>
+              <strong>${this._escape(executorControl.state)}</strong>
+            </div>
+            <p class="zne-muted">${this._escape(executorControl.detail)}</p>
             <div class="zne-actions">
-              <button type="button" data-zne-action="pause-executor">Pause Executor</button>
-              <button type="button" data-zne-action="resume-executor">Resume Executor</button>
+              ${executorControl.actions.map((action) => `
+                <button type="button" class="${this._escape(action.className)}" data-zne-action="${this._escape(action.action)}">${this._escape(action.label)}</button>
+              `).join("")}
             </div>
           </div>
           <div class="zne-card">
@@ -1325,8 +1482,8 @@ class ZeroNetExportApp extends HTMLElement {
             ${entries.length ? entries.map((entry) => `
               <div class="zne-plan">
                 <strong>${this._escape(entry.title || "Zero Net Export")}</strong>
-                <span>${this._escape(entry.entry_id || "")}</span>
-                <span>${this._escape(entry.state || "unknown")}</span>
+                <span>${this._escape(this._planStateLabel(entry))}</span>
+                <small title="${this._escape(entry.entry_id || "")}">${this._escape(this._shortenText(entry.entry_id || "", 24))}</small>
               </div>
             `).join("") : `<p class="zne-muted">No config entries are exposed to the app yet.</p>`}
           </div>
@@ -2139,6 +2296,26 @@ class ZeroNetExportApp extends HTMLElement {
           gap: 12px;
         }
 
+        .zne-overview-layout {
+          display: grid;
+          grid-template-columns: minmax(320px, 1.15fr) minmax(280px, .85fr);
+          gap: 12px;
+          align-items: start;
+        }
+
+        .zne-overview-layout > .zne-power-card {
+          grid-column: 2;
+        }
+
+        .zne-overview-layout > .zne-executor-card,
+        .zne-overview-layout > .zne-card:last-child {
+          grid-column: 2;
+        }
+
+        .zne-readiness-card {
+          grid-row: span 3;
+        }
+
         .zne-card {
           border: 1px solid var(--divider-color);
           border-radius: 8px;
@@ -2224,6 +2401,143 @@ class ZeroNetExportApp extends HTMLElement {
           padding: 8px;
           border-left: 3px solid var(--warning-color, #f9a825);
           background: var(--secondary-background-color);
+        }
+
+        .zne-health-summary,
+        .zne-next-action {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 12px;
+          align-items: center;
+          margin-bottom: 12px;
+          border: 1px solid var(--divider-color);
+          border-left: 4px solid var(--primary-color);
+          border-radius: 8px;
+          padding: 14px;
+          background: var(--card-background-color);
+        }
+
+        .zne-health-summary.good {
+          border-left-color: var(--success-color, #2e7d32);
+        }
+
+        .zne-health-summary.warn,
+        .zne-next-action {
+          border-left-color: var(--warning-color, #f9a825);
+        }
+
+        .zne-health-summary.bad {
+          border-left-color: var(--error-color, #c62828);
+        }
+
+        .zne-health-summary span,
+        .zne-next-action span {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .zne-health-summary strong,
+        .zne-next-action strong {
+          display: block;
+          margin-top: 2px;
+          font-size: 22px;
+          line-height: 1.2;
+          font-weight: 500;
+        }
+
+        .zne-health-summary p,
+        .zne-next-action p {
+          margin: 6px 0 0;
+          color: var(--secondary-text-color);
+          line-height: 1.4;
+        }
+
+        .zne-health-meta {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 6px;
+        }
+
+        .zne-health-meta span {
+          min-height: 26px;
+          border: 1px solid var(--divider-color);
+          border-radius: 999px;
+          padding: 4px 9px;
+          color: var(--primary-text-color);
+          background: var(--secondary-background-color);
+          font-weight: 400;
+        }
+
+        .zne-next-action button {
+          min-width: 170px;
+          border-color: var(--primary-color);
+          color: var(--primary-color);
+        }
+
+        .zne-metric-tiles {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+          gap: 8px;
+        }
+
+        .zne-metric-tile {
+          display: grid;
+          gap: 3px;
+          min-width: 0;
+          min-height: 92px;
+          border: 1px solid var(--divider-color);
+          border-radius: 6px;
+          padding: 10px;
+          background: var(--primary-background-color);
+        }
+
+        .zne-metric-tile.live strong {
+          color: var(--success-color, #2e7d32);
+        }
+
+        .zne-metric-tile.stale strong,
+        .zne-metric-tile.missing strong {
+          color: var(--error-color, #c62828);
+        }
+
+        .zne-metric-tile span {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .zne-metric-tile strong {
+          font-size: 22px;
+          line-height: 1.2;
+          font-weight: 500;
+          overflow-wrap: anywhere;
+        }
+
+        .zne-metric-tile small {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          line-height: 1.3;
+          overflow-wrap: anywhere;
+        }
+
+        .zne-executor-state {
+          display: grid;
+          gap: 3px;
+          margin-bottom: 8px;
+        }
+
+        .zne-executor-state span {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .zne-executor-state strong {
+          font-size: 20px;
+          line-height: 1.2;
+          font-weight: 500;
         }
 
         .zne-readiness-card {
@@ -2418,11 +2732,21 @@ class ZeroNetExportApp extends HTMLElement {
           overflow-wrap: anywhere;
         }
 
+        .zne-plan small {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          overflow-wrap: anywhere;
+        }
+
         .zne-actions {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
           margin: 8px 0;
+        }
+
+        button.secondary {
+          color: var(--secondary-text-color);
         }
 
         /* Fleet table styles */
@@ -2671,6 +2995,30 @@ class ZeroNetExportApp extends HTMLElement {
 
           .zne-context {
             grid-template-columns: minmax(0, 1fr);
+          }
+
+          .zne-overview-layout,
+          .zne-health-summary,
+          .zne-next-action {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          .zne-overview-layout > .zne-power-card,
+          .zne-overview-layout > .zne-executor-card,
+          .zne-overview-layout > .zne-card:last-child {
+            grid-column: auto;
+          }
+
+          .zne-readiness-card {
+            grid-row: auto;
+          }
+
+          .zne-health-meta {
+            justify-content: flex-start;
+          }
+
+          .zne-next-action button {
+            width: 100%;
           }
 
           .zne-control-row {
