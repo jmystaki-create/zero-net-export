@@ -121,7 +121,7 @@ Suggested area labels:
 
 ## ZNE-597 - Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW
 
-- **status:** `released_in_v0.4.4_pending_focused_unit_ui_proof`
+- **status:** `released_live_validated`
 - **severity:** `high`
 - **area:** `source_mapping / sensors / application`
 - **where seen:** live Home Assistant `v0.4.3` on 2026-07-08 after Riley reported Battery Power looked wrong for a `20000 Wh` battery at about `50%` state of charge.
@@ -130,8 +130,8 @@ Suggested area labels:
 - **evidence:** live HA state showed `number.x1_p6k_us_s_battery_capacity=20000 Wh`, `sensor.x1_p6k_us_s_state_of_charge=49%`, `sensor.anker_battery_discharge_power=29.97 kW` with `state_class=total`, `sensor.zero_net_export_battery_discharge_power_reading=29970.0` with unit `kW`, and `sensor.zero_net_export_reason=Validation degraded: battery_discharge_power state_class is total; expected measurement`.
 - **live repair:** updated `battery_discharge_power_entity` through `zero_net_export.update_source_roles` to `sensor.x1_p6k_us_s_discharge_power`, a `kW` power `measurement` sensor. Post-service live state showed `sensor.zero_net_export_battery_discharge_power_status=ok`, binding `sensor.x1_p6k_us_s_discharge_power`, normalized value `420 W`, ZNE status `ready`, and reconciliation error `0 W`.
 - **repo fix:** coordinator source normalization now converts the displayed diagnostic unit from `kW` to `W` when it converts the value to watts, and preserves the original source unit as `raw_unit`.
-- **validation status:** repo validation passed; the source-role repair was validated through HA state API, and the code shipped in public GitHub release `v0.4.4`. Later installed releases reached `v0.4.15`, but no dedicated validation record captures the Overview Battery Power/source-reading unit display after the unit-presentation fix.
-- **next action:** perform a focused read-only installed `v0.4.15` check of Overview Battery Power and source-reading units; close this bug only if the display uses normalized watts with unit `W`.
+- **validation status:** repo validation passed; the source-role repair was validated through HA state API; the code shipped in public GitHub release `v0.4.4`; focused installed proof on live `v0.4.17` confirmed Overview shows `Battery 3140 W`, ZNE battery charge/discharge reading entities expose unit `W`, raw upstream units remain `kW`, source statuses are `ok`, and `sensor.zero_net_export_status=ready`. Evidence: `validation/zne-597-battery-power-source-mapping.md`, `validation/artifacts/zne-597-v0.4.17-overview-battery-watts.png`, and `validation/artifacts/zne-597-v0.4.17-sources-battery-readings.jpg`.
+- **next action:** none for this bug.
 - `diagnostics`
 - `release`
 - `docs`

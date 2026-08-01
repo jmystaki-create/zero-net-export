@@ -171,8 +171,6 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Capture focused installed proof that `ZNE-597` Battery Power/source-reading
-  units display normalized watts as `W`.
 - Capture v0.4.0 browser proof if that historical evidence is still useful;
   later app browser proof exists for subsequent releases.
 - Define the next app workflow slice and acceptance criteria before new design

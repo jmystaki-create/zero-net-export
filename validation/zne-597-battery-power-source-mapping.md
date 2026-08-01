@@ -83,12 +83,68 @@ Post-repair Home Assistant state showed:
 - `git diff --check`
   - passed
 
+## Focused Installed Proof
+
+Date: 2026-08-02
+Installed version: `v0.4.17`
+Validation type: read-only Home Assistant API and browser proof.
+
+Live API state:
+
+- `sensor.zero_net_export_battery_charge_power_reading`
+  - state `3140.0`
+  - unit `W`
+  - `device_class=power`
+  - `state_class=measurement`
+  - `raw_value=3.14`
+  - `raw_unit=kW`
+- `sensor.zero_net_export_battery_discharge_power_reading`
+  - state `0.0`
+  - unit `W`
+  - `device_class=power`
+  - `state_class=measurement`
+  - `raw_value=0`
+  - `raw_unit=kW`
+- `sensor.zero_net_export_battery_charge_power_status`
+  - status `ok`
+  - binding `sensor.x1_p6k_us_s_charge_power`
+  - value `3140`
+  - raw value `3.14`
+  - unit `W`
+  - raw unit `kW`
+  - no issues
+- `sensor.zero_net_export_battery_discharge_power_status`
+  - status `ok`
+  - binding `sensor.x1_p6k_us_s_discharge_power`
+  - value `0`
+  - raw value `0`
+  - unit `W`
+  - raw unit `kW`
+  - no issues
+- `sensor.zero_net_export_status=ready`
+- `sensor.zero_net_export_reason=Sources validated; 1 controllable device is ready`
+
+Live browser proof:
+
+- Overview `Live Power Snapshot` shows `Battery 3140 W` with detail `Charging`.
+- Sources shows:
+  - `Battery charge power` bound to `sensor.x1_p6k_us_s_charge_power` with reading `3140.0`
+  - `Battery discharge power` bound to `sensor.x1_p6k_us_s_discharge_power` with reading `0.0`
+
+Artifacts:
+
+- `validation/artifacts/zne-597-v0.4.17-overview-battery-watts.png`
+- `validation/artifacts/zne-597-v0.4.17-sources-battery-readings.jpg`
+
+Decision: focused installed proof is complete. The normalized ZNE-facing
+battery power values display/read as watts, while the original upstream `kW`
+unit remains available as raw diagnostic context.
+
 ## Release State
 
 Repo-validated and shipped in public GitHub release `v0.4.4`; later installed
-validation advanced the live system to `v0.4.12`.
+validation advanced the live system to `v0.4.17`.
 
-Remaining validation gap: no dedicated release validation record captures the
-installed Overview Battery Power/source-reading unit display after the
-unit-presentation fix. Perform a focused read-only installed check and close
-`ZNE-597` only if normalized watt readings display with unit `W`.
+Focused installed proof was completed on `v0.4.17`. No further `ZNE-597` action
+is required unless a future source integration changes the upstream battery
+power semantics again.
