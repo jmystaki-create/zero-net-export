@@ -57,7 +57,7 @@ The intended outcome is one truthful health state, one obvious next action, and 
 - [WB-ZNE-UIUX-007 Readiness Explanation Preservation](cards/WB-ZNE-UIUX-007-readiness-explanations.md) - done / high
 - [WB-ZNE-UIUX-008 Destructive Confirmation Guardrails](cards/WB-ZNE-UIUX-008-destructive-confirmation-guardrails.md) - done / high
 - [WB-ZNE-UIUX-009 Responsive Overview Layout](cards/WB-ZNE-UIUX-009-responsive-overview-layout.md) - done / normal
-- [WB-ZNE-UIUX-010 Validation And Release Readiness](cards/WB-ZNE-UIUX-010-validation-release-readiness.md) - ready / high
+- [WB-ZNE-UIUX-010 Validation And Release Readiness](cards/WB-ZNE-UIUX-010-validation-release-readiness.md) - done / high
 - [WB-ZNE-UIUX-011 Target Feasibility And Implementation Plan](cards/WB-ZNE-UIUX-011-target-feasibility-and-implementation-plan.md) - done / high
 
 ## Definition Of Done

@@ -6,22 +6,21 @@ last_modified: 2026-08-02
 
 ## Current Focus
 
-**Active UI/UX work:** the `ui_ux_review.md` Overview refactor is implemented
-and repo-validated but not yet released/installed through HACS. The active
-workboard cards are `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011`. Evidence:
-`validation/zne-uiux-overview-refactor-feasibility.md` and
-`validation/zne-uiux-overview-refactor-implementation.md`. Next release gate:
-commit/release through GitHub/HACS, restart Home Assistant, capture desktop and
-narrow browser proof, and check targeted frontend logs if errors appear.
+**Current baseline:** `v0.4.17` is the latest public GitHub release and the
+installed Home Assistant/HACS version. The `ui_ux_review.md` Overview refactor
+is released and live validated: HACS updated from `v0.4.16` to `v0.4.17`, the
+install fingerprint matched commit `2633ba2`, Home Assistant restarted, the
+live app rendered `Version 0.4.17`, desktop/mobile browser proof was captured,
+and the fresh browser console had no errors. Evidence:
+`validation/zne-uiux-overview-refactor-feasibility.md`,
+`validation/zne-uiux-overview-refactor-implementation.md`, and
+`validation/0.4.17-release-validation.md`.
 
-**Current baseline:** `v0.4.16` is the latest public GitHub release and the
-installed Home Assistant/HACS version. Release validation is complete for
-`ZNE-FR-018`; the Managed Devices Fleet List now shows a green/red `Power`
-traffic-light indicator from existing `observed_active` runtime state, with
-installed browser proof on the current live fleet. After `ZNE-FR-018`, complete
-the small validation follow-up for `ZNE-597` Battery Power/unit presentation
-because no dedicated validation record exists for that exact UI proof on the
-current installed release.
+**Follow-up watch list:** post-restart logs showed no new Zero Net Export
+tracebacks/errors from `v0.4.17`, but historical slow entity-update warnings for
+managed-device review/status sensors remain worth watching. Complete the small
+validation follow-up for `ZNE-597` Battery Power/unit presentation if a focused
+proof record is still desired.
 
 **Milestone 7: Multi-Plan And Service Separation** (status: `released_live_validated_api_static`, target: `v0.4.0`)
 - Workboard status: historical Milestone 7 card removed from active workboard during the 2026-08-02 UI/UX reset; release evidence remains in validation docs.
@@ -43,6 +42,7 @@ current installed release.
 - Current corrective release: `ZNE-595` is released/live validated in `v0.4.12`. Recorder-backed entity attributes now use compact summaries for validation details, managed-device runtime details, and unmanaged candidate rows, keeping bulky action history/source diagnostics/daily metrics/calibration detail on diagnostics/app surfaces. Evidence: `validation/zne-595-recorder-attribute-budget.md` and `validation/0.4.12-release-validation.md`.
 - Managed Devices promotion regression: `ZNE-599` is released/live validated in `v0.4.15`. Riley reported on installed `v0.4.12` that the confirmation checkbox in the unmanaged-candidate `Review & promote` workflow did not stay pressed and the candidate was not added to the managed Fleet List. The fix persisted promotion draft/confirmation state, coerced UI numeric payloads at the service schema boundary, and made numeric priorities render safely after promotion. Evidence: `validation/0.4.15-release-validation.md`.
 - Managed Devices runtime visibility feature: `ZNE-FR-018` is released/live validated in `v0.4.16`. The Fleet List now shows a compact `Power` traffic-light indicator for each managed row: green `On` or red `Off` from `observed_active`, with text and accessible labels. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`, `validation/0.4.16-release-validation.md`.
+- Overview UI/UX command-center refactor: `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011` are released/live validated in `v0.4.17`. The Overview now shows one prioritized health summary, a promoted managed-device review action, live power snapshot tiles, state-aware executor controls, user-facing plan setup wording, preserved selected-plan context, and preserved readiness/Diagnostics/destructive-confirmation surfaces. Evidence: `ui_ux_review.md`, `validation/zne-uiux-overview-refactor-feasibility.md`, `validation/zne-uiux-overview-refactor-implementation.md`, and `validation/0.4.17-release-validation.md`.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`

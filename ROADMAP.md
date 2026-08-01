@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-07-15
+Last updated: 2026-08-02
 
 ## Workboard
 
@@ -8,10 +8,11 @@ The maintained project Workboard lives at `docs/workboard/README.md`.
 
 The workboard was reset on 2026-08-02 to remove stale historical cards and track only the current Zero Net Export main Overview UI/UX refactor derived from `ui_ux_review.md`.
 
-Current state: implemented and repo-validated, pending GitHub/HACS release and
-live Home Assistant browser proof. Evidence:
+Current state: released/live validated in `v0.4.17`. Evidence:
 `validation/zne-uiux-overview-refactor-feasibility.md` and
-`validation/zne-uiux-overview-refactor-implementation.md`.
+`validation/zne-uiux-overview-refactor-implementation.md`,
+`validation/0.4.17-release-validation.md`, and browser artifacts under
+`validation/artifacts/zne-uiux-v0.4.17-overview-*`.
 
 Active workboard scope:
 - `WB-ZNE-UIUX-001` Health State Model
@@ -160,6 +161,7 @@ Completed:
 - Published `v0.3.0` for ZNE-APP-005 (Milestone 5).
 - Published and installed `v0.3.3` for ZNE-APP-006 (Milestone 6 corrective line).
 - Published and installed `v0.4.0` for ZNE-APP-007 (Milestone 7).
+- Published and installed `v0.4.17` for the Overview UI/UX command-center refactor.
 - Installed/updated through HACS.
 - Restarted Home Assistant.
 - Verified installed/latest version, fingerprint match, app/static routes, targeted logs, and HACS metadata.
