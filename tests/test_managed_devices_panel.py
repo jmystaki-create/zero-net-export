@@ -145,6 +145,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("Estimated from nominal power because current watts are unavailable", source)
         self.assertIn("Attention:", source)
         self.assertIn("active but disabled", source)
+        self.assertIn("appears active but reports 0 W or no reliable current watts", source)
 
     def test_managed_devices_panel_splits_load_and_state_columns(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -327,7 +328,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.18"', source)
+        self.assertIn('"version": "0.4.19"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

@@ -28,7 +28,7 @@ Workboard cards: `WB-ZNE-MDUIUX-001` through `WB-ZNE-MDUIUX-010`.
 ## Completed Baseline
 
 - `v0.4.17` is the latest public release and installed Home Assistant/HACS version before this release candidate.
-- `v0.4.18` is the current release candidate.
+- `v0.4.19` is the current release candidate.
 - The Overview UI/UX command-center refactor is released and live validated.
 - Historical app milestones, bug fixes, feature requests, release validation, and browser proof remain preserved in project documentation and git history.
 

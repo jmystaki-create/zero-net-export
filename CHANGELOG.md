@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.19] - 2026-08-02
+
+### Fixed
+- Corrected the Managed Devices disabled-active alert so an active disabled device reporting `0 W` no longer reads as consuming estimated load; the UI now asks the operator to confirm the real load before enabling it for Zero Net Export control.
+
 ## [0.4.18] - 2026-08-02
 
 ### Changed

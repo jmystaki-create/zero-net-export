@@ -13,7 +13,7 @@ The user requirement is that managed devices should publish/display the watts th
 ## Current Baseline
 
 - Latest public release: `v0.4.17`
-- Current release candidate: `v0.4.18`
+- Current release candidate: `v0.4.19`
 - Live Home Assistant/HACS installed version before this new scope: `v0.4.17`
 - Delivery path: GitHub release and HACS install
 - Primary product surface: Home Assistant application sidebar app/custom panel
@@ -55,7 +55,7 @@ Fresh API evidence from `sensor.managed_devices_overview` showed 2 managed devic
 - Full unittest discovery passed: `Ran 644 tests ... OK`.
 - `git diff --check` passed.
 
-Remaining validation is release/HACS install, Home Assistant restart, live desktop/narrow browser proof, and logs/API proof for installed `v0.4.18`.
+Remaining validation is release/HACS install, Home Assistant restart, live desktop/narrow browser proof, and logs/API proof for installed `v0.4.19`.
 
 ## Risks
 

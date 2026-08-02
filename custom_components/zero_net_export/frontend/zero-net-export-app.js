@@ -865,6 +865,12 @@ class ZeroNetExportApp extends HTMLElement {
     return {
       disabledActive,
       disabledActiveLoad,
+      disabledActiveTitle: disabledActiveLoad > 0
+        ? `${disabledActiveLoad > 0 ? "~" : ""}${this._formatNumber(disabledActiveLoad, "W")} active but disabled`
+        : "Active but disabled",
+      disabledActiveDetail: disabledActiveLoad > 0
+        ? "is consuming estimated load but is not available to Zero Net Export control."
+        : "appears active but reports 0 W or no reliable current watts, so confirm the real load before enabling it for Zero Net Export control.",
       tiles: [
         {
           label: "Net Load",
@@ -1866,8 +1872,8 @@ class ZeroNetExportApp extends HTMLElement {
 
         ${loadDashboard.disabledActive.length ? `
         <div class="zne-card zne-managed-alert">
-          <strong>Attention: ${this._escape(`${loadDashboard.disabledActiveLoad > 0 ? "~" : ""}${this._formatNumber(loadDashboard.disabledActiveLoad, "W")}`)} active but disabled</strong>
-          <p>${this._escape(loadDashboard.disabledActive[0].device.name || loadDashboard.disabledActive[0].device.key || "A managed device")} is consuming estimated load but is not available to Zero Net Export control.</p>
+          <strong>Attention: ${this._escape(loadDashboard.disabledActiveTitle)}</strong>
+          <p>${this._escape(loadDashboard.disabledActive[0].device.name || loadDashboard.disabledActive[0].device.key || "A managed device")} ${this._escape(loadDashboard.disabledActiveDetail)}</p>
         </div>
         ` : ""}
 
