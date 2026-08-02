@@ -4,37 +4,38 @@ Last updated: 2026-08-02
 
 ## Status
 
-Active: Managed Devices UI/UX load-dashboard release/live validation.
+Active: Operator tabs UI/UX redesign browser/live validation.
 
 ## Current Roadmap Item
 
-### Managed Devices Load-Aware Fleet Console
+### Operator Tabs Console Redesign
 
-Goal: make the Managed Devices tab show controllable load impact in watts, not only inventory counts and status indicators.
+Goal: make the sidebar app tabs follow operator priority and turn the sparse Sources, Controls, and Runtime tabs into useful monitoring/control surfaces.
+
+Implementation status: repo-validated, pending browser/live proof before release closeout.
 
 Scope:
 
-- Add a Managed Load Dashboard.
-- Show per-device load watts with measured/estimated/nominal semantics.
-- Escalate disabled-but-active managed loads.
-- Split the misleading `Power` traffic-light column into `Load` and `State`.
-- Show candidate load only when reliable watt metadata exists; otherwise require confirmation during promotion.
-- Avoid backend aggregate sensors for this release because existing app payloads support frontend-derived metrics.
-- Preserve all existing workflows and confirmation gates.
-- Validate responsive desktop/narrow layouts and release through HACS only after approval.
+- Reorder tabs to `Overview -> Managed Devices -> Sources -> Controls -> Runtime -> Diagnostics -> Settings`.
+- Redesign Sources as a measurement trust/source-health workspace.
+- Redesign Controls as a control-policy workspace with safety guards and next-action preview.
+- Redesign Runtime as an execution/activity workspace.
+- Preserve Managed Devices watt dashboard, measured/estimated semantics, disabled-active alert, bulk/per-row controls, candidate review/promotion, and confirmation gates.
+- Preserve plan context, service scoping, Diagnostics, and release validation discipline.
+- Use existing frontend-visible entities first; avoid backend aggregate sensors unless validation proves a data gap.
 
-Workboard cards: `WB-ZNE-MDUIUX-001` through `WB-ZNE-MDUIUX-010`.
+Workboard cards: `WB-ZNE-TABUX-001` through `WB-ZNE-TABUX-007`.
 
 ## Completed Baseline
 
-- `v0.4.17` is the latest public release and installed Home Assistant/HACS version before this release candidate.
-- `v0.4.19` is the current release candidate.
+- `v0.4.19` is the latest public release and installed Home Assistant/HACS baseline before this operator-tabs scope.
 - The Overview UI/UX command-center refactor is released and live validated.
+- The Managed Devices load-aware fleet console is the current baseline and must be preserved.
 - Historical app milestones, bug fixes, feature requests, release validation, and browser proof remain preserved in project documentation and git history.
 
 ## Evidence
 
 - Workboard: `docs/workboard/README.md`
 - Review: `ui_ux_review.md`
-- Feasibility: `validation/zne-managed-devices-load-dashboard-feasibility.md`
-- Repo validation: `validation/zne-managed-devices-load-dashboard-implementation.md`
+- Feasibility: `validation/zne-operator-tabs-redesign-feasibility.md`
+- Repo validation: `validation/zne-operator-tabs-redesign-implementation.md`

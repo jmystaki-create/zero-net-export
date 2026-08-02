@@ -243,6 +243,102 @@ Medium priority:
 2. Reduce repeated timestamps and source labels in the Overview.
 3. Keep exact internals available through Diagnostics.
 
+## Approved Operator Tabs Redesign
+
+Date: 2026-08-02
+Scope: tab order plus Sources, Controls, and Runtime tabs
+Status: approved for implementation
+
+The user reviewed the current tab order and sparse operator tabs and approved a broader follow-up UX batch. The Managed Devices tab should move directly after Overview because the fleet/load console is now the primary operator workspace after the high-level status page.
+
+Approved tab order:
+
+`Overview -> Managed Devices -> Sources -> Controls -> Runtime -> Diagnostics -> Settings`
+
+Rationale:
+
+- Overview answers what needs attention.
+- Managed Devices is the next highest-value operator surface because it controls the managed load fleet and now exposes watts.
+- Sources is a dependency/readiness surface for measurement trust.
+- Controls is a policy/permission surface for what the controller is allowed to do.
+- Runtime is execution evidence and recent activity, not the place for setup or raw diagnostics.
+- Diagnostics stays available for raw internals and support/debug evidence.
+- Settings remains last.
+
+### Sources Tab Redesign
+
+Purpose: answer "Are the measurements trustworthy enough to control?"
+
+The Sources tab should be redesigned from sparse cards plus raw role rows into a source-health workspace.
+
+Required layout:
+
+- Top health strip showing source health: ready, blocked, stale, missing, or unknown.
+- Last update/freshness summary.
+- Source blocker and stale-source summaries promoted near the top.
+- Required source checklist covering grid/surplus, solar/source power, battery power, battery SOC, and home/load power where available.
+- Per-source rows showing role, requirement level, status, live value, freshness/age, issue count, and bound entity.
+- Source edit field remains available per role.
+- "Control impact" panel explaining whether current source issues block runtime control or only reduce confidence.
+- Plan selector remains available and saves stay scoped to the selected plan.
+- Raw/long entity IDs remain visible but de-emphasized compared with role, live value, and status.
+
+Remove or de-emphasize:
+
+- One-card tabs with only two or three rows.
+- Raw issue counts as the main visual hierarchy.
+- Long source entity IDs in the primary reading position.
+
+### Controls Tab Redesign
+
+Purpose: answer "What is Zero Net Export allowed to do?"
+
+The Controls tab should become a control-policy surface rather than a sparse set of equally weighted inputs.
+
+Required layout:
+
+- Top command bar with current control enabled state, current mode, and one state-aware primary action: enable or disable control.
+- Policy card containing target export, deadband, battery reserve, and live mode.
+- Policy values should be grouped together as a single operator task. The existing backend services may still apply values individually, but the UI should read as one policy surface rather than three disconnected mini-actions.
+- Safety guard card showing what prevents action right now: source blockers, stale readings, safe mode, and control guard summary.
+- "What will happen next?" preview using planned power delta, active controlled power, surplus/grid state, mode, and enabled state.
+- Preserve existing mode, number, and enable/disable service wiring.
+
+Remove or de-emphasize:
+
+- Multiple peer actions when only one action is valid.
+- Tiny isolated Apply buttons that make control changes feel unrelated.
+- Raw enum/internal states as primary operator copy.
+
+### Runtime Tab Redesign
+
+Purpose: answer "What is the controller doing right now, and what did it just do?"
+
+The Runtime tab should become an execution monitor rather than two sparse cards.
+
+Required layout:
+
+- Live execution header showing running/paused/blocked/active state, executor state, active controlled power, planned delta, and latest update.
+- Power flow snapshot using Home Load, Source, Battery, Grid/Surplus, Managed Load, and Confidence where available.
+- Decision panel showing current decision: hold, enable load, disable load, blocked, paused, or waiting; include reason and next/last evaluation context when available.
+- Activity timeline/counts showing actions today, successful today, total failed, last failure reason, and command failure state.
+- Keep low-level logs and raw diagnostics in Diagnostics, not Runtime.
+
+Remove or de-emphasize:
+
+- Raw two-card layout with only three power rows and three action rows.
+- Support/debug log material that belongs in Diagnostics.
+
+### Implementation Constraints
+
+- Do not change backend control behavior in this batch.
+- Preserve Managed Devices watt dashboard, measured/estimated semantics, disabled-active alert, and existing per-device and bulk workflows.
+- Preserve plan context and selected-plan service scoping.
+- Preserve Diagnostics as the raw detail/debug surface.
+- Preserve destructive confirmations.
+- Use frontend-derived views from existing entities first; add backend entities only if live validation proves a data gap.
+- Browser proof is required for desktop and narrow layouts before release closeout.
+
 ## Functionality Risk Review
 
 These changes should not remove or break functionality if implemented as an Overview-only presentation refactor. The safe implementation approach is to preserve existing data sources, service calls, tabs, plan selection, and detailed diagnostic views.

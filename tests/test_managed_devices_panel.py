@@ -29,6 +29,17 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("Runtime", source)
         self.assertIn("Diagnostics", source)
 
+    def test_app_orders_managed_devices_second(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        nav = source[source.index('<nav class="zne-tabs"'):source.index('${this._activeContent()}')]
+        self.assertLess(nav.index('_navButton("overview", "Overview")'), nav.index('_navButton("managed", "Managed Devices")'))
+        self.assertLess(nav.index('_navButton("managed", "Managed Devices")'), nav.index('_navButton("sources", "Sources")'))
+        self.assertLess(nav.index('_navButton("sources", "Sources")'), nav.index('_navButton("controls", "Controls")'))
+        self.assertLess(nav.index('_navButton("controls", "Controls")'), nav.index('_navButton("runtime", "Runtime")'))
+        self.assertLess(nav.index('_navButton("runtime", "Runtime")'), nav.index('_navButton("diagnostics", "Diagnostics")'))
+        self.assertLess(nav.index('_navButton("diagnostics", "Diagnostics")'), nav.index('_navButton("settings", "Settings")'))
+
     def test_app_reads_real_backend_entities_for_workflow_sections(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -213,11 +224,49 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("_sourceEntitySlug(role)", source)
         self.assertIn('battery_soc_entity: "battery_state_of_charge"', source)
         self.assertIn('"binding_label"', source)
-        self.assertIn("Reading:", source)
-        self.assertIn("Issues:", source)
+        self.assertIn("_sourceRoleModel(role)", source)
+        self.assertIn("_sourceHealthModel(sourceRows)", source)
+        self.assertIn("Source health", source)
+        self.assertIn("Reading Trust", source)
+        self.assertIn("Control Impact", source)
+        self.assertIn("Live value", source)
+        self.assertIn("issue${String(row.issueCount) === \"1\" ? \"\" : \"s\"}", source)
         self.assertIn(".zne-source-editor", source)
+        self.assertIn(".zne-source-table", source)
         self.assertIn("grid-template-columns: minmax(150px, 0.35fr) minmax(0, 1fr);", source)
-        self.assertIn(".zne-source-detail input", source)
+        self.assertIn(".zne-source-table-row input", source)
+
+    def test_controls_tab_is_policy_workspace_with_safety_and_preview(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("Control permission", source)
+        self.assertIn("Control Policy", source)
+        self.assertIn("Safety Guard", source)
+        self.assertIn("What Will Happen Next?", source)
+        self.assertIn("sensor.zero_net_export_control_guard_summary", source)
+        self.assertIn("sensor.zero_net_export_planned_power_delta", source)
+        self.assertIn("sensor.zero_net_export_active_controlled_power", source)
+        self.assertIn('const commandLabel = enabledOn ? "Disable control" : "Enable control";', source)
+        self.assertIn('data-zne-action="toggle-enabled"', source)
+        self.assertIn('data-zne-action="set-mode"', source)
+        self.assertIn('data-zne-action="set-number"', source)
+        self.assertIn(".zne-command-bar", source)
+        self.assertIn(".zne-controls-layout", source)
+
+    def test_runtime_tab_is_execution_activity_workspace(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("Live execution", source)
+        self.assertIn("Power Flow Snapshot", source)
+        self.assertIn("Decision", source)
+        self.assertIn("Activity", source)
+        self.assertIn("Managed Load", source)
+        self.assertIn("Command failure", source)
+        self.assertIn("Blocked by sources", source)
+        self.assertIn("Enable load", source)
+        self.assertIn("Reduce load", source)
+        self.assertIn(".zne-runtime-header", source)
+        self.assertIn(".zne-runtime-layout", source)
 
     def test_overview_reconciliation_console_uses_live_runtime_metrics(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -328,7 +377,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.19"', source)
+        self.assertIn('"version": "0.4.20"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

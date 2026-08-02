@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.20] - 2026-08-02
+
+### Changed
+- Redesigned the operator tabs UI/UX: Managed Devices moves to the second tab position, and Sources, Controls, and Runtime now present clearer monitoring/control workspaces while preserving the Managed Devices watt dashboard and existing safe workflows.
+
 ## [0.4.19] - 2026-08-02
 
 ### Fixed

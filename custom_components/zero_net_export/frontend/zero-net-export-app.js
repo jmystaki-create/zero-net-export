@@ -1694,52 +1694,156 @@ class ZeroNetExportApp extends HTMLElement {
     `;
   }
 
+  _sourceRoleModel(role) {
+    const status = this._sourceValue(role, "status", "status", "missing");
+    const reading = this._sourceValue(role, "reading", "reading", "unknown");
+    const age = this._sourceValue(role, "age_seconds", "age", "unknown");
+    const issueCount = this._sourceValue(role, "issue_count", "issue count", "0");
+    const binding = this._sourceAttr(role, "status", "status", "binding", "");
+    const bindingLabel = this._sourceAttr(role, "status", "status", "binding_label", binding || "Not configured");
+    const normalizedStatus = String(status || "").toLowerCase();
+    const numericIssues = Number(issueCount);
+    const hasIssues = Number.isFinite(numericIssues) ? numericIssues > 0 : !["0", "none", ""].includes(String(issueCount || "").toLowerCase());
+    const tone = ["ok", "ready", "live", "valid", "fresh"].includes(normalizedStatus)
+      ? "good"
+      : ["missing", "stale", "blocked", "invalid", "unavailable", "unknown"].includes(normalizedStatus) || hasIssues
+        ? "bad"
+        : "neutral";
+    return { role, status, reading, age, issueCount, binding, bindingLabel, tone };
+  }
+
+  _sourceHealthModel(sourceRows) {
+    const blocker = this._stateText("sensor.zero_net_export_source_blocker_summary", "No source blockers reported");
+    const stale = this._stateText("sensor.zero_net_export_stale_source_summary", "No stale sources reported");
+    const blockerActive = blocker && !["none", "unknown", "no source blockers reported"].includes(blocker.toLowerCase());
+    const staleActive = stale && !["none", "unknown", "no required source roles currently look stale", "no stale sources reported"].includes(stale.toLowerCase());
+    const missingCount = sourceRows.filter((row) => String(row.status || "").toLowerCase() === "missing" || !row.binding).length;
+    const badCount = sourceRows.filter((row) => row.tone === "bad").length;
+    const latestUpdate = sourceRows
+      .map((row) => this._stateUpdatedAt(this._sourceState(row.role, "reading", "reading") || this._sourceState(row.role, "status", "status")))
+      .filter(Boolean)
+      .sort()
+      .pop();
+    let state = "Ready";
+    let tone = "good";
+    let detail = "Required readings are not reporting blockers.";
+    if (blockerActive || badCount) {
+      state = "Blocked";
+      tone = "bad";
+      detail = "One or more source readings can block confident runtime control.";
+    } else if (staleActive) {
+      state = "Stale";
+      tone = "bad";
+      detail = "At least one source reading needs freshness review.";
+    } else if (missingCount) {
+      state = "Missing optional data";
+      tone = "warn";
+      detail = "Control can continue if required readings are healthy, but optional context is incomplete.";
+    }
+    return {
+      state,
+      tone,
+      detail,
+      blocker,
+      stale,
+      blockerActive,
+      staleActive,
+      updated: this._relativeTime(latestUpdate),
+      missingCount,
+      badCount,
+    };
+  }
+
+  _controlImpactText(sourceHealth) {
+    if (sourceHealth.blockerActive || sourceHealth.badCount) {
+      return "Source health is affecting runtime confidence. Fix blocked, missing, stale, or non-numeric required readings before relying on active control.";
+    }
+    if (sourceHealth.staleActive) {
+      return "Runtime may stay conservative until stale readings refresh. Review freshness before changing policy.";
+    }
+    return "Sources are not reporting a blocking issue, so control policy can be reviewed without first repairing source bindings.";
+  }
+
   _sourcesSection() {
     const entries = this._entries();
     const roles = this._sourceRoles();
+    const sourceRows = roles.map((role) => this._sourceRoleModel(role));
+    const health = this._sourceHealthModel(sourceRows);
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
           <h2>Sources</h2>
           <button type="button" data-route="/config/integrations/integration/zero_net_export">Open HA source setup</button>
         </div>
-        <div class="zne-card">
-          <h3>Current blockers</h3>
-          <p>${this._escape(this._stateText("sensor.zero_net_export_source_blocker_summary", "No source blockers reported"))}</p>
+        <div class="zne-source-health-strip ${this._escape(health.tone)}">
+          <div>
+            <span>Source health</span>
+            <strong>${this._escape(health.state)}</strong>
+            <p>${this._escape(health.detail)}</p>
+          </div>
+          <div class="zne-health-meta">
+            <span>${health.updated ? `Updated ${this._escape(health.updated)}` : "Waiting for source update"}</span>
+            <span>${this._escape(sourceRows.filter((row) => row.role.required).length)} required roles</span>
+            <span>${this._escape(health.badCount)} attention</span>
+          </div>
         </div>
-        <div class="zne-card">
-          <h3>Plan</h3>
-          <label>Zero Net Export plan
-            <select data-zne-entry-id>
-              <option value="">Auto</option>
-              ${this._entryOptions()}
-            </select>
-          </label>
-          <p class="zne-muted">Source saves are scoped to the selected Zero Net Export plan.</p>
-        </div>
-        <div class="zne-list">
-          ${roles.map((role) => {
-            const status = this._sourceValue(role, "status", "status", "missing");
-            const reading = this._sourceValue(role, "reading", "reading", "unknown");
-            const age = this._sourceValue(role, "age_seconds", "age", "unknown");
-            const issueCount = this._sourceValue(role, "issue_count", "issue count", "0");
-            const binding = this._sourceAttr(role, "status", "status", "binding", "");
-            const bindingLabel = this._sourceAttr(role, "status", "status", "binding_label", binding || "Not configured");
-            return `
-            <div class="zne-source zne-source-editor">
-              <div>
-                <strong>${this._escape(role.label)}</strong>
-                <span>${role.required ? "Required" : "Optional"}</span>
-              </div>
-              <div class="zne-source-detail">
-                ${this._pill("status", status)}
-                <span class="zne-meta">Binding: ${this._escape(bindingLabel)}</span>
-                <span class="zne-meta">Reading: ${this._escape(reading)} | Age: ${this._escape(age)} s | Issues: ${this._escape(issueCount)}</span>
-                <input data-zne-source-role="${this._escape(role.key)}" data-zne-source-original="${this._escape(binding)}" type="text" autocomplete="off" placeholder="sensor.example" value="${this._escape(binding)}">
-              </div>
+        <div class="zne-sources-layout">
+          <div class="zne-card zne-source-summary-card">
+            <h3>Reading Trust</h3>
+            <div class="zne-readiness-summary ${this._escape(health.tone)}">
+              <strong>${this._escape(health.blockerActive ? "Source blockers active" : "No source blockers reported")}</strong>
+              <span>${this._escape(health.blocker)}</span>
             </div>
-          `;
-          }).join("")}
+            <div class="zne-readiness-summary ${this._escape(health.staleActive ? "bad" : "good")}">
+              <strong>${this._escape(health.staleActive ? "Freshness attention" : "Freshness clear")}</strong>
+              <span>${this._escape(health.stale)}</span>
+            </div>
+          </div>
+          <div class="zne-card zne-control-impact-card">
+            <h3>Control Impact</h3>
+            <p>${this._escape(this._controlImpactText(health))}</p>
+            <div class="zne-actions">
+              <button type="button" data-section="runtime">Open Runtime</button>
+              <button type="button" data-section="controls" class="secondary">Review Controls</button>
+            </div>
+          </div>
+          <div class="zne-card">
+            <h3>Plan</h3>
+            <label>Zero Net Export plan
+              <select data-zne-entry-id>
+                <option value="">Auto</option>
+                ${this._entryOptions()}
+              </select>
+            </label>
+            <p class="zne-muted">Source saves are scoped to the selected Zero Net Export plan.</p>
+          </div>
+        </div>
+        <div class="zne-source-table">
+          <div class="zne-source-table-header">
+            <span>Role</span>
+            <span>Status</span>
+            <span>Live value</span>
+            <span>Freshness</span>
+            <span>Bound entity</span>
+          </div>
+          ${sourceRows.map((row) => `
+            <div class="zne-source-table-row ${this._escape(row.tone)}">
+              <span>
+                <strong>${this._escape(row.role.label)}</strong>
+                <small>${row.role.required ? "Required" : "Optional"}</small>
+              </span>
+              <span>${this._pill("status", row.status)}</span>
+              <span>
+                <strong>${this._escape(row.reading)}</strong>
+                <small>${this._escape(row.issueCount)} issue${String(row.issueCount) === "1" ? "" : "s"}</small>
+              </span>
+              <span>${this._escape(row.age)} s</span>
+              <span>
+                <small>${this._escape(row.bindingLabel)}</small>
+                <input data-zne-source-role="${this._escape(row.role.key)}" data-zne-source-original="${this._escape(row.binding)}" type="text" autocomplete="off" placeholder="sensor.example" value="${this._escape(row.binding)}">
+              </span>
+            </div>
+          `).join("")}
         </div>
         <div class="zne-actions">
           <button type="button" data-zne-action="update-source-roles">Save source roles</button>
@@ -2117,27 +2221,45 @@ class ZeroNetExportApp extends HTMLElement {
       ["Battery reserve", "number.zero_net_export_battery_reserve_soc", "%"],
     ];
     const enabled = this._stateText("switch.zero_net_export_enabled", "unknown");
+    const mode = this._stateText("select.zero_net_export_mode", "unknown");
+    const metrics = this._reconciliationMetrics();
+    const safeMode = this._stateText("binary_sensor.zero_net_export_safe_mode", "unknown");
+    const sourceBlocker = this._stateText("sensor.zero_net_export_source_blocker_summary", "No source blockers reported");
+    const staleSource = this._stateText("sensor.zero_net_export_stale_source_summary", "No stale sources reported");
+    const guard = this._stateText("sensor.zero_net_export_control_guard_summary", "No control guard summary reported");
+    const enabledOn = enabled === "on";
+    const commandLabel = enabledOn ? "Disable control" : "Enable control";
+    const plannedDelta = this._stateText("sensor.zero_net_export_planned_power_delta", "unknown");
+    const activePower = this._stateText("sensor.zero_net_export_active_controlled_power", "unknown");
+    const surplus = this._stateText("sensor.zero_net_export_surplus", this._stateText("sensor.zero_net_export_surplus_w", "unknown"));
+    const guardItems = [
+      ["Safe mode", safeMode],
+      ["Source blockers", sourceBlocker],
+      ["Stale readings", staleSource],
+      ["Control guard", guard],
+    ];
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
           <h2>Controls</h2>
           ${this._pill("Enabled", enabled)}
         </div>
-        <div class="zne-grid">
-          <div class="zne-card">
-            <h3>Live mode</h3>
+        <div class="zne-command-bar ${enabledOn ? "good" : "neutral"}">
+          <div>
+            <span>Control permission</span>
+            <strong>${enabledOn ? "Control enabled" : "Control disabled"}</strong>
+            <p>Mode: ${this._escape(mode)}. Executor: ${this._escape(metrics.executorState)}.</p>
+          </div>
+          <button type="button" data-zne-action="toggle-enabled">${this._escape(commandLabel)}</button>
+        </div>
+        <div class="zne-controls-layout">
+          <div class="zne-card zne-policy-card">
+            <h3>Control Policy</h3>
             <label>Mode
               <select data-zne-mode>
                 ${options.map((option) => `<option ${option === this._stateText("select.zero_net_export_mode") ? "selected" : ""}>${this._escape(option)}</option>`).join("")}
               </select>
             </label>
-            <div class="zne-actions">
-              <button type="button" data-zne-action="set-mode">Apply mode</button>
-              <button type="button" data-zne-action="toggle-enabled">${enabled === "on" ? "Disable control" : "Enable control"}</button>
-            </div>
-          </div>
-          <div class="zne-card">
-            <h3>Policy values</h3>
             ${numbers.map(([label, entityId, unit]) => `
               <div class="zne-control-row">
                 <label>${this._escape(label)}
@@ -2147,6 +2269,27 @@ class ZeroNetExportApp extends HTMLElement {
                 <button type="button" data-zne-action="set-number" data-entity-id="${this._escape(entityId)}">Apply</button>
               </div>
             `).join("")}
+            <div class="zne-actions">
+              <button type="button" data-zne-action="set-mode">Apply mode</button>
+            </div>
+          </div>
+          <div class="zne-card zne-safety-card">
+            <h3>Safety Guard</h3>
+            ${guardItems.map(([label, value]) => `
+              <div class="zne-row">
+                <span>${this._escape(label)}</span>
+                <strong>${this._escape(value)}</strong>
+              </div>
+            `).join("")}
+          </div>
+          <div class="zne-card zne-next-preview-card">
+            <h3>What Will Happen Next?</h3>
+            <div class="zne-decision-panel">
+              <strong>${enabledOn ? "Controller may act when runtime conditions match policy" : "Controller will not start new control actions while disabled"}</strong>
+              <span>Planned delta: ${this._escape(plannedDelta)}</span>
+              <span>Active controlled power: ${this._escape(activePower)}</span>
+              <span>Grid/surplus: ${this._escape(surplus)}</span>
+            </div>
           </div>
         </div>
       </section>
@@ -2154,24 +2297,80 @@ class ZeroNetExportApp extends HTMLElement {
   }
 
   _runtimeSection() {
+    const overview = this._state("sensor.managed_devices_overview");
+    const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
+      ? overview.attributes.managed_devices
+      : [];
+    const overviewAttrs = overview && overview.attributes ? overview.attributes : {};
+    const metrics = this._reconciliationMetrics();
+    const loadDashboard = this._managedLoadDashboard(fleet, overviewAttrs, metrics);
+    const active = this._stateText("binary_sensor.zero_net_export_active", "unknown");
+    const executor = this._stateText("sensor.zero_net_export_executor_state", "unknown");
+    const activePower = this._stateText("sensor.zero_net_export_active_controlled_power", "unknown");
+    const plannedDelta = this._stateText("sensor.zero_net_export_planned_power_delta", "unknown");
+    const commandFailure = this._stateText("binary_sensor.zero_net_export_command_failure", "unknown");
+    const sourceBlocker = this._stateText("sensor.zero_net_export_source_blocker_summary", "No source blockers reported");
+    const decision = commandFailure === "on"
+      ? "Command failure"
+      : sourceBlocker && !["none", "unknown", "no source blockers reported"].includes(sourceBlocker.toLowerCase())
+        ? "Blocked by sources"
+        : String(executor).toLowerCase() === "paused"
+          ? "Paused"
+          : Number(plannedDelta) > 0
+            ? "Enable load"
+            : Number(plannedDelta) < 0
+              ? "Reduce load"
+              : active === "on"
+                ? "Hold"
+                : "Waiting";
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
           <h2>Runtime</h2>
           ${this._pill("Active", this._stateText("binary_sensor.zero_net_export_active", "unknown"))}
         </div>
-        <div class="zne-grid">
-          <div class="zne-card">
-            <h3>Power</h3>
-            ${this._entityRow("Surplus", "sensor.zero_net_export_surplus")}
-            ${this._entityRow("Active controlled power", "sensor.zero_net_export_active_controlled_power")}
-            ${this._entityRow("Planned power delta", "sensor.zero_net_export_planned_power_delta")}
+        <div class="zne-runtime-header">
+          <div>
+            <span>Live execution</span>
+            <strong>${this._escape(decision)}</strong>
+            <p>Executor ${this._escape(executor)} · active controlled power ${this._escape(activePower)} · planned delta ${this._escape(plannedDelta)}</p>
+          </div>
+          <div class="zne-health-meta">
+            <span>${metrics.updated ? `Updated ${this._escape(metrics.updated)}` : "Waiting for runtime update"}</span>
+            <span>Command failure ${this._escape(commandFailure)}</span>
+          </div>
+        </div>
+        <div class="zne-runtime-layout">
+          <div class="zne-card zne-power-card">
+            <h3>Power Flow Snapshot</h3>
+            <div class="zne-metric-tiles">
+              ${metrics.rows.map((metric) => this._metricTile(metric)).join("")}
+              <div class="zne-metric-tile">
+                <span>Managed Load</span>
+                <strong>${this._escape(loadDashboard.tiles.find((tile) => tile.label === "Managed Load")?.value || "unknown")}</strong>
+                <small>Current managed fleet load</small>
+              </div>
+              <div class="zne-metric-tile">
+                <span>Confidence</span>
+                <strong>${this._escape(metrics.confidence)}</strong>
+                <small>Source reconciliation quality</small>
+              </div>
+            </div>
           </div>
           <div class="zne-card">
-            <h3>Actions</h3>
+            <h3>Decision</h3>
+            <div class="zne-decision-panel">
+              <strong>${this._escape(decision)}</strong>
+              <span>${this._escape(sourceBlocker)}</span>
+              <span>Surplus: ${this._escape(this._stateText("sensor.zero_net_export_surplus", this._stateText("sensor.zero_net_export_surplus_w", "unknown")))}</span>
+            </div>
+          </div>
+          <div class="zne-card">
+            <h3>Activity</h3>
             ${this._entityRow("Actions today", "sensor.zero_net_export_actions_today")}
             ${this._entityRow("Successful today", "sensor.zero_net_export_successful_actions_today")}
             ${this._entityRow("Total failed", "sensor.zero_net_export_total_failed_action_count")}
+            ${this._entityRow("Command failure", "binary_sensor.zero_net_export_command_failure")}
           </div>
         </div>
       </section>
@@ -2628,7 +2827,10 @@ class ZeroNetExportApp extends HTMLElement {
         }
 
         .zne-health-summary,
-        .zne-next-action {
+        .zne-next-action,
+        .zne-source-health-strip,
+        .zne-command-bar,
+        .zne-runtime-header {
           display: grid;
           grid-template-columns: minmax(0, 1fr) auto;
           gap: 12px;
@@ -2646,23 +2848,37 @@ class ZeroNetExportApp extends HTMLElement {
         }
 
         .zne-health-summary.warn,
-        .zne-next-action {
+        .zne-next-action,
+        .zne-source-health-strip.warn {
           border-left-color: var(--warning-color, #f9a825);
         }
 
-        .zne-health-summary.bad {
+        .zne-health-summary.bad,
+        .zne-source-health-strip.bad {
           border-left-color: var(--error-color, #c62828);
         }
 
+        .zne-source-health-strip.good,
+        .zne-command-bar.good,
+        .zne-runtime-header {
+          border-left-color: var(--success-color, #2e7d32);
+        }
+
         .zne-health-summary span,
-        .zne-next-action span {
+        .zne-next-action span,
+        .zne-source-health-strip span,
+        .zne-command-bar span,
+        .zne-runtime-header span {
           color: var(--secondary-text-color);
           font-size: 12px;
           font-weight: 600;
         }
 
         .zne-health-summary strong,
-        .zne-next-action strong {
+        .zne-next-action strong,
+        .zne-source-health-strip strong,
+        .zne-command-bar strong,
+        .zne-runtime-header strong {
           display: block;
           margin-top: 2px;
           font-size: 22px;
@@ -2671,7 +2887,10 @@ class ZeroNetExportApp extends HTMLElement {
         }
 
         .zne-health-summary p,
-        .zne-next-action p {
+        .zne-next-action p,
+        .zne-source-health-strip p,
+        .zne-command-bar p,
+        .zne-runtime-header p {
           margin: 6px 0 0;
           color: var(--secondary-text-color);
           line-height: 1.4;
@@ -2782,6 +3001,10 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-readiness-summary.bad {
           border-left-color: var(--error-color, #c62828);
+        }
+
+        .zne-readiness-summary.warn {
+          border-left-color: var(--warning-color, #f9a825);
         }
 
         .zne-readiness-summary.good {
@@ -2901,9 +3124,99 @@ class ZeroNetExportApp extends HTMLElement {
           max-width: 420px;
         }
 
+        .zne-sources-layout,
+        .zne-controls-layout,
+        .zne-runtime-layout {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 12px;
+          align-items: start;
+          margin-bottom: 12px;
+        }
+
+        .zne-source-table {
+          display: grid;
+          border: 1px solid var(--divider-color);
+          border-radius: 8px;
+          background: var(--card-background-color);
+          overflow: hidden;
+        }
+
+        .zne-source-table-header,
+        .zne-source-table-row {
+          display: grid;
+          grid-template-columns: minmax(140px, 1fr) minmax(110px, .7fr) minmax(120px, .8fr) minmax(86px, .55fr) minmax(190px, 1.4fr);
+          gap: 10px;
+          align-items: center;
+          padding: 10px 14px;
+        }
+
+        .zne-source-table-header {
+          border-bottom: 2px solid var(--divider-color);
+          color: var(--secondary-text-color);
+          font-size: 13px;
+          font-weight: 500;
+        }
+
+        .zne-source-table-row {
+          border-bottom: 1px solid var(--divider-color);
+          border-left: 3px solid transparent;
+        }
+
+        .zne-source-table-row.good {
+          border-left-color: var(--success-color, #2e7d32);
+        }
+
+        .zne-source-table-row.bad {
+          border-left-color: var(--error-color, #c62828);
+        }
+
+        .zne-source-table-row > span {
+          min-width: 0;
+          overflow-wrap: anywhere;
+          line-height: 1.35;
+        }
+
+        .zne-source-table-row small {
+          display: block;
+          margin-top: 3px;
+          color: var(--secondary-text-color);
+          font-size: 12px;
+        }
+
+        .zne-source-table-row input {
+          width: 100%;
+          margin-top: 5px;
+        }
+
         .zne-control-row {
           grid-template-columns: minmax(0, 1fr) auto auto;
           align-items: center;
+        }
+
+        .zne-policy-card .zne-control-row {
+          border-top: 1px solid var(--divider-color);
+        }
+
+        .zne-decision-panel {
+          display: grid;
+          gap: 6px;
+          padding: 10px 12px;
+          border: 1px solid var(--divider-color);
+          border-left: 4px solid var(--primary-color);
+          border-radius: 6px;
+          background: var(--secondary-background-color);
+          line-height: 1.35;
+        }
+
+        .zne-decision-panel strong {
+          font-size: 18px;
+          font-weight: 500;
+        }
+
+        .zne-decision-panel span {
+          color: var(--secondary-text-color);
+          overflow-wrap: anywhere;
         }
 
         .zne-row:first-of-type, .zne-source:first-child {
@@ -3298,7 +3611,10 @@ class ZeroNetExportApp extends HTMLElement {
 
           .zne-overview-layout,
           .zne-health-summary,
-          .zne-next-action {
+          .zne-next-action,
+          .zne-source-health-strip,
+          .zne-command-bar,
+          .zne-runtime-header {
             grid-template-columns: minmax(0, 1fr);
           }
 
@@ -3368,6 +3684,14 @@ class ZeroNetExportApp extends HTMLElement {
           .zne-source-detail input {
             max-width: none;
           }
+
+          .zne-source-table-header {
+            display: none;
+          }
+
+          .zne-source-table-row {
+            grid-template-columns: minmax(0, 1fr);
+          }
         }
       </style>
       <main class="zne-app ${this._busy ? "zne-busy" : ""}">
@@ -3395,8 +3719,8 @@ class ZeroNetExportApp extends HTMLElement {
         </div>
         <nav class="zne-tabs" aria-label="Zero Net Export application sections">
           ${this._navButton("overview", "Overview")}
-          ${this._navButton("sources", "Sources")}
           ${this._navButton("managed", "Managed Devices")}
+          ${this._navButton("sources", "Sources")}
           ${this._navButton("controls", "Controls")}
           ${this._navButton("runtime", "Runtime")}
           ${this._navButton("diagnostics", "Diagnostics")}
