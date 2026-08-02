@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-02
 
-Status: validating. Operator tab redesign is implemented and repo-validated; browser/live proof remains.
+Status: done. Operator tab redesign is released as v0.4.20 and live-validated.
 
 ## Active Scope
 
@@ -20,7 +20,7 @@ Sources should explain measurement trust, Controls should explain what Zero Net 
 - [WB-ZNE-TABUX-004 Control Policy Workspace](cards/WB-ZNE-TABUX-004-control-policy-workspace.md) - done / high
 - [WB-ZNE-TABUX-005 Runtime Activity Workspace](cards/WB-ZNE-TABUX-005-runtime-activity-workspace.md) - done / high
 - [WB-ZNE-TABUX-006 Workflow Preservation](cards/WB-ZNE-TABUX-006-workflow-preservation.md) - done / high
-- [WB-ZNE-TABUX-007 Validation And Release Readiness](cards/WB-ZNE-TABUX-007-validation-release-readiness.md) - validating / high
+- [WB-ZNE-TABUX-007 Validation And Release Readiness](cards/WB-ZNE-TABUX-007-validation-release-readiness.md) - done / high
 
 ## Coverage
 
@@ -30,7 +30,7 @@ Sources should explain measurement trust, Controls should explain what Zero Net 
 - Runtime execution header, power flow snapshot, decision panel, and activity evidence
 - Managed Devices watt dashboard and workflows preserved
 - Plan context, service scoping, Diagnostics, and destructive confirmations preserved
-- Desktop/narrow browser proof before release closeout
+- Desktop/narrow browser proof captured for v0.4.20 release closeout
 
 ## Evidence
 

@@ -1,12 +1,12 @@
 # project_status.md
 
 project_name: zero-net-export
-status: validating_operator_tabs_uiux
+status: released_operator_tabs_uiux
 last_modified: 2026-08-02
 
 ## Active Scope
 
-Operator tab UI/UX redesign is implemented and repo-validated. Browser/live proof remains before release closeout.
+Operator tab UI/UX redesign is released as v0.4.20 and live-validated through GitHub/HACS install, HA restart, API state checks, and desktop/mobile browser proof.
 
 The approved tab order is:
 
@@ -18,9 +18,9 @@ Managed Devices watt dashboard/workflows from the previous release candidate mus
 
 ## Current Baseline
 
-- Latest public release: `v0.4.19`
+- Latest public release: `v0.4.20`
 - Current development scope: operator tabs UI/UX redesign
-- Live Home Assistant/HACS installed version before this new scope: `v0.4.19`
+- Live Home Assistant/HACS installed version after this scope: `v0.4.20`
 - Delivery path: GitHub release and HACS install
 - Primary product surface: Home Assistant application sidebar app/custom panel
 - Previous Overview UI/UX batch: completed/released/live validated
@@ -61,7 +61,7 @@ Fresh API evidence from `sensor.managed_devices_overview` showed 2 managed devic
 - Full unittest discovery passed: `Ran 647 tests ... OK`.
 - `git diff --check` passed.
 
-Remaining validation is browser/live proof for desktop and narrow layouts, plus HACS release/install/restart validation if this scope is packaged as a release.
+Release validation complete: GitHub release v0.4.20 published, HACS update installed, Home Assistant restarted, installed-version sensor reports 0.4.20, and desktop/mobile browser proof was captured.
 
 ## Risks
 

@@ -12,7 +12,7 @@ Active: Operator tabs UI/UX redesign browser/live validation.
 
 Goal: make the sidebar app tabs follow operator priority and turn the sparse Sources, Controls, and Runtime tabs into useful monitoring/control surfaces.
 
-Implementation status: repo-validated, pending browser/live proof before release closeout.
+Implementation status: released as v0.4.20 and live-validated through HACS/HA restart plus desktop/mobile browser proof.
 
 Scope:
 
@@ -28,7 +28,7 @@ Workboard cards: `WB-ZNE-TABUX-001` through `WB-ZNE-TABUX-007`.
 
 ## Completed Baseline
 
-- `v0.4.19` is the latest public release and installed Home Assistant/HACS baseline before this operator-tabs scope.
+- `v0.4.20` is the latest public release and installed Home Assistant/HACS version for this operator-tabs scope.
 - The Overview UI/UX command-center refactor is released and live validated.
 - The Managed Devices load-aware fleet console is the current baseline and must be preserved.
 - Historical app milestones, bug fixes, feature requests, release validation, and browser proof remain preserved in project documentation and git history.

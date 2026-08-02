@@ -36,9 +36,20 @@ Scope: tab order plus Sources, Controls, and Runtime tab redesign
 
 The full unittest command printed expected negative-case installer validation messages while still exiting successfully.
 
-## Pending Before Release Closeout
+## Release Closeout Evidence
 
-- Desktop browser proof in Home Assistant.
-- Narrow/mobile browser proof in Home Assistant.
-- HACS release/install/restart validation if this scope is released.
+- GitHub release `v0.4.20` published: https://github.com/jmystaki-create/zero-net-export/releases/tag/v0.4.20
+- HACS/Home Assistant update entity installed/latest version: `v0.4.20`.
+- Home Assistant restarted and `sensor.zero_net_export_installed_version` reports `0.4.20`.
+- Live app rendered `Version 0.4.20` with tab order `Overview -> Managed Devices -> Sources -> Controls -> Runtime -> Diagnostics -> Settings`.
+- Browser proof artifacts:
+  - `validation/artifacts/zne-v0.4.20-overview-tab-order-desktop.png`
+  - `validation/artifacts/zne-v0.4.20-managed-devices-desktop.jpg`
+  - `validation/artifacts/zne-v0.4.20-sources-desktop.png`
+  - `validation/artifacts/zne-v0.4.20-controls-desktop.png`
+  - `validation/artifacts/zne-v0.4.20-runtime-desktop.png`
+  - `validation/artifacts/zne-v0.4.20-managed-devices-mobile.jpg`
+  - `validation/artifacts/zne-v0.4.20-runtime-mobile.png`
+
+Live status note: Zero Net Export runtime may show source-role blockers when inverter/source entities are unavailable; that condition is separate from this UI/UX release.
 
