@@ -341,3 +341,220 @@ Proceed with a small, targeted Overview redesign.
 The strongest change is not visual polish. It is product clarity: one truthful health state, one obvious next action, and one fast live power snapshot.
 
 That is enough to materially improve the page without creating churn or redesigning the broader Zero Net Export experience.
+
+---
+
+# Managed Devices Tab UI/UX Review
+
+Date: 2026-08-02
+Scope: Zero Net Export Managed Devices tab in the Home Assistant sidebar app
+Review type: Expert product/UI/UX assessment, validated against live Home Assistant API data
+
+## Live Managed Devices Validation
+
+The Managed Devices review was checked against live `v0.4.17` Home Assistant API data from `sensor.managed_devices_overview`.
+
+Observed live state:
+
+- Managed devices: `2`
+- Enabled managed devices: `1`
+- Disabled managed devices: `1`
+- Usable managed devices: `1`
+- Total managed nominal power: `2405 W`
+- Active managed device count: `1`
+- Active managed measured power: `0 W`
+- Unmanaged candidate backlog: `31`
+- Need review: `16`
+- Ready to promote: `15`
+
+Important live device evidence:
+
+- `Lounge Room - Heated Floor`
+  - Entity: `switch.ac_outlet_1`
+  - Kind: fixed
+  - Enabled in ZNE: `false`
+  - Usable by ZNE: `false`
+  - Observed active: `true`
+  - Nominal power: `2400 W`
+  - Current measured power: `null`
+- `The 7th`
+  - Entity: `light.7th`
+  - Kind: fixed
+  - Enabled in ZNE: `true`
+  - Usable by ZNE: `true`
+  - Observed active: `false`
+  - Nominal power: `5 W`
+  - Current measured power: `null`
+
+This is the exact condition the Managed Devices UX must make obvious: a large load is active in the home but disabled for Zero Net Export control.
+
+## Product Judgment
+
+The Managed Devices tab has the right broad structure:
+
+1. Fleet Summary
+2. Fleet List
+3. Unmanaged Candidate Queue
+
+That order should be preserved. The page also contains valuable controls: filtering, sorting, bulk enable/disable, per-device enable/disable, candidate review, and candidate promotion. These functions should not be removed.
+
+The main product issue is that the tab still behaves more like an inventory manager than an energy-control dashboard. In Zero Net Export, a managed device is not only an item in a list. It is controllable load, measured or estimated in watts. The Managed Devices tab needs to show load impact first.
+
+## Additional User Requirement
+
+Managed devices should publish and display the watts they consume.
+
+The Managed Devices tab should also include a dashboard that considers:
+
+- Net load
+- Total load of all managed devices
+- Total load of enabled managed devices
+- Total load of disabled managed devices
+- Total load of managed devices that are active but disabled
+- Total load currently available to Zero Net Export control
+
+Where exact measured current power is unavailable, the UI must label any watt value derived from `observed_active` plus `nominal_power_w` as an estimate. The live system currently has this case: the heated floor is observed active, but `current_power_w` is `null`, so the best available load-impact value is an estimated `2400 W`.
+
+## Key Managed Devices UX Findings
+
+### 1. The current `Power` column is misleading
+
+The fleet table currently uses the label `Power` for an on/off traffic-light indicator. That indicator is useful, but it is not power. It tells the operator whether the device appears active, not how many watts the device consumes or contributes to controllable load.
+
+This should be split into:
+
+- `Load`: measured current watts when available, otherwise estimated active watts or nominal watts
+- `State`: on/off activity indicator
+
+### 2. Counts are not enough for this product surface
+
+Fleet counts such as Total, Enabled, Disabled, Blocked, and Stale are useful, but they do not answer the Zero Net Export operator's primary question:
+
+How many watts are controllable, active, enabled, disabled, or unavailable?
+
+The live page already has enough data to show a load dashboard. The UI should not make the operator infer load impact from device counts.
+
+### 3. Disabled-but-active loads need primary attention
+
+The live heated-floor state should be escalated:
+
+`2400 W active but disabled`
+
+This means the load exists in the home but is not available to ZNE control. That is more operationally important than its priority number or raw device key.
+
+### 4. The table is metadata-first
+
+The current row hierarchy is too focused on internal identifiers:
+
+`Power, Device Key, Plan, Status, Priority, Readiness, Last Seen, Blockers, Actions`
+
+The operator-first hierarchy should be:
+
+`Device, Load, State, ZNE availability, Priority, Last Seen, Issue, Action`
+
+Plan and key details should remain visible, but subordinate to device name and load impact.
+
+### 5. The candidate queue remains useful but should become more load-aware
+
+The Unmanaged Candidate Queue is valuable and should be preserved. Promotion decisions would improve if candidate rows expose estimated/configured watts where available, confidence, warnings, and action.
+
+This can follow the managed-fleet dashboard work. It should not block the first pass if candidate watt estimation is not already reliable.
+
+## Recommended Managed Devices Direction
+
+Refactor the Managed Devices tab into a load-aware fleet console while preserving existing workflows.
+
+### 1. Add a Managed Load Dashboard
+
+Add a dashboard strip near the top of the tab:
+
+- `Net Load`
+- `Managed Load`
+- `Enabled Managed Load`
+- `Disabled Managed Load`
+- `Active Managed Load`
+- `ZNE Available Load`
+
+Use measured watts where available. Use clearly labelled estimated watts when only nominal power and activity state are known.
+
+### 2. Add a disabled-active alert
+
+When any managed device is observed active but disabled, show a primary alert:
+
+`Attention: 2400 W is active but disabled`
+
+Example detail:
+
+`Lounge Room - Heated Floor is consuming estimated load but is not available to Zero Net Export control.`
+
+Primary action should be review/enable through the existing safe managed-device workflow. It must not bypass existing confirmation or service guards.
+
+### 3. Publish/display per-device watt impact
+
+Every managed row should show watt impact:
+
+- `current_power_w` when available
+- estimated active load from `observed_active ? nominal_power_w : 0`
+- `nominal_power_w`
+- enabled/disabled contribution
+
+Existing per-device Home Assistant sensors for `current_power_w` and nominal watt metadata should be preserved. If additional aggregate entities are needed later, they should be added as a separate backend card.
+
+### 4. Rename and split table columns
+
+Replace the misleading `Power` traffic-light column with separate `Load` and `State` columns.
+
+The `Load` column should make the live heated-floor case obvious:
+
+`~2400 W active`
+
+The `State` column should retain the on/off traffic light.
+
+### 5. Preserve all existing controls and safety
+
+Do not remove:
+
+- plan selector/context
+- filters
+- sorting
+- bulk enable/disable confirmation
+- per-device enable/disable
+- remove confirmation
+- candidate review and promotion
+- Diagnostics/raw attributes
+- HACS delivery path
+
+## Managed Devices Implementation Risks
+
+1. **Measured vs estimated watts**
+   The UI must not present nominal-power estimates as exact measured consumption. Use labels such as `estimated`, `nominal`, or `measured`.
+
+2. **Disabled-active interpretation**
+   A disabled device that is observed active may be manually on, externally controlled, or stale. The UI should warn without implying ZNE caused the state.
+
+3. **Backend aggregate semantics**
+   If aggregate load sensors are added, their definitions must be explicit: measured active load, estimated active load, nominal controllable load, enabled nominal load, and disabled nominal load are different metrics.
+
+4. **No control behavior change**
+   The first implementation should be a presentation/data-surfacing refactor. It must not change planner behavior, device enablement semantics, or service calls.
+
+5. **Responsive table risk**
+   Adding columns can make the fleet table harder to use on narrow screens. The dashboard and row layout must be validated on desktop and mobile/narrow widths.
+
+6. **Recorder attribute budget**
+   Additional per-device attributes must not exceed Home Assistant recorder state attribute limits. Prefer deriving frontend display values from existing compact attributes where possible.
+
+## Managed Devices Workboard Coverage Required
+
+The new workboard scope should cover:
+
+1. Target feasibility and data semantics
+2. Managed load dashboard
+3. Per-device watt display
+4. Disabled-active alert
+5. Table hierarchy and column rename
+6. Candidate queue load-awareness
+7. Existing workflow preservation
+8. Responsive/browser validation
+9. Optional backend aggregate sensors, only if frontend derivation is insufficient
+10. Release/live validation

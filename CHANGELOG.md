@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.18] - 2026-08-02
+
+### Changed
+- Started the Managed Devices load-aware fleet console: added a Managed Load Dashboard, per-device watt display with measured/estimated semantics, disabled-active load attention, and split the former traffic-light `Power` column into separate `Load` and `State` columns while preserving existing controls.
+- Added conservative unmanaged-candidate load visibility: candidate rows now show measured/supplied watts when available and otherwise make clear that watts must be confirmed during promotion rather than guessing.
+
 ## [0.4.17] - 2026-08-02
 
 ### Changed

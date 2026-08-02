@@ -720,6 +720,202 @@ class ZeroNetExportApp extends HTMLElement {
     `;
   }
 
+
+  _isTruthy(value) {
+    return value === true || value === "true" || value === "on" || value === 1 || value === "1";
+  }
+
+  _managedDeviceEnabled(device) {
+    if (!device) {
+      return false;
+    }
+    if (device.effective_enabled !== undefined && device.effective_enabled !== null) {
+      return this._isTruthy(device.effective_enabled);
+    }
+    return device.enabled !== false && device.enabled !== "false";
+  }
+
+  _deviceNumericValue(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : undefined;
+  }
+
+  _deviceLoadModel(device) {
+    const nominal = this._deviceNumericValue(device?.nominal_power_w);
+    const measured = this._deviceNumericValue(device?.current_power_w);
+    const active = this._isTruthy(device?.observed_active);
+    const enabled = this._managedDeviceEnabled(device);
+    const usable = device?.usable === true || device?.usable === "true";
+    const activeLoad = active ? (measured !== undefined ? measured : (nominal || 0)) : 0;
+    const source = measured !== undefined ? "measured" : (active && nominal ? "estimated" : "nominal");
+    let label = "unknown";
+    let detail = "No watt metadata available";
+    let tone = "neutral";
+
+    if (measured !== undefined) {
+      label = this._formatNumber(measured, "W");
+      detail = active ? "Measured current load" : "Measured current load; device appears off";
+      tone = active && !enabled ? "bad" : active ? "good" : "neutral";
+    } else if (active && nominal) {
+      label = `~${this._formatNumber(nominal, "W")}`;
+      detail = "Estimated from nominal power because current watts are unavailable";
+      tone = enabled ? "good" : "bad";
+    } else if (nominal) {
+      label = "0 W";
+      detail = `Nominal ${this._formatNumber(nominal, "W")}`;
+      tone = "neutral";
+    }
+
+    return {
+      active,
+      enabled,
+      usable,
+      nominal: nominal || 0,
+      measured,
+      activeLoad,
+      source,
+      label,
+      detail,
+      tone,
+    };
+  }
+
+  _deviceLoadCell(device) {
+    const load = this._deviceLoadModel(device);
+    return `
+      <span class="zne-load-cell ${this._escape(load.tone)}" title="${this._escape(load.detail)}">
+        <strong>${this._escape(load.label)}</strong>
+        <small>${this._escape(load.detail)}</small>
+      </span>
+    `;
+  }
+
+  _candidateLoadModel(candidate) {
+    const numericState = this._deviceNumericValue(candidate?.state);
+    const unit = String(candidate?.unit || "").trim().toLowerCase();
+    const measured = this._deviceNumericValue(
+      candidate?.current_power_w ?? candidate?.power_w ?? candidate?.current_power ?? candidate?.watts
+    );
+    const supplied = this._deviceNumericValue(
+      candidate?.nominal_power_w ?? candidate?.estimated_power_w ?? candidate?.power_estimate_w
+    );
+
+    if (measured !== undefined) {
+      return {
+        label: this._formatNumber(measured, "W"),
+        detail: "Candidate reports current watts",
+        tone: "good",
+      };
+    }
+    if (numericState !== undefined && (unit === "w" || unit === "watt" || unit === "watts")) {
+      return {
+        label: this._formatNumber(numericState, "W"),
+        detail: "Candidate entity reports watts",
+        tone: numericState > 0 ? "good" : "neutral",
+      };
+    }
+    if (numericState !== undefined && (unit === "kw" || unit === "kilowatt" || unit === "kilowatts")) {
+      return {
+        label: this._formatNumber(numericState * 1000, "W"),
+        detail: "Candidate entity reports kilowatts",
+        tone: numericState > 0 ? "good" : "neutral",
+      };
+    }
+    if (supplied !== undefined) {
+      return {
+        label: `~${this._formatNumber(supplied, "W")}`,
+        detail: "Candidate watt metadata supplied",
+        tone: "neutral",
+      };
+    }
+    return {
+      label: "Set in review",
+      detail: "No reliable candidate watt metadata; confirm watts before promotion",
+      tone: "neutral",
+    };
+  }
+
+  _candidateLoadCell(candidate) {
+    const load = this._candidateLoadModel(candidate);
+    return `
+      <span class="zne-load-cell ${this._escape(load.tone)}" title="${this._escape(load.detail)}">
+        <strong>${this._escape(load.label)}</strong>
+        <small>${this._escape(load.detail)}</small>
+      </span>
+    `;
+  }
+
+  _managedLoadDashboard(fleet, overviewAttrs, metrics) {
+    const devices = Array.isArray(fleet) ? fleet : [];
+    const loadModels = devices.map((device) => ({ device, load: this._deviceLoadModel(device) }));
+    const sum = (items, value) => items.reduce((total, item) => total + Number(value(item) || 0), 0);
+    const enabled = loadModels.filter((item) => item.load.enabled);
+    const disabled = loadModels.filter((item) => !item.load.enabled);
+    const usable = loadModels.filter((item) => item.load.usable);
+    const active = loadModels.filter((item) => item.load.active);
+    const disabledActive = disabled.filter((item) => item.load.active);
+    const totalNominal = this._deviceNumericValue(overviewAttrs?.nominal_power_w) ?? sum(loadModels, (item) => item.load.nominal);
+    const activeLoad = sum(active, (item) => item.load.activeLoad);
+    const measuredActiveLoad = this._deviceNumericValue(overviewAttrs?.active_power_w);
+    const activeEstimated = active.some((item) => item.load.source === "estimated") || measuredActiveLoad === 0 && activeLoad > 0;
+    const homeLoadMetric = (metrics?.rows || []).find((metric) => metric.label === "Home Load");
+    const surplusMetric = (metrics?.rows || []).find((metric) => metric.label === "Grid/Surplus");
+    const disabledActiveLoad = sum(disabledActive, (item) => item.load.activeLoad);
+
+    return {
+      disabledActive,
+      disabledActiveLoad,
+      tiles: [
+        {
+          label: "Net Load",
+          value: homeLoadMetric?.value || "unknown",
+          detail: surplusMetric?.value && surplusMetric.value !== "unknown" ? `Grid/surplus ${surplusMetric.value}` : "Current home load",
+          tone: homeLoadMetric?.status || "neutral",
+        },
+        {
+          label: "Managed Load",
+          value: this._formatNumber(totalNominal, "W"),
+          detail: "Total nominal managed load",
+          tone: "neutral",
+        },
+        {
+          label: "Enabled Managed",
+          value: this._formatNumber(sum(enabled, (item) => item.load.nominal), "W"),
+          detail: `${enabled.length} enabled device${enabled.length === 1 ? "" : "s"}`,
+          tone: enabled.length ? "good" : "neutral",
+        },
+        {
+          label: "Disabled Managed",
+          value: this._formatNumber(sum(disabled, (item) => item.load.nominal), "W"),
+          detail: `${disabled.length} disabled device${disabled.length === 1 ? "" : "s"}`,
+          tone: disabledActive.length ? "bad" : "neutral",
+        },
+        {
+          label: "Active Managed",
+          value: `${activeEstimated && activeLoad > 0 ? "~" : ""}${this._formatNumber(activeLoad, "W")}`,
+          detail: activeEstimated ? "Estimated where measured watts are unavailable" : `${active.length} active device${active.length === 1 ? "" : "s"}`,
+          tone: activeLoad > 0 ? "good" : "neutral",
+        },
+        {
+          label: "ZNE Available",
+          value: this._formatNumber(sum(usable, (item) => item.load.nominal), "W"),
+          detail: `${usable.length} usable device${usable.length === 1 ? "" : "s"}`,
+          tone: usable.length ? "good" : "bad",
+        },
+      ],
+    };
+  }
+
+  _managedLoadTile(tile) {
+    return `
+      <div class="zne-managed-load-tile ${this._escape(tile.tone || "neutral")}">
+        <span>${this._escape(tile.label)}</span>
+        <strong>${this._escape(tile.value)}</strong>
+        <small>${this._escape(tile.detail || "")}</small>
+      </div>
+    `;
+  }
+
   _navButton(id, label) {
     const active = this._activeSection === id ? "active" : "";
     return `<button class="zne-nav ${active}" type="button" data-section="${this._escape(id)}">${this._escape(label)}</button>`;
@@ -1556,6 +1752,9 @@ class ZeroNetExportApp extends HTMLElement {
     const candidateQueue = overview && overview.attributes && Array.isArray(overview.attributes.candidate_devices)
       ? overview.attributes.candidate_devices
       : [];
+    const overviewAttrs = overview && overview.attributes ? overview.attributes : {};
+    const runtimeMetrics = this._reconciliationMetrics();
+    const loadDashboard = this._managedLoadDashboard(fleet, overviewAttrs, runtimeMetrics);
 
     // Compute summary counts
     const total = fleet.length;
@@ -1657,6 +1856,21 @@ class ZeroNetExportApp extends HTMLElement {
           <button type="button" data-route="/config/integrations/integration/zero_net_export">Open HA managed devices setup</button>
         </div>
 
+        <!-- Managed Load Dashboard -->
+        <div class="zne-card zne-managed-load-dashboard">
+          <h3>Managed Load Dashboard</h3>
+          <div class="zne-managed-load-tiles">
+            ${loadDashboard.tiles.map((tile) => this._managedLoadTile(tile)).join("")}
+          </div>
+        </div>
+
+        ${loadDashboard.disabledActive.length ? `
+        <div class="zne-card zne-managed-alert">
+          <strong>Attention: ${this._escape(`${loadDashboard.disabledActiveLoad > 0 ? "~" : ""}${this._formatNumber(loadDashboard.disabledActiveLoad, "W")}`)} active but disabled</strong>
+          <p>${this._escape(loadDashboard.disabledActive[0].device.name || loadDashboard.disabledActive[0].device.key || "A managed device")} is consuming estimated load but is not available to Zero Net Export control.</p>
+        </div>
+        ` : ""}
+
         <!-- Fleet Summary -->
         <div class="zne-grid">
           <div class="zne-card">
@@ -1749,14 +1963,15 @@ class ZeroNetExportApp extends HTMLElement {
             <div class="zne-fleet-table">
               <div class="zne-fleet-header">
                 <span style="width: 30px;">&#160;</span>
-                <span>Power</span>
-                <span>Device Key</span>
+                <span>Device</span>
+                <span>Load</span>
+                <span>State</span>
                 <span>Plan</span>
-                <span>Status</span>
+                <span>ZNE</span>
                 <span>Priority</span>
                 <span>Readiness</span>
                 <span>Last Seen</span>
-                <span>Blockers</span>
+                <span>Issue</span>
                 <span>Actions</span>
               </div>
               ${filtered.map(d => {
@@ -1766,14 +1981,15 @@ class ZeroNetExportApp extends HTMLElement {
                   <span style="width: 30px; text-align: center;">
                     <input type="checkbox" class="zne-bulk-checkbox" data-device-key="${this._escape(d.key)}" />
                   </span>
+                  <span class="zne-device-name-cell"><strong>${this._escape(d.name || d.key || "Unnamed device")}</strong><small>${this._escape(d.key || d.entity_id || "")}</small></span>
+                  <span>${this._deviceLoadCell(d)}</span>
                   <span>${this._deviceActivityIndicator(d)}</span>
-                  <span><strong>${this._escape(d.key)}</strong></span>
                   <span>${this._escape(d.entry_id || "-")}</span>
                   <span>${this._pill(d.enabled ? "Enabled" : "Disabled", d.enabled ? "good" : "neutral")}</span>
                   <span>${this._escape(d.priority || "-")}</span>
                   <span>${this._escape(d.readiness || d.status || "-")}</span>
                   <span>${this._escape(formatAge(d.last_seen_age))}</span>
-                  <span>${blockers > 0 ? this._pill(`${blockers} blocker${blockers > 1 ? "s" : ""}`, "bad") : "-"}</span>
+                  <span>${blockers > 0 ? this._pill(`${blockers} blocker${blockers > 1 ? "s" : ""}`, "bad") : (this._deviceLoadModel(d).active && !this._managedDeviceEnabled(d) ? this._pill("active disabled", "bad") : "-")}</span>
                   <span>
                     <button type="button" data-zne-action="fleet-toggle" data-device-key="${this._escape(d.key)}">
                       ${d.enabled ? "Disable" : "Enable"}
@@ -1803,8 +2019,9 @@ class ZeroNetExportApp extends HTMLElement {
               <div class="zne-candidate-header">
                 <span>Candidate</span>
                 <span>Kind</span>
+                <span>Load</span>
                 <span>Review</span>
-                <span>Current</span>
+                <span>Current State</span>
                 <span>Fit</span>
                 <span>Warnings</span>
                 <span>Actions</span>
@@ -1820,6 +2037,7 @@ class ZeroNetExportApp extends HTMLElement {
                     <small>${this._escape(candidate.entity_id || "")}</small>
                   </span>
                   <span>${this._escape(candidate.kind || "-")}</span>
+                  <span>${this._candidateLoadCell(candidate)}</span>
                   <span>${needsReview ? this._pill("status", "review") : this._pill("status", "ready")}</span>
                   <span>${this._escape(candidate.state || "-")}${candidate.unit ? ` ${this._escape(candidate.unit)}` : ""}</span>
                   <span>${this._escape(fit)}</span>
@@ -2795,6 +3013,56 @@ class ZeroNetExportApp extends HTMLElement {
           color: var(--secondary-text-color);
         }
 
+        .zne-managed-load-dashboard {
+          margin-bottom: 12px;
+        }
+
+        .zne-managed-load-tiles {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+          gap: 8px;
+        }
+
+        .zne-managed-load-tile {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 0;
+          padding: 10px;
+          border: 1px solid var(--divider-color);
+          border-radius: 4px;
+          background: var(--secondary-background-color);
+        }
+
+        .zne-managed-load-tile span,
+        .zne-managed-load-tile small {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          overflow-wrap: anywhere;
+        }
+
+        .zne-managed-load-tile strong {
+          font-size: 20px;
+          line-height: 1.1;
+        }
+
+        .zne-managed-load-tile.good strong {
+          color: var(--success-color, #2e7d32);
+        }
+
+        .zne-managed-load-tile.bad strong {
+          color: var(--error-color, #c62828);
+        }
+
+        .zne-managed-alert {
+          border-left: 4px solid var(--error-color, #c62828);
+          margin-bottom: 12px;
+        }
+
+        .zne-managed-alert strong {
+          color: var(--error-color, #c62828);
+        }
+
         .zne-fleet-table {
           display: flex;
           flex-direction: column;
@@ -2802,7 +3070,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-header {
           display: grid;
-          grid-template-columns: 30px minmax(58px, .55fr) minmax(100px, 1fr) minmax(90px, 1fr) minmax(92px, .8fr) minmax(64px, .7fr) minmax(90px, 1fr) minmax(80px, .8fr) minmax(82px, .8fr) minmax(84px, .8fr);
+          grid-template-columns: 30px minmax(150px, 1.35fr) minmax(120px, .9fr) minmax(64px, .45fr) minmax(88px, .7fr) minmax(86px, .75fr) minmax(58px, .5fr) minmax(86px, .8fr) minmax(76px, .65fr) minmax(86px, .75fr) minmax(84px, .7fr);
           gap: 8px;
           padding: 8px 0;
           border-bottom: 2px solid var(--divider-color);
@@ -2813,7 +3081,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-row {
           display: grid;
-          grid-template-columns: 30px minmax(58px, .55fr) minmax(100px, 1fr) minmax(90px, 1fr) minmax(92px, .8fr) minmax(64px, .7fr) minmax(90px, 1fr) minmax(80px, .8fr) minmax(82px, .8fr) minmax(84px, .8fr);
+          grid-template-columns: 30px minmax(150px, 1.35fr) minmax(120px, .9fr) minmax(64px, .45fr) minmax(88px, .7fr) minmax(86px, .75fr) minmax(58px, .5fr) minmax(86px, .8fr) minmax(76px, .65fr) minmax(86px, .75fr) minmax(84px, .7fr);
           gap: 8px;
           padding: 10px 0;
           border-bottom: 1px solid var(--divider-color);
@@ -2838,6 +3106,31 @@ class ZeroNetExportApp extends HTMLElement {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+
+        .zne-device-name-cell,
+        .zne-load-cell {
+          display: inline-flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .zne-device-name-cell small,
+        .zne-load-cell small {
+          color: var(--secondary-text-color);
+          font-size: 11px;
+          line-height: 1.2;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .zne-load-cell.good strong {
+          color: var(--success-color, #2e7d32);
+        }
+
+        .zne-load-cell.bad strong {
+          color: var(--error-color, #c62828);
         }
 
         .zne-traffic-light {
@@ -2879,7 +3172,7 @@ class ZeroNetExportApp extends HTMLElement {
         .zne-candidate-header,
         .zne-candidate-row {
           display: grid;
-          grid-template-columns: minmax(160px, 1.4fr) minmax(64px, 0.45fr) minmax(86px, 0.55fr) minmax(64px, 0.5fr) minmax(110px, 0.8fr) minmax(160px, 1.3fr) minmax(120px, 0.8fr);
+          grid-template-columns: minmax(160px, 1.35fr) minmax(64px, 0.42fr) minmax(110px, 0.72fr) minmax(86px, 0.52fr) minmax(84px, 0.58fr) minmax(110px, 0.75fr) minmax(150px, 1.15fr) minmax(120px, 0.75fr);
           gap: 8px;
           align-items: start;
         }

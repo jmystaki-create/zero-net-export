@@ -57,6 +57,13 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("candidate.needs_review", source)
         self.assertIn("candidate.warning_summary", source)
         self.assertIn("candidate.fit_confidence", source)
+        self.assertIn("_candidateLoadModel(candidate)", source)
+        self.assertIn("_candidateLoadCell(candidate)", source)
+        self.assertIn("Candidate reports current watts", source)
+        self.assertIn("Candidate entity reports kilowatts", source)
+        self.assertIn("No reliable candidate watt metadata; confirm watts before promotion", source)
+        self.assertIn("<span>Load</span>", source)
+        self.assertIn("<span>Current State</span>", source)
 
     def test_managed_devices_panel_promotes_unmanaged_candidates_from_app(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -120,14 +127,35 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertNotIn("(a.priority || \"\").toLowerCase()", source)
         self.assertNotIn("(b.priority || \"\").toLowerCase()", source)
 
-    def test_managed_devices_panel_shows_on_off_traffic_light_per_fleet_row(self) -> None:
+    def test_managed_devices_panel_shows_load_dashboard_and_per_row_watts(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_managedLoadDashboard(fleet, overviewAttrs, runtimeMetrics)", source)
+        self.assertIn("Managed Load Dashboard", source)
+        self.assertIn('label: "Net Load"', source)
+        self.assertIn('label: "Managed Load"', source)
+        self.assertIn('label: "Enabled Managed"', source)
+        self.assertIn('label: "Disabled Managed"', source)
+        self.assertIn('label: "Active Managed"', source)
+        self.assertIn('label: "ZNE Available"', source)
+        self.assertIn("_deviceLoadModel(device)", source)
+        self.assertIn("_deviceLoadCell(d)", source)
+        self.assertIn("current_power_w", source)
+        self.assertIn("nominal_power_w", source)
+        self.assertIn("Estimated from nominal power because current watts are unavailable", source)
+        self.assertIn("Attention:", source)
+        self.assertIn("active but disabled", source)
+
+    def test_managed_devices_panel_splits_load_and_state_columns(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
         self.assertIn("_deviceActivityIndicator(device)", source)
         self.assertIn('device.observed_active === true || device.observed_active === "true"', source)
         self.assertIn('const label = active ? "On" : "Off";', source)
         self.assertIn('const tone = active ? "on" : "off";', source)
-        self.assertIn("<span>Power</span>", source)
+        self.assertIn("<span>Load</span>", source)
+        self.assertIn("<span>State</span>", source)
+        self.assertNotIn("<span>Power</span>", source)
         self.assertIn("${this._deviceActivityIndicator(d)}", source)
         self.assertIn(".zne-traffic-light.on", source)
         self.assertIn(".zne-traffic-light.off", source)
@@ -299,7 +327,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.17"', source)
+        self.assertIn('"version": "0.4.18"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

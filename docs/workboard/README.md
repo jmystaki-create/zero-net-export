@@ -2,55 +2,46 @@
 
 Last updated: 2026-08-02
 
-Status: closed. All currently tracked Zero Net Export workboard cards are
-complete.
+Status: active. Managed Devices UI/UX load-dashboard implementation is repo-validated; release and live browser validation remain.
 
-## Closeout Summary
+## Active Scope
 
-The workboard was reset on 2026-08-02 to cover the main Overview UI/UX refactor
-from `ui_ux_review.md`. That scope has now been released and live validated in
-`v0.4.17`.
+This workboard batch covers the Managed Devices tab critique in `ui_ux_review.md`. The goal is to turn Managed Devices from an inventory-heavy page into a load-aware fleet console while preserving all existing safe workflows.
 
-No historical `WB-ZNE-00x` cards remain active. Historical release and
-validation records remain in `validation/`, `CHANGELOG.md`, `docs/BUGS.md`,
-`docs/FEATURE_REQUESTS.md`, and git history.
+## Active Cards
 
-## Completed Cards
+- [WB-ZNE-MDUIUX-001 Target Feasibility And Data Semantics](cards/WB-ZNE-MDUIUX-001-target-feasibility-and-data-semantics.md) - done / urgent
+- [WB-ZNE-MDUIUX-002 Managed Load Dashboard](cards/WB-ZNE-MDUIUX-002-managed-load-dashboard.md) - done / urgent
+- [WB-ZNE-MDUIUX-003 Per-Device Watt Display](cards/WB-ZNE-MDUIUX-003-per-device-watt-display.md) - done / high
+- [WB-ZNE-MDUIUX-004 Disabled Active Load Alert](cards/WB-ZNE-MDUIUX-004-disabled-active-alert.md) - done / high
+- [WB-ZNE-MDUIUX-005 Table Hierarchy And Column Rename](cards/WB-ZNE-MDUIUX-005-table-hierarchy-and-column-rename.md) - done / high
+- [WB-ZNE-MDUIUX-006 Candidate Queue Load Awareness](cards/WB-ZNE-MDUIUX-006-candidate-queue-load-awareness.md) - done / normal
+- [WB-ZNE-MDUIUX-007 Existing Workflow Preservation](cards/WB-ZNE-MDUIUX-007-workflow-preservation.md) - done / high
+- [WB-ZNE-MDUIUX-008 Responsive Browser Validation](cards/WB-ZNE-MDUIUX-008-responsive-browser-validation.md) - ready / high
+- [WB-ZNE-MDUIUX-009 Optional Backend Aggregate Sensors](cards/WB-ZNE-MDUIUX-009-optional-backend-aggregate-sensors.md) - done / normal
+- [WB-ZNE-MDUIUX-010 Release And Live Validation](cards/WB-ZNE-MDUIUX-010-release-live-validation.md) - ready / high
 
-- [WB-ZNE-UIUX-001 Health State Model](cards/WB-ZNE-UIUX-001-health-state-model.md) - done / urgent
-- [WB-ZNE-UIUX-002 Managed Device Review Primary Action](cards/WB-ZNE-UIUX-002-managed-device-next-action.md) - done / high
-- [WB-ZNE-UIUX-003 Live Power Snapshot](cards/WB-ZNE-UIUX-003-live-power-snapshot.md) - done / high
-- [WB-ZNE-UIUX-004 State-Aware Executor Controls](cards/WB-ZNE-UIUX-004-state-aware-executor-controls.md) - done / high
-- [WB-ZNE-UIUX-005 Diagnostics And Raw Detail Preservation](cards/WB-ZNE-UIUX-005-diagnostics-detail-preservation.md) - done / high
-- [WB-ZNE-UIUX-006 Plan And Editable Workflow Preservation](cards/WB-ZNE-UIUX-006-plan-edit-workflow-preservation.md) - done / high
-- [WB-ZNE-UIUX-007 Readiness Explanation Preservation](cards/WB-ZNE-UIUX-007-readiness-explanations.md) - done / high
-- [WB-ZNE-UIUX-008 Destructive Confirmation Guardrails](cards/WB-ZNE-UIUX-008-destructive-confirmation-guardrails.md) - done / high
-- [WB-ZNE-UIUX-009 Responsive Overview Layout](cards/WB-ZNE-UIUX-009-responsive-overview-layout.md) - done / normal
-- [WB-ZNE-UIUX-010 Validation And Release Readiness](cards/WB-ZNE-UIUX-010-validation-release-readiness.md) - done / high
-- [WB-ZNE-UIUX-011 Target Feasibility And Implementation Plan](cards/WB-ZNE-UIUX-011-target-feasibility-and-implementation-plan.md) - done / high
+## Coverage
 
-## Coverage Closed
-
-- One truthful health state and status-priority logic
-- Promoted managed-device review next action
-- Live power snapshot
-- State-aware executor controls
-- Diagnostics and raw detail preservation
-- Multi-plan and editable workflow preservation
-- Readiness explanations and resolution guidance
-- Destructive confirmation guardrails
-- Responsive Overview layout proof
-- Feasibility, validation, release readiness, and browser proof discipline
+- Managed Devices load dashboard
+- Per-device watt display
+- Measured vs estimated watt semantics
+- Disabled-active load alert
+- Table hierarchy and `Power` column correction
+- Candidate queue load-awareness assessment
+- Backend aggregate sensors resolved as unnecessary for this release
+- Workflow preservation and destructive confirmation protection
+- Responsive/browser validation
+- Optional backend aggregate sensors if frontend derivation is insufficient
+- HACS/release/live validation
 
 ## Evidence
 
 - Review: `ui_ux_review.md`
-- Feasibility: `validation/zne-uiux-overview-refactor-feasibility.md`
-- Implementation: `validation/zne-uiux-overview-refactor-implementation.md`
-- Release/live validation: `validation/0.4.17-release-validation.md`
-- Browser artifacts: `validation/artifacts/zne-uiux-v0.4.17-overview-*`
+- Feasibility: `validation/zne-managed-devices-load-dashboard-feasibility.md`
+- Implementation validation: `validation/zne-managed-devices-load-dashboard-implementation.md`
+- Live API snapshot basis: `sensor.managed_devices_overview` on 2026-08-02
 
-## Next Intake
+## Completed Historical Scope
 
-There are no active cards. New progress should be added as a fresh workboard
-batch with acceptance criteria, validation plan, and evidence links.
+The previous Overview UI/UX workboard batch `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011` remains completed and released in `v0.4.17`.

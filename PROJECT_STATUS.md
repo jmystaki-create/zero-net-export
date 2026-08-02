@@ -1,65 +1,65 @@
 # project_status.md
 
 project_name: zero-net-export
-status: completed_baseline
+status: active_managed_devices_uiux
 last_modified: 2026-08-02
 
-## Closeout State
+## Active Scope
 
-All currently tracked Zero Net Export work is complete. The project is reset to
-a completed baseline and is ready for the next user-provided progress scope.
+Managed Devices UI/UX load-dashboard refactor is repo-validated and approved for release/live validation.
 
-There are no active bugs, feature requests, roadmap items, or workboard cards
-tracked for immediate action in this status file.
+The user requirement is that managed devices should publish/display the watts they consume, and the Managed Devices tab should include a dashboard covering net load, total managed load, enabled managed load, disabled managed load, active managed load, and load currently available to ZNE control.
 
 ## Current Baseline
 
 - Latest public release: `v0.4.17`
-- Live Home Assistant/HACS installed version: `v0.4.17`
-- Release commit: `2633ba2`
-- Latest status/docs baseline before this reset: `0314ce0`
+- Current release candidate: `v0.4.18`
+- Live Home Assistant/HACS installed version before this new scope: `v0.4.17`
 - Delivery path: GitHub release and HACS install
-- Primary product surface: Home Assistant sidebar app/custom panel
-- Workboard state: reset to UI/UX scope and all `WB-ZNE-UIUX-001` through
-  `WB-ZNE-UIUX-011` completed
+- Primary product surface: Home Assistant application sidebar app/custom panel
+- Previous Overview UI/UX batch: completed/released/live validated
 
-## Completed Scope
+## Active Workboard
 
-- Overview UI/UX command-center refactor from `ui_ux_review.md` released and
-  live validated in `v0.4.17`.
-- Managed-device review action, live power snapshot, state-aware executor
-  controls, plan context, readiness explanations, Diagnostics access, and
-  destructive confirmation guardrails were preserved and validated.
-- ZNE-597 battery watt/source mapping proof was closed against installed
-  `v0.4.17`.
-- Managed Devices polish and promotion workflow fixes through `v0.4.16` remain
-  completed release history.
-- App milestones through multi-plan/service separation remain completed release
-  history.
+- Workboard: `docs/workboard/README.md`
+- Active cards: `WB-ZNE-MDUIUX-001` through `WB-ZNE-MDUIUX-010`
+- Feasibility: `validation/zne-managed-devices-load-dashboard-feasibility.md`
+- Repo validation: `validation/zne-managed-devices-load-dashboard-implementation.md`
 
-## Evidence
+## Live Evidence
 
-- UI/UX review: `ui_ux_review.md`
-- Workboard closeout: `docs/workboard/README.md`
-- v0.4.17 implementation proof:
-  `validation/zne-uiux-overview-refactor-implementation.md`
-- v0.4.17 release/live validation:
-  `validation/0.4.17-release-validation.md`
-- Battery source proof:
-  `validation/zne-597-battery-power-source-mapping.md`
+Fresh API evidence from `sensor.managed_devices_overview` showed 2 managed devices, 1 enabled, 1 disabled, 2405 W nominal managed load, and a disabled active `Lounge Room - Heated Floor` with 2400 W nominal power and no measured current watt reading.
 
-## Watch Notes
 
-- Historical slow entity-update warnings for managed-device review/status
-  sensors remain observation-only. They are not active work items after this
-  reset.
-- Historical release, bug, feature, and validation detail remains in
-  `CHANGELOG.md`, `docs/BUGS.md`, `docs/FEATURE_REQUESTS.md`, `validation/`,
-  and earlier git history.
-- Unrelated local Graphify/agent artifacts are untracked and outside this
-  project closeout.
+## Historical Baseline Continuity
 
-## Next Intake
+- Milestone 7: Multi-Plan And Service Separation remains completed release history.
+- Last milestone baseline status before this Managed Devices UI/UX scope: `repo_validated`.
+- Multi-plan services continue using selected `entry_id` payloads.
+- The previous milestone release baseline includes `v0.3.3`.
+- Delivery remains GitHub/HACS.
 
-No project work is currently queued. New progress should be added as a fresh
-roadmap/workboard scope from the next user update.
+## Validation Plan
+
+- Frontend syntax check
+- Focused managed-devices tests
+- Full unit test discovery before release
+- Browser proof after HACS install/restart for desktop and narrow Managed Devices layouts
+- Live API/entity proof for installed version and managed load data
+
+## Repo Validation Evidence
+
+- Frontend syntax check passed.
+- Focused Managed Devices panel tests passed: `28 passed`.
+- Python compile check passed.
+- Full unittest discovery passed: `Ran 644 tests ... OK`.
+- `git diff --check` passed.
+
+Remaining validation is release/HACS install, Home Assistant restart, live desktop/narrow browser proof, and logs/API proof for installed `v0.4.18`.
+
+## Risks
+
+- Must label measured vs estimated watts clearly.
+- Must not change planner/control behavior in the first UI pass.
+- Must preserve bulk/per-row controls, confirmation gates, candidate review/promotion, plan context, and Diagnostics.
+- Backend aggregate sensors were reviewed and are not needed for this release because the sidebar app can derive the dashboard from existing payloads without adding recorder-visible entities.

@@ -4,47 +4,37 @@ Last updated: 2026-08-02
 
 ## Status
 
-Completed baseline. There are no active roadmap items after the 2026-08-02
-closeout/reset.
+Active: Managed Devices UI/UX load-dashboard release/live validation.
 
-The next roadmap entries should be created from the next user-provided progress
-scope rather than carrying forward historical work.
+## Current Roadmap Item
+
+### Managed Devices Load-Aware Fleet Console
+
+Goal: make the Managed Devices tab show controllable load impact in watts, not only inventory counts and status indicators.
+
+Scope:
+
+- Add a Managed Load Dashboard.
+- Show per-device load watts with measured/estimated/nominal semantics.
+- Escalate disabled-but-active managed loads.
+- Split the misleading `Power` traffic-light column into `Load` and `State`.
+- Show candidate load only when reliable watt metadata exists; otherwise require confirmation during promotion.
+- Avoid backend aggregate sensors for this release because existing app payloads support frontend-derived metrics.
+- Preserve all existing workflows and confirmation gates.
+- Validate responsive desktop/narrow layouts and release through HACS only after approval.
+
+Workboard cards: `WB-ZNE-MDUIUX-001` through `WB-ZNE-MDUIUX-010`.
 
 ## Completed Baseline
 
-- `v0.4.17` is the latest public release and installed Home Assistant/HACS
-  version.
+- `v0.4.17` is the latest public release and installed Home Assistant/HACS version before this release candidate.
+- `v0.4.18` is the current release candidate.
 - The Overview UI/UX command-center refactor is released and live validated.
-- The ZNE workboard was reset to UI/UX scope and all `WB-ZNE-UIUX-001` through
-  `WB-ZNE-UIUX-011` are complete.
-- Historical app milestones, bug fixes, feature requests, release validation,
-  and browser proof remain preserved in project documentation and git history.
-
-## Closed Workboard Scope
-
-- `WB-ZNE-UIUX-001` Health State Model
-- `WB-ZNE-UIUX-002` Managed Device Review Primary Action
-- `WB-ZNE-UIUX-003` Live Power Snapshot
-- `WB-ZNE-UIUX-004` State-Aware Executor Controls
-- `WB-ZNE-UIUX-005` Diagnostics And Raw Detail Preservation
-- `WB-ZNE-UIUX-006` Plan And Editable Workflow Preservation
-- `WB-ZNE-UIUX-007` Readiness Explanation Preservation
-- `WB-ZNE-UIUX-008` Destructive Confirmation Guardrails
-- `WB-ZNE-UIUX-009` Responsive Overview Layout
-- `WB-ZNE-UIUX-010` Validation And Release Readiness
-- `WB-ZNE-UIUX-011` Target Feasibility And Implementation Plan
+- Historical app milestones, bug fixes, feature requests, release validation, and browser proof remain preserved in project documentation and git history.
 
 ## Evidence
 
 - Workboard: `docs/workboard/README.md`
 - Review: `ui_ux_review.md`
-- Feasibility: `validation/zne-uiux-overview-refactor-feasibility.md`
-- Implementation: `validation/zne-uiux-overview-refactor-implementation.md`
-- Release/live validation: `validation/0.4.17-release-validation.md`
-- Battery watt proof: `validation/zne-597-battery-power-source-mapping.md`
-
-## Next Planning Slot
-
-Awaiting the next user progress update. Any new work should be entered as new
-roadmap scope and new workboard cards with acceptance criteria and validation
-evidence.
+- Feasibility: `validation/zne-managed-devices-load-dashboard-feasibility.md`
+- Repo validation: `validation/zne-managed-devices-load-dashboard-implementation.md`
