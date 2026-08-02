@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-001 Health State Model
 
-Status: ready
+Status: done
 Priority: urgent
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -19,17 +19,17 @@ The Overview shows one truthful operator-facing health state instead of conflict
 
 ## Acceptance Criteria
 
-- [ ] Define a documented health-state priority order: blocking fault, safe mode, paused, setup attention required, review recommended, running normally.
-- [ ] Separate runtime/control readiness from setup completeness, managed-device review work, and blocking faults.
-- [ ] Live state where `Ready`, `SETUP_IN_PROGRESS`, and managed-device review coexist renders without contradiction.
-- [ ] No backend control behaviour changes are introduced unless a data gap is separately proven and approved.
+- [x] Define a documented health-state priority order: blocking fault, safe mode, paused, setup attention required, review recommended, running normally.
+- [x] Separate runtime/control readiness from setup completeness, managed-device review work, and blocking faults.
+- [x] Live state where `Ready`, `SETUP_IN_PROGRESS`, and managed-device review coexist renders without contradiction.
+- [x] No backend control behaviour changes are introduced unless a data gap is separately proven and approved.
 
 ## Validation
 
-- [ ] Unit or frontend logic test for the health-state priority order if implementation adds code.
-- [ ] Browser proof of the live Overview showing the computed health summary.
-- [ ] Browser proof for at least one attention/review state.
-- [ ] Targeted HA frontend logs if the app load or health rendering errors.
+- [x] Unit or frontend logic test for the health-state priority order if implementation adds code.
+- [x] Browser proof of the live Overview showing the computed health summary.
+- [x] Browser proof for at least one attention/review state.
+- [x] Targeted HA frontend logs if the app load or health rendering errors.
 
 ## Functional Safety
 

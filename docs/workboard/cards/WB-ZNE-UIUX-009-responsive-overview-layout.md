@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-009 Responsive Overview Layout
 
-Status: todo
+Status: done
 Priority: normal
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -18,16 +18,16 @@ The redesigned Overview stacks information by importance across desktop and narr
 
 ## Acceptance Criteria
 
-- [ ] Desktop layout prioritizes health summary, next action, power snapshot, and executor control.
-- [ ] Narrow/mobile layout stacks in the same priority order.
-- [ ] Text does not overlap, truncate critical values, or resize controls unexpectedly.
-- [ ] Avoid equal-width grids for unequal-priority information.
+- [x] Desktop layout prioritizes health summary, next action, power snapshot, and executor control.
+- [x] Narrow/mobile layout stacks in the same priority order.
+- [x] Text does not overlap, truncate critical values, or resize controls unexpectedly.
+- [x] Avoid equal-width grids for unequal-priority information.
 
 ## Validation
 
-- [ ] Desktop browser screenshot.
-- [ ] Narrow/mobile browser screenshot.
-- [ ] Visual check for overlap, truncation, and action visibility.
+- [x] Desktop browser screenshot.
+- [x] Narrow/mobile browser screenshot.
+- [x] Visual check for overlap, truncation, and action visibility.
 
 ## Functional Safety
 

@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-005 Diagnostics And Raw Detail Preservation
 
-Status: todo
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -19,16 +19,16 @@ Overview copy becomes operator-friendly while Diagnostics keeps raw troubleshoot
 
 ## Acceptance Criteria
 
-- [ ] Move raw enum strings, long entity IDs, source-role internals, and low-level labels out of the primary Overview reading path.
-- [ ] Keep raw values accessible through Diagnostics, details drawers, or secondary metadata.
-- [ ] Do not remove troubleshooting data from the app.
-- [ ] Support/debug workflows remain at least as capable as before.
+- [x] Move raw enum strings, long entity IDs, source-role internals, and low-level labels out of the primary Overview reading path.
+- [x] Keep raw values accessible through Diagnostics, details drawers, or secondary metadata.
+- [x] Do not remove troubleshooting data from the app.
+- [x] Support/debug workflows remain at least as capable as before.
 
 ## Validation
 
-- [ ] Browser proof that Overview no longer leads with raw internals.
-- [ ] Browser proof that Diagnostics still exposes raw values needed for troubleshooting.
-- [ ] Targeted logs if Diagnostics rendering errors are suspected.
+- [x] Browser proof that Overview no longer leads with raw internals.
+- [x] Browser proof that Diagnostics still exposes raw values needed for troubleshooting.
+- [x] Targeted logs if Diagnostics rendering errors are suspected.
 
 ## Functional Safety
 

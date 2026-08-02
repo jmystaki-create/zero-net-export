@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-002 Managed Device Review Primary Action
 
-Status: ready
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -19,16 +19,16 @@ When managed devices need review, the Overview promotes that work as the primary
 
 ## Acceptance Criteria
 
-- [ ] If review items exist, show a prominent `Review managed devices` action near the top of Overview.
-- [ ] Show counts for devices needing review and ready to promote.
-- [ ] Primary action opens the Managed Devices app section or equivalent in-app workflow.
-- [ ] The detailed Readiness explanation remains available and is not collapsed away.
+- [x] If review items exist, show a prominent `Review managed devices` action near the top of Overview.
+- [x] Show counts for devices needing review and ready to promote.
+- [x] Primary action opens the Managed Devices app section or equivalent in-app workflow.
+- [x] The detailed Readiness explanation remains available and is not collapsed away.
 
 ## Validation
 
-- [ ] Browser proof with the current live queue showing the promoted action.
-- [ ] Browser proof that activating the action reaches Managed Devices without changing live device state.
-- [ ] No destructive or live-control service calls during validation unless explicitly approved.
+- [x] Browser proof with the current live queue showing the promoted action.
+- [x] Browser proof that activating the action reaches Managed Devices without changing live device state.
+- [x] No destructive or live-control service calls during validation unless explicitly approved.
 
 ## Functional Safety
 

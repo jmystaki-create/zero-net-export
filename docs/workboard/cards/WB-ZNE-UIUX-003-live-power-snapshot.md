@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-003 Live Power Snapshot
 
-Status: todo
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -19,16 +19,16 @@ The Overview presents reconciliation values as a fast scannable power snapshot w
 
 ## Acceptance Criteria
 
-- [ ] Show Home Load, Source/Solar, Battery, Grid/Surplus, Reconciliation Error, and Confidence as compact snapshot metrics.
-- [ ] Preserve existing units and source values; this is presentation-only unless a data gap is proven.
-- [ ] Battery charging/discharging direction is translated into operator language.
-- [ ] Raw entity/source detail remains available through Diagnostics or details.
+- [x] Show Home Load, Source/Solar, Battery, Grid/Surplus, Reconciliation Error, and Confidence as compact snapshot metrics.
+- [x] Preserve existing units and source values; this is presentation-only unless a data gap is proven.
+- [x] Battery charging/discharging direction is translated into operator language.
+- [x] Raw entity/source detail remains available through Diagnostics or details.
 
 ## Validation
 
-- [ ] Browser proof that live values are visible and scannable on desktop.
-- [ ] Browser proof that values remain visible on narrow/mobile width.
-- [ ] Focused check that displayed values remain numerically consistent with source states.
+- [x] Browser proof that live values are visible and scannable on desktop.
+- [x] Browser proof that values remain visible on narrow/mobile width.
+- [x] Focused check that displayed values remain numerically consistent with source states.
 
 ## Functional Safety
 

@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-011 Target Feasibility And Implementation Plan
 
-Status: ready
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -18,17 +18,17 @@ Before code, confirm the frontend/runtime constraints and write the accepted imp
 
 ## Acceptance Criteria
 
-- [ ] Identify the exact frontend files/components that render the Overview.
-- [ ] Confirm the existing app data supports the proposed health summary or document any data gap.
-- [ ] Confirm state-aware executor controls can be rendered without changing service semantics.
-- [ ] Confirm responsive layout constraints in the current HA custom panel framework.
-- [ ] Write implementation plan and acceptance criteria before code changes.
+- [x] Identify the exact frontend files/components that render the Overview.
+- [x] Confirm the existing app data supports the proposed health summary or document any data gap.
+- [x] Confirm state-aware executor controls can be rendered without changing service semantics.
+- [x] Confirm responsive layout constraints in the current HA custom panel framework.
+- [x] Write implementation plan and acceptance criteria before code changes.
 
 ## Validation
 
-- [ ] Source inspection evidence.
-- [ ] Live/browser evidence where source is insufficient.
-- [ ] Feasibility note committed or linked before implementation starts.
+- [x] Source inspection evidence.
+- [x] Live/browser evidence where source is insufficient.
+- [x] Feasibility note committed or linked before implementation starts.
 
 ## Functional Safety
 

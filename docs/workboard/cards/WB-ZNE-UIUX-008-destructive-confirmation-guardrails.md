@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-008 Destructive Confirmation Guardrails
 
-Status: todo
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -18,16 +18,16 @@ The cleaner Overview does not make dangerous actions feel routine or bypass conf
 
 ## Acceptance Criteria
 
-- [ ] No destructive action is introduced into the main fast path without explicit design approval.
-- [ ] Existing destructive confirmations are preserved.
-- [ ] Dangerous actions use clear consequence copy before execution.
-- [ ] Validation does not perform destructive or live-control actions without explicit approval.
+- [x] No destructive action is introduced into the main fast path without explicit design approval.
+- [x] Existing destructive confirmations are preserved.
+- [x] Dangerous actions use clear consequence copy before execution.
+- [x] Validation does not perform destructive or live-control actions without explicit approval.
 
 ## Validation
 
-- [ ] Static/frontend review of any action added to Overview.
-- [ ] Browser proof of confirmation affordance if a destructive action is present.
-- [ ] No destructive service calls during validation unless explicitly approved.
+- [x] Static/frontend review of any action added to Overview.
+- [x] Browser proof of confirmation affordance if a destructive action is present.
+- [x] No destructive service calls during validation unless explicitly approved.
 
 ## Functional Safety
 

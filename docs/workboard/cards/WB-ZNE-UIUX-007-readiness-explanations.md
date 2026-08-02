@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-007 Readiness Explanation Preservation
 
-Status: todo
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -18,15 +18,15 @@ Readiness continues to explain each issue and resolution while the Overview gain
 
 ## Acceptance Criteria
 
-- [ ] Each readiness issue still includes what is wrong.
-- [ ] Each readiness issue still includes how to resolve it.
-- [ ] A promoted next-action panel does not remove detailed readiness guidance.
-- [ ] Readiness language remains operator-oriented rather than implementation-oriented.
+- [x] Each readiness issue still includes what is wrong.
+- [x] Each readiness issue still includes how to resolve it.
+- [x] A promoted next-action panel does not remove detailed readiness guidance.
+- [x] Readiness language remains operator-oriented rather than implementation-oriented.
 
 ## Validation
 
-- [ ] Browser proof that the promoted action and detailed readiness explanation both appear when issues exist.
-- [ ] Browser proof that no issue text overlaps or truncates on desktop and narrow/mobile widths.
+- [x] Browser proof that the promoted action and detailed readiness explanation both appear when issues exist.
+- [x] Browser proof that no issue text overlaps or truncates on desktop and narrow/mobile widths.
 
 ## Functional Safety
 

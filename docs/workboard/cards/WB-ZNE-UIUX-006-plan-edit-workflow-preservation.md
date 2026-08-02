@@ -1,6 +1,6 @@
 # WB-ZNE-UIUX-006 Plan And Editable Workflow Preservation
 
-Status: todo
+Status: done
 Priority: high
 Type: UI/UX implementation workboard card
 Source: `ui_ux_review.md`
@@ -18,17 +18,17 @@ The Overview refactor does not weaken selected-plan context, plan switching, mul
 
 ## Acceptance Criteria
 
-- [ ] The selected plan name remains visible in the app.
-- [ ] The plan selector remains available and usable.
-- [ ] Long plan IDs may be truncated only if full details remain accessible.
-- [ ] Existing editable workflows remain reachable from the sidebar app.
-- [ ] No workflow is pushed back into unsupported native-device-page-first UX.
+- [x] The selected plan name remains visible in the app.
+- [x] The plan selector remains available and usable.
+- [x] Long plan IDs may be truncated only if full details remain accessible.
+- [x] Existing editable workflows remain reachable from the sidebar app.
+- [x] No workflow is pushed back into unsupported native-device-page-first UX.
 
 ## Validation
 
-- [ ] Browser proof of selected plan context.
-- [ ] Browser proof of plan selector availability.
-- [ ] Browser proof that editable workflows remain reachable from app navigation.
+- [x] Browser proof of selected plan context.
+- [x] Browser proof of plan selector availability.
+- [x] Browser proof that editable workflows remain reachable from app navigation.
 
 ## Functional Safety
 

@@ -1,100 +1,65 @@
 # project_status.md
 
 project_name: zero-net-export
-status: active
+status: completed_baseline
 last_modified: 2026-08-02
 
-## Current Focus
+## Closeout State
 
-**Current baseline:** `v0.4.17` is the latest public GitHub release and the
-installed Home Assistant/HACS version. The `ui_ux_review.md` Overview refactor
-is released and live validated: HACS updated from `v0.4.16` to `v0.4.17`, the
-install fingerprint matched commit `2633ba2`, Home Assistant restarted, the
-live app rendered `Version 0.4.17`, desktop/mobile browser proof was captured,
-and the fresh browser console had no errors. Evidence:
-`validation/zne-uiux-overview-refactor-feasibility.md`,
-`validation/zne-uiux-overview-refactor-implementation.md`, and
-`validation/0.4.17-release-validation.md`.
+All currently tracked Zero Net Export work is complete. The project is reset to
+a completed baseline and is ready for the next user-provided progress scope.
 
-**Follow-up watch list:** post-restart logs showed no new Zero Net Export
-tracebacks/errors from `v0.4.17`, but historical slow entity-update warnings for
-managed-device review/status sensors remain worth watching.
+There are no active bugs, feature requests, roadmap items, or workboard cards
+tracked for immediate action in this status file.
 
-**Milestone 7: Multi-Plan And Service Separation** (status: `released_live_validated_api_static`, target: `v0.4.0`)
-- Workboard status: historical Milestone 7 card removed from active workboard during the 2026-08-02 UI/UX reset; release evidence remains in validation docs.
-- Feasibility: ACCEPTED (see `validation/zne-app-milestone-7-multi-plan-feasibility.md`)
-- Implementation plan: defined (see `docs/ZNE_APP_MILESTONE_7_PLAN.md`)
-- Implementation validation: passed (see `validation/zne-app-milestone-7-implementation.md`)
-- Release/live validation: passed for API/static/service scope (see `validation/0.4.0-release-validation.md`)
-- User outcome: operators can see and act within an explicit selected plan/service context, preventing cross-plan confusion as Zero Net Export grows beyond one plan.
-- Implemented: shared entry resolver, app selected-plan context header/selector, selected `entry_id` payloads for source-role saves, managed-device changes, executor pause/resume, diagnostics export, and repair. Ambiguous multi-entry service calls now fail safely.
-- Release: v0.4.0 published, installed through HACS, restarted, and live validated with Home Assistant API/static route checks. Browser proof is pending because the OpenClaw managed browser host is unavailable.
-- Follow-up risk from v0.4.0: post-release logs showed many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. That broader recorder attribute cleanup is now fixed/live validated as `ZNE-595` in `v0.4.12`; continue scanning logs after future releases for recurrence.
-- New user-requested Overview console polish: `ZNE-FR-011` and `ZNE-FR-012` are released/live validated in `v0.4.2`. The Overview Reconciliation Status card now shows local freshness, Source Power, Battery Power, Confidence, and stale/source-blocker context. Evidence: `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`, and `validation/artifacts/v0.4.2-overview-console-live.png`.
-- Current user-requested Readiness polish: `ZNE-FR-013` is released/live validated in `v0.4.3`. The Overview Readiness card now uses dedicated status chips, current-focus context, and issue cards with `What is wrong` / `How to resolve` guidance. Evidence: `validation/zne-fr-013-overview-readiness-clarity.md` and `validation/0.4.3-release-validation.md`.
-- Follow-up Readiness message design: `ZNE-FR-014` is released/live validated in `v0.4.5`. Riley reported the v0.4.3 Readiness section was still poor and hard to understand; the app converts dense command-center/device queue strings into a short verdict, `Do this first`, concise issue facts, and ordered resolution steps. Evidence: `validation/zne-fr-014-readiness-message-design.md` and `validation/0.4.5-release-validation.md`.
-- Corrective Battery Power work: `ZNE-597` is released/live validated. It shipped in `v0.4.4` with repo validation, the live source-role repair moved `battery_discharge_power_entity` from the cumulative Anker total sensor to `sensor.x1_p6k_us_s_discharge_power`, and focused installed proof on `v0.4.17` confirms Overview Battery displays `3140 W` while ZNE battery source readings expose normalized `W` units and retain upstream `kW` as raw diagnostic context. Evidence: `validation/zne-597-battery-power-source-mapping.md`, `validation/artifacts/zne-597-v0.4.17-overview-battery-watts.png`, and `validation/artifacts/zne-597-v0.4.17-sources-battery-readings.jpg`.
-- Current Managed Devices polish: `ZNE-FR-015` and `ZNE-FR-016` are released/live validated in `v0.4.9`. Fleet Summary now uses an even compact stats grid with count/label spacing, and the Unmanaged Candidate Queue now renders after the managed Fleet List. Evidence: `validation/zne-fr-015-016-managed-devices-layout-order.md` and `validation/0.4.9-release-validation.md`.
-- New Managed Devices feature request: `ZNE-FR-017` is released/live validated in `v0.4.10`. The Managed Devices app can promote rows from the Unmanaged Candidate Queue into the managed Fleet List through app-owned `Review & promote`, backed by `zero_net_export.promote_managed_device` and the existing managed-load child `device_info`; unsupported paths such as custom actions on another integration's original HA device page are excluded. Evidence: `validation/zne-fr-017-managed-candidate-promotion.md` and `validation/0.4.10-release-validation.md`.
-- Corrective Managed Devices polish: `ZNE-598` is released/live validated in `v0.4.11`. `Review & promote` now opens a visible workflow above the unmanaged candidate table, scrolls/focuses to it, and marks the selected row with `Reviewing`. Evidence: `validation/zne-598-review-promote-visible-workflow.md` and `validation/0.4.11-release-validation.md`.
-- Current corrective release: `ZNE-595` is released/live validated in `v0.4.12`. Recorder-backed entity attributes now use compact summaries for validation details, managed-device runtime details, and unmanaged candidate rows, keeping bulky action history/source diagnostics/daily metrics/calibration detail on diagnostics/app surfaces. Evidence: `validation/zne-595-recorder-attribute-budget.md` and `validation/0.4.12-release-validation.md`.
-- Managed Devices promotion regression: `ZNE-599` is released/live validated in `v0.4.15`. Riley reported on installed `v0.4.12` that the confirmation checkbox in the unmanaged-candidate `Review & promote` workflow did not stay pressed and the candidate was not added to the managed Fleet List. The fix persisted promotion draft/confirmation state, coerced UI numeric payloads at the service schema boundary, and made numeric priorities render safely after promotion. Evidence: `validation/0.4.15-release-validation.md`.
-- Managed Devices runtime visibility feature: `ZNE-FR-018` is released/live validated in `v0.4.16`. The Fleet List now shows a compact `Power` traffic-light indicator for each managed row: green `On` or red `Off` from `observed_active`, with text and accessible labels. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`, `validation/0.4.16-release-validation.md`.
-- Overview UI/UX command-center refactor: `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011` are released/live validated in `v0.4.17`. The Overview now shows one prioritized health summary, a promoted managed-device review action, live power snapshot tiles, state-aware executor controls, user-facing plan setup wording, preserved selected-plan context, and preserved readiness/Diagnostics/destructive-confirmation surfaces. Evidence: `ui_ux_review.md`, `validation/zne-uiux-overview-refactor-feasibility.md`, `validation/zne-uiux-overview-refactor-implementation.md`, and `validation/0.4.17-release-validation.md`.
+## Current Baseline
 
-**Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
-- Workboard card: `zne-app-006`
-- Feasibility: ACCEPTED (see `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md`)
-- Implementation plan: defined (see `docs/MILESTONE_6_IMPLEMENTATION_PLAN.md`)
-- Release: v0.3.3 published and installed via HACS (2026-07-07), superseding v0.3.1-fix
-- Live validation: HACS repository page showed Zero Net Export downloaded at `v0.3.3`; Home Assistant app opened; header showed `Version 0.3.3 - 1 plan`; backend status showed connected; Diagnostics tab rendered; `zero_net_export.export_diagnostics` and `zero_net_export.repair_issue` were registered and returned successfully through the Home Assistant REST API; `export_diagnostics` created `/config/zne-diagnostics-20260707-192929.json`; installed version sensor shows `0.3.3`.
-- Runtime note: current `sensor.zero_net_export_status` is `degraded` because power sources do not reconcile cleanly; this is product/runtime state, not a Milestone 6 service failure.
+- Latest public release: `v0.4.17`
+- Live Home Assistant/HACS installed version: `v0.4.17`
+- Release commit: `2633ba2`
+- Latest status/docs baseline before this reset: `0314ce0`
+- Delivery path: GitHub release and HACS install
+- Primary product surface: Home Assistant sidebar app/custom panel
+- Workboard state: reset to UI/UX scope and all `WB-ZNE-UIUX-001` through
+  `WB-ZNE-UIUX-011` completed
 
-**Milestone 5: Runtime Visibility & Manual Override** - **COMPLETED** (v0.3.0)
-- Released: v0.3.0 (GitHub Release, HACS validated)
-- Validation: `validation/milestone-5-runtime-visibility-validation.md`
-- Features: `executor_state` sensor, `pause_executor`/`resume_executor` services, Reconciliation card, Pause/Resume buttons
+## Completed Scope
 
----
+- Overview UI/UX command-center refactor from `ui_ux_review.md` released and
+  live validated in `v0.4.17`.
+- Managed-device review action, live power snapshot, state-aware executor
+  controls, plan context, readiness explanations, Diagnostics access, and
+  destructive confirmation guardrails were preserved and validated.
+- ZNE-597 battery watt/source mapping proof was closed against installed
+  `v0.4.17`.
+- Managed Devices polish and promotion workflow fixes through `v0.4.16` remain
+  completed release history.
+- App milestones through multi-plan/service separation remain completed release
+  history.
 
-Project direction changed on 2026-06-26: Zero Net Export is now a Home Assistant application backed by the existing integration backend. The old native-device-page-led direction is superseded because validation showed Home Assistant's native device/config-entry/button surfaces cannot carry the full Zero Net Export product scope. Current steering lives in `CONSTRAINTS.md` and `docs/ZNE_APPLICATION_DIRECTION.md`.
+## Evidence
 
-The immediate work is release readiness for the Home Assistant application path. Riley answered the initial application direction questions on 2026-06-26: sidebar by default, app name `Zero Net Export`, editable first release, multi-plan/service support from day one, conservative frontend stack default, core workflow coverage, strong destructive-action confirmation, keep Lovelace examples, HACS-only frontend delivery, and minimum Home Assistant version `2026.6.4+` based on the live validation target. Riley then approved the GitHub/HACS-only release pathway and `0.2.0` version on 2026-06-26. Milestone 1 is planned in `docs/ZNE_APP_MILESTONE_1_PLAN.md` with feasibility recorded in `validation/zne-app-milestone-1-feasibility.md`. Home Assistant `2026.6.4` source/live proof supports the app implementation path: serve frontend assets with `StaticPathConfig` / `hass.http.async_register_static_paths(...)`, then register the sidebar app with `panel_custom.async_register_panel(...)`. Releases `0.2.0` and `0.2.1` were published through the approved GitHub/HACS path and live-validated. Corrective `0.2.2` is now published as GitHub Release `v0.2.2` from commit `9c3f886`; HACS downloaded `v0.2.2`, Home Assistant restarted, install fingerprint matched before and after restart, `sensor.zero_net_export_installed_version=0.2.2`, `update.zero_net_export_update` reports installed/latest `v0.2.2`, app/static routes return HTTP 200, and no targeted Zero Net Export log errors/warnings were found. Live validation added a temporary disabled `light.7th` managed record through the supported HA subentry flow, captured desktop/narrow Managed Devices formatting proof with `any_overlap=false`, removed the record through the installed app `REMOVE FROM ZNE` confirmation path, and confirmed `sensor.zero_net_export_managed_devices_count=0`, no `7th_validation_load` entities remain, and original `light.7th` remains present/off. Evidence: `validation/0.2.0-release-validation.md`, `validation/0.2.1-release-validation.md`, `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`, and `validation/artifacts/zne-0.2.2-managed-devices-remove-after.png`. The existing backend/control engine remains the foundation: config entries, coordinator/runtime state, source validation, planner/executor logic, managed-device model, entities, services/actions, repairs, notifications, diagnostics, and install validation helpers.
+- UI/UX review: `ui_ux_review.md`
+- Workboard closeout: `docs/workboard/README.md`
+- v0.4.17 implementation proof:
+  `validation/zne-uiux-overview-refactor-implementation.md`
+- v0.4.17 release/live validation:
+  `validation/0.4.17-release-validation.md`
+- Battery source proof:
+  `validation/zne-597-battery-power-source-mapping.md`
 
-The repo-tracked Workboard has been reset in `docs/workboard/README.md` for the current Overview UI/UX refactor. Historical cards and stale OpenClaw UI card references were removed from active workboard state. Active cards now run from `WB-ZNE-UIUX-001` through `WB-ZNE-UIUX-011` and cover the full `ui_ux_review.md`: health-state model, managed-device next action, live power snapshot, state-aware executor controls, Diagnostics/raw detail preservation, plan/edit workflow preservation, readiness explanations, destructive confirmation guardrails, responsive layout, validation/release readiness, and target feasibility/implementation planning. Treat the OpenClaw Workboard as wired into the Zero Net Export project: every ZNE work turn must check and update relevant Workboard state when project state, validation state, blockers, next actions, or release readiness change.
+## Watch Notes
 
-Native Home Assistant surfaces are now supporting/fallback surfaces. The primary operator workflow should move into a Zero Net Export-owned Home Assistant application/panel covering overview, sources, managed devices, controls, runtime, diagnostics, support, and multi-plan/service separation. Riley approved starting the next milestone on 2026-06-30, then accepted `ZNE-APP-002` for implementation. `ZNE-APP-002` is documented as the app-native Sources workflow milestone with acceptance criteria in `docs/ZNE_APP_MILESTONE_2_SOURCES_PLAN.md`, feasibility in `validation/zne-app-milestone-2-sources-feasibility.md`, and repo validation in `validation/zne-app-milestone-2-sources-implementation.md`. Release `0.2.3` is now published as GitHub Release `v0.2.3` from commit `d619a00`, installed through HACS, restarted, fingerprint-matched before and after restart, route/static/state/log checked, and HACS metadata reports installed/latest `v0.2.3`. Reversible source-role write proof is live-validated through the supported `zero_net_export.update_source_roles` service using optional `battery_soc_entity`; it was restored to unset. Browser screenshot proof for the installed Sources workflow was captured on installed `0.2.4` with desktop/narrow artifacts. Evidence: `validation/0.2.3-release-validation.md`, `validation/artifacts/zne-0.2.4-sources-desktop.png`, `validation/artifacts/zne-0.2.4-sources-narrow.png`.
+- Historical slow entity-update warnings for managed-device review/status
+  sensors remain observation-only. They are not active work items after this
+  reset.
+- Historical release, bug, feature, and validation detail remains in
+  `CHANGELOG.md`, `docs/BUGS.md`, `docs/FEATURE_REQUESTS.md`, `validation/`,
+  and earlier git history.
+- Unrelated local Graphify/agent artifacts are untracked and outside this
+  project closeout.
 
-Corrective release `0.2.4` is now published as GitHub Release `v0.2.4` from commit `63c2568`, installed through HACS, restarted, fingerprint-matched before and after restart, route/static/state/log checked, and HACS metadata reports installed/latest `v0.2.4`. ZNE-594 is released/live-validated: post-restart state proof shows `sensor.zero_net_export_source_blocker_next_step` length `156` and `sensor.zero_net_export_command_center_next_step` length `147`, and the post-restart log scan found `0` Zero Net Export next-step state length errors. Evidence: `validation/0.2.4-release-validation.md`.
+## Next Intake
 
-Release `v0.2.5` delivered ZNE-APP-003 (Milestone 3) with managed device fleet controls. Release `v0.2.9` delivered ZNE-APP-004 (Milestone 4) with source health and runtime blocker resolution. Release `v0.3.0` delivered ZNE-APP-005 (Milestone 5) with runtime visibility and manual override.
-
-Previous release state remains relevant but is no longer the primary roadmap: ZNE-FR-009/ZNE-FR-010 are release-prepped as `0.1.110` but the public GitHub Release object is not published; `v0.3.0` is now the latest visible GitHub Release. Future release work should not continue polishing native device-page UX unless it directly supports the application port.
-
-Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 workflow is superseded by the application direction.
-
-## Active Bugs
-
-- ZNE-597 — Battery Power used a cumulative Anker total sensor and displayed normalized watts as kW. Status: released_live_validated. Evidence: `docs/BUGS.md`, `validation/zne-597-battery-power-source-mapping.md`.
-- ZNE-599 — Promote confirmation does not add unmanaged candidate to managed fleet. Status: released_live_validated in `v0.4.15`. Evidence: `docs/BUGS.md`, `validation/0.4.15-release-validation.md`.
-- ZNE-598 — Managed Devices `Review & promote` appeared to do nothing because the selected candidate workflow was not visibly opened. Status: released_live_validated in `v0.4.11`. Evidence: `docs/BUGS.md`, `validation/zne-598-review-promote-visible-workflow.md`, `validation/0.4.11-release-validation.md`.
-- ZNE-596 — Sources app shows Battery state of charge as missing despite valid backend binding. Status: repo_validated/released_live_validated in `v0.4.1`. Evidence: `docs/BUGS.md`, `validation/zne-596-soc-source-status-display.md`, `validation/0.4.1-release-validation.md`.
-- ZNE-595 — recorder-backed entity attributes exceed Home Assistant's 16 KB limit. Status: released_live_validated in `v0.4.12`. Evidence: `docs/BUGS.md`, `validation/zne-595-recorder-attribute-budget.md`, `validation/0.4.12-release-validation.md`, `validation/0.4.0-release-validation.md`.
-- ZNE-594 — next-step sensors can exceed Home Assistant's 255-character state limit. Status: released_live_validated in `0.2.4`. Evidence: `docs/BUGS.md`, `validation/zne-594-state-length-implementation.md`, `validation/0.2.4-release-validation.md`.
-- ZNE-593 — Managed Devices app summary formatting is broken. Status: validated in installed `0.2.2`. Evidence: `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-593-managed-devices-formatting-broken-v0.2.1.png`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`.
-- ZNE-592 — managed-load edit/remove button rows open unhelpful more-info dialogs. Status: live_validated_fixed in `0.1.109`. Evidence: `validation/zne-592-clickthrough-workflow-audit.md`, `validation/zne-592-native-clickthrough-feasibility.md`, `validation/0.1.109-release-validation.md`, `docs/BUGS.md`.
-- ZNE-591 — managed-load device overflow lacks configure/delete actions. Status: released_live_validated in `0.1.108`. Evidence: `docs/BUGS.md`, `validation/zne-591-managed-device-edit-remove-actions.md`, `validation/0.1.108-release-validation.md`.
-- ZNE-590 — managed climate device ZNE settings are confusing and do not preserve the original device experience. Status: released_live_validated in `0.1.107`. Evidence: `docs/BUGS.md`, `validation/zne-590-managed-climate-device-page-cleanup.md`, `validation/0.1.107-release-validation.md`.
-- ZNE-589 — remove `ZNE Managed Devices` from the Home Assistant sidebar/menu. Status: released_live_validated in `0.1.106`. Evidence: `validation/zne-589-sidebar-menu-panel-removal.md`, `validation/0.1.106-release-validation.md`.
-- ZNE-588 — Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page. Status: released_live_validated in `0.1.106`. Evidence: `validation/zne-588-bug-only-tier1-cleanup.md`, `validation/0.1.106-release-validation.md`.
-
-## Active Feature Work
-
-- ZNE-FR-011 — Reconciliation Status should feel realtime. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
-- ZNE-FR-012 — Overview console should include Source Power, Battery Power, and Confidence. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
-- ZNE-FR-013 — Overview Readiness should explain errors and resolution steps. Status: released_live_validated in `v0.4.3`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-013-overview-readiness-clarity.md`, `validation/0.4.3-release-validation.md`.
-- ZNE-FR-014 — Overview Readiness should use plain action-oriented messages. Status: released_live_validated in `v0.4.5`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-014-readiness-message-design.md`, `validation/0.4.5-release-validation.md`.
-- ZNE-FR-015 — Managed Devices Fleet Summary layout polish. Status: released_live_validated in `v0.4.9`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-015-016-managed-devices-layout-order.md`, `validation/0.4.9-release-validation.md`.
-- ZNE-FR-016 — Managed Devices page should list unmanaged candidates after managed devices. Status: released_live_validated in `v0.4.9`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-015-016-managed-devices-layout-order.md`, `validation/0.4.9-release-validation.md`.
-- ZNE-FR-017 — Promote unmanaged candidates from Managed Devices. Status: released_live_validated in `v0.4.10`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-017-managed-candidate-promotion.md`, `validation/0.4.10-release-validation.md`.
-- ZNE-FR-018 — Managed Devices Fleet List on/off traffic light. Status: released_live_validated in `v0.4.16`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-018-managed-devices-on-off-traffic-light.md`, `validation/0.4.16-release-validation.md`.
+No project work is currently queued. New progress should be added as a fresh
+roadmap/workboard scope from the next user update.
